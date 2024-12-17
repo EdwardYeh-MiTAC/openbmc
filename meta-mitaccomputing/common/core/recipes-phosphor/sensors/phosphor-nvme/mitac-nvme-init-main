@@ -1,0 +1,31 @@
+#!/bin/bash -e
+# shellcheck source=meta-mitaccomputing/common/meta-common/recipes-mitac/plat-tool/files/mitac-common-functions
+
+LIBPATH=/usr/libexec
+CFGPATH=/etc/nvme
+CFGFN=nvme_config.json
+source $LIBPATH/mitac-common-functions
+
+PLATFORM_ID='DEFAULT'
+get_platform_id PLATFORM_ID
+#PLATFORM_SHORT_ID=${PLATFORM_ID%%-*}
+PLATFORM_SHORT_ID=${PLATFORM_ID::5}
+PLATFORM_FULL_NAME="com.mitac.Hardware.Chassis.Model.$PLATFORM_ID"
+PLATFORM_COMPACT_NAME="com.mitac.Hardware.Chassis.Model.$PLATFORM_SHORT_ID"
+echo "$PLATFORM_FULL_NAME"
+
+if [ -f $CFGPATH/$PLATFORM_FULL_NAME/$CFGFN ]; then
+        echo "Use the config from $CFGPATH/$PLATFORM_FULL_NAME"
+	rm $CFGPATH/$CFGFN
+	ln -s $CFGPATH/$PLATFORM_FULL_NAME/$CFGFN $CFGPATH/$CFGFN
+
+elif [ -f $CFGPATH/$PLATFORM_COMPACT_NAME/$CFGFN ]; then
+        echo "Use the config from $CFGPATH/$PLATFORM_COMPACT_NAME"
+	rm $CFGPATH/$CFGFN
+	ln -s $CFGPATH/$PLATFORM_COMPACT_NAME/$CFGFN $CFGPATH/$CFGFN
+else
+	echo "Can't find configuration for nvme manager."
+	exit -1
+fi
+
+exit 0

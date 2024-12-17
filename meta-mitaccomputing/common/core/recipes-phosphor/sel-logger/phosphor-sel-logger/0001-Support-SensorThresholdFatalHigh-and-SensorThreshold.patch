@@ -1,0 +1,59 @@
+From 37d2e59b1862f5bfbad5c42b7406833b23a84871 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 25 Oct 2024 01:59:50 +0000
+Subject: [PATCH 1/1] Support SensorThresholdFatalHigh and
+ SensorThresholdFatalLow events.
+
+---
+ include/threshold_event_monitor.hpp | 36 +++++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
+
+diff --git a/include/threshold_event_monitor.hpp b/include/threshold_event_monitor.hpp
+index cea25c1..a1a716a 100644
+--- a/include/threshold_event_monitor.hpp
++++ b/include/threshold_event_monitor.hpp
+@@ -276,6 +276,42 @@ inline static sdbusplus::bus::match_t startThresholdAssertMonitor(
+                 redfishMessageID += ".SensorThresholdCriticalHighGoingLow";
+             }
+         }
++        else if (event == "HardShutdownHigh")
++        {
++            threshold = "non recoverable high";
++            if (assert)
++            {
++                eventType = eventErr;
++                direction = "high";
++                redfishMessageID += ".SensorThresholdFatalHighGoingHigh";
++            }
++            else
++            {
++                eventType = eventInfo;
++                direction = "low";
++                redfishMessageID += ".SensorThresholdFatalHighGoingLow";
++            }
++        }
++        else if (event == "HardShutdownLow")
++        {
++            threshold = "non recoverable low";
++            if (assert)
++            {
++                eventType = eventErr;
++                direction = "high";
++                redfishMessageID += ".SensorThresholdFatalHighGoingHigh";
++            }
++            else
++            {
++                eventType = eventInfo;
++                direction = "low";
++                redfishMessageID += ".SensorThresholdFatalHighGoingLow";
++            }
++        }
++	else {
++            std::cerr << "Unsupported Event =  "
++                      << event << "\n";
++	}
+
+         std::string journalMsg(
+             std::string(sensorName) + " " + threshold + " threshold " +
+--
+2.34.1

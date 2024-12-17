@@ -1,0 +1,178 @@
+From 9ce69116d3b612684b5acaf0ad72a52e7440e823 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 18 Oct 2024 05:58:25 +0000
+Subject: [PATCH 1/1] Change ethernet interface for MiTac mainboards.
+
+---
+ arch/arm/dts/ast2600-evb.dts | 119 +----------------------------------
+ 1 file changed, 2 insertions(+), 117 deletions(-)
+
+diff --git a/arch/arm/dts/ast2600-evb.dts b/arch/arm/dts/ast2600-evb.dts
+index 6db1efdda5..ee6631e157 100644
+--- a/arch/arm/dts/ast2600-evb.dts
++++ b/arch/arm/dts/ast2600-evb.dts
+@@ -3,7 +3,7 @@
+ #include "ast2600-u-boot.dtsi"
+
+ / {
+-	model = "AST2600 EVB";
++	model = "AST2600 BASE";
+	compatible = "aspeed,ast2600-evb", "aspeed,ast2600";
+
+	memory {
+@@ -21,9 +21,6 @@
+		mmc2 = &sdhci_slot1;
+		spi0 = &fmc;
+		spi1 = &spi1;
+-		spi2 = &spi2;
+-		ethernet0 = &mac0;
+-		ethernet1 = &mac1;
+		ethernet2 = &mac2;
+		ethernet3 = &mac3;
+	};
+@@ -62,17 +59,9 @@
+ &mdio {
+	status = "okay";
+	pinctrl-names = "default";
+-	pinctrl-0 = <	&pinctrl_mdio1_default &pinctrl_mdio2_default
+-			&pinctrl_mdio3_default &pinctrl_mdio4_default>;
++	pinctrl-0 = <&pinctrl_mdio3_default &pinctrl_mdio4_default>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+-	ethphy0: ethernet-phy@0 {
+-		reg = <0>;
+-	};
+-
+-	ethphy1: ethernet-phy@1 {
+-		reg = <0>;
+-	};
+
+	ethphy2: ethernet-phy@2 {
+		reg = <0>;
+@@ -83,22 +72,6 @@
+	};
+ };
+
+-&mac0 {
+-	status = "okay";
+-	phy-mode = "rgmii-rxid";
+-	phy-handle = <&ethphy0>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_rgmii1_default>;
+-};
+-
+-&mac1 {
+-	status = "okay";
+-	phy-mode = "rgmii-rxid";
+-	phy-handle = <&ethphy1>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_rgmii2_default>;
+-};
+-
+ &mac2 {
+	status = "okay";
+	phy-mode = "rgmii";
+@@ -127,20 +100,6 @@
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+	};
+-
+-	flash@1 {
+-		status = "okay";
+-		spi-max-frequency = <50000000>;
+-		spi-tx-bus-width = <4>;
+-		spi-rx-bus-width = <4>;
+-	};
+-
+-	flash@2 {
+-		status = "disabled";
+-		spi-max-frequency = <50000000>;
+-		spi-tx-bus-width = <4>;
+-		spi-rx-bus-width = <4>;
+-	};
+ };
+
+ &spi1 {
+@@ -157,80 +116,6 @@
+		spi-tx-bus-width = <4>;
+		spi-rx-bus-width = <4>;
+	};
+-
+-	flash@1 {
+-		status = "disabled";
+-		spi-max-frequency = <50000000>;
+-		spi-tx-bus-width = <4>;
+-		spi-rx-bus-width = <4>;
+-	};
+-};
+-
+-&spi2 {
+-	status = "okay";
+-
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_spi2_default &pinctrl_spi2cs1_default
+-			&pinctrl_spi2cs2_default &pinctrl_spi2quad_default>;
+-
+-	flash@0 {
+-		status = "okay";
+-		spi-max-frequency = <50000000>;
+-		spi-tx-bus-width = <4>;
+-		spi-rx-bus-width = <4>;
+-	};
+-
+-	flash@1 {
+-		status = "disabled";
+-		spi-max-frequency = <50000000>;
+-		spi-tx-bus-width = <4>;
+-		spi-rx-bus-width = <4>;
+-	};
+-
+-	flash@2 {
+-		status = "disabled";
+-		spi-max-frequency = <50000000>;
+-		spi-tx-bus-width = <4>;
+-		spi-rx-bus-width = <4>;
+-	};
+-};
+-
+-&emmc {
+-	u-boot,dm-pre-reloc;
+-	timing-phase = <0x000f0097>;
+-};
+-
+-&emmc_slot0 {
+-	u-boot,dm-pre-reloc;
+-	status = "okay";
+-	bus-width = <4>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_emmc_default>;
+-	sdhci-drive-type = <1>;
+-};
+-
+-&sdhci {
+-	timing-phase = <0x00c6375f>;
+-};
+-
+-&sdhci_slot0 {
+-	status = "okay";
+-	bus-width = <4>;
+-	pwr-gpios = <&gpio0 ASPEED_GPIO(V, 0) GPIO_ACTIVE_HIGH>;
+-	pwr-sw-gpios = <&gpio0 ASPEED_GPIO(V, 1) GPIO_ACTIVE_HIGH>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_sd1_default>;
+-	sdhci-drive-type = <1>;
+-};
+-
+-&sdhci_slot1 {
+-	status = "okay";
+-	bus-width = <4>;
+-	pwr-gpios = <&gpio0 ASPEED_GPIO(V, 2) GPIO_ACTIVE_HIGH>;
+-	pwr-sw-gpios = <&gpio0 ASPEED_GPIO(V, 3) GPIO_ACTIVE_HIGH>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_sd2_default>;
+-	sdhci-drive-type = <1>;
+ };
+
+ &i2c4 {
+--
+2.34.1

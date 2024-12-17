@@ -1,0 +1,187 @@
+#!/bin/bash -e
+LIBPATH=/usr/libexec
+source $LIBPATH/mitac-common-functions
+
+#Note: Convert product name to lower case to follow dtb converntion.
+PRODUCT_NAME=S8261GM2NE-2T
+PRODUCT_NAME="${PRODUCT_NAME,,}"
+#PRODUCT_SHORT_NAME="${PRODUCT_NAME%%-*}"
+PRODUCT_SHORT_NAME="${PRODUCT_NAME::5}"
+
+VER=0.0.1
+PROFILE_ID=$PRODUCT_SHORT_NAME-$VER
+
+DO_REBOOT=0
+
+refresh-uboot-arg () {
+	set +e
+	#$1: ARG NAME
+	#$2: Expectation
+        current=`fw_printenv $1 -n`
+        if [ "$current" != "$2" ]; then
+                echo "Updating $1"
+                fw_setenv $1 $2
+                echo "Current $1: <$current>"
+                echo "New $1: <$2>"
+		DO_REBOOT=1
+        else
+                echo "No need to update $1."
+        fi
+	set -e
+}
+
+init-uboot() {
+        echo "mainboard-init-functions: init-uboot ($VER)"
+        BOOTCMD="mw.l 0x1e6e251c 00001d00; run bootspi"
+	refresh-uboot-arg bootcmd "$BOOTCMD"
+
+	#FDFFILE="conf-aspeed-bmc-mitac-${PRODUCT_SHORT_NAME,,}.dtb"
+	FDFFILE="conf-aspeed-bmc-mitac-${PRODUCT_SHORT_NAME,,}.dtb"
+	refresh-uboot-arg fdtfile "$FDFFILE"
+
+	# To make booting with selected DTB configuration.
+	# To avoid bmc hung at u-boot due to incorrect config from upgrade and downgrade of firmware, default option is mandatory.
+	BOOTSPI="fdt addr 20100000 && fdt header get fitsize totalsize && cp.b 20100000 \${loadaddr} \${fitsize} && bootm \${loadaddr}#\${fdtfile}; echo Booting with default DTB; bootm; echo Error loading kernel FIT image"
+	refresh-uboot-arg bootspi "$BOOTSPI"
+
+	echo "Update MAC Address if necessary."
+        get_mac_addr_from_fru 0 MACADDR0
+        if [ $? == 0 ]; then
+		echo "Update eth2addr"
+                refresh-uboot-arg eth2addr "$MACADDR0"
+        fi
+        get_mac_addr_from_fru 1 MACADDR1
+        if [ $? == 0 ]; then
+		echo "Update eth3addr"
+                refresh-uboot-arg eth3addr "$MACADDR1"
+        fi
+
+	if [ "$DO_REBOOT" == 1 ]; then
+		echo "Reboot as args changed."
+                fw_setenv profile "$PROFILE_ID"
+		reboot
+	fi
+}
+
+init-kernel() {
+	echo "mainboard-init-functions: init-kernel ($VER)"
+}
+
+init-i2c0() {
+	BUS=i2c-0
+	NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+
+	echo "M8261 Devices"
+	#echo "Init ??"
+	#echo "?? 0x48" > $NEW_DEV
+	echo "Init U48"
+	echo "pca9546 0x70" > $NEW_DEV
+	echo "Init U110"
+	echo "pca9546 0x71" > $NEW_DEV
+	echo "Init U52"
+	echo "pca9546 0x76" > $NEW_DEV
+}
+
+init-i2c2() {
+	BUS=i2c-2
+	NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+
+	echo "M8261 Devices"
+	echo "Init ??"
+	echo "pca9546 0x70" > $NEW_DEV
+}
+
+init-i2c6() {
+	I2CID=6
+	BUS=i2c-$I2CID
+	NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+
+
+	echo "M8261 Devices"
+	#echo "Init ??"
+	#echo "?? 0x4c" > $NEW_DEV
+	echo "Init U17101"
+	echo "pca9546 0x71" > $NEW_DEV
+
+
+	echo "IO Board Devices"
+	echo "Init U17103"
+	echo "pca9546 0x70" > $NEW_DEV
+
+
+	NEW_DEV_X550=/sys/bus/i2c/devices/6-0070/channel-0/new_device
+	echo "Init U44"
+	echo "tmp411 0x4c" > $NEW_DEV_X550
+
+}
+
+init-i2c8() {
+	BUS=i2c-8
+	NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+
+	echo "M8261 Devices"
+	echo "Init U95"
+	echo "pca9534 0x38" > $NEW_DEV
+	echo "Init U94"
+	echo "pca9538 0x71" > $NEW_DEV
+	echo "Init U1_LDL"
+	echo "pca9539 0x74" > $NEW_DEV
+	echo "Init U2_LDL"
+	echo "pca9539 0x75" > $NEW_DEV
+	echo "Init U3_LDL"
+	echo "pca9539 0x76" > $NEW_DEV
+	echo "Init U4_LDL"
+	echo "pca9539 0x77" > $NEW_DEV
+
+
+	echo "IO Board Devices"
+	echo "24c02 0x51" > $NEW_DEV
+	echo "tmp75 0x4b" > $NEW_DEV
+
+}
+
+init-i2c14() {
+	BUS=i2c-14
+	NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+
+	echo "M8261 Assets"
+	echo "Init U40"
+	echo "nct7904 0x2e" > $NEW_DEV
+}
+
+init-bpe0() {
+	NEW_DEV=/sys/bus/i2c/devices/i2c-7/new_device
+	echo "pca9546 0x70" > $NEW_DEV
+	NEW_DEV=/sys/bus/i2c/devices/i2c-6/new_device
+	echo "pca9546 0x76" > $NEW_DEV
+}
+
+init-bpe1() {
+	NEW_DEV=/sys/bus/i2c/devices/i2c-0/new_device
+	echo "pca9546 0x70" > $NEW_DEV
+	NEW_DEV=/sys/bus/i2c/devices/i2c-0/new_device
+	echo "pca9546 0x76" > $NEW_DEV
+}
+
+init-bpe2() {
+	NEW_DEV=/sys/bus/i2c/devices/i2c-6/new_device
+	echo "pca9546 0x77" > $NEW_DEV
+	NEW_DEV=/sys/bus/i2c/devices/i2c-7/new_device
+	echo "pca9546 0x76" > $NEW_DEV
+}
+
+init-peripheral() {
+	echo "mainboard-init-functions: init-peripheral ($VER)"
+	# init-i2c0
+	init-i2c2
+	#init-i2c6
+	#init-i2c8
+	#init-i2c14
+	init-bpe0
+	init-bpe1
+	init-bpe2
+}
+
+init-service() {
+	echo "mainboard-init-functions: init-service ($VER)"
+}

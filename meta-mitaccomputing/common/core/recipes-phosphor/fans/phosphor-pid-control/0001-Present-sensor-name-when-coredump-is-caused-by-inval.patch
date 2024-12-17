@@ -1,0 +1,41 @@
+From 166a5211b345dfb7b535c88db2bf57e52d69a3b1 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 22 Nov 2024 06:17:39 +0000
+Subject: [PATCH 1/2] Present sensor name when coredump is caused by invalid
+ sensor configuration.
+
+---
+ sensors/manager.hpp | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/sensors/manager.hpp b/sensors/manager.hpp
+index e02e1c9..85904e5 100644
+--- a/sensors/manager.hpp
++++ b/sensors/manager.hpp
+@@ -9,6 +9,7 @@
+ #include <memory>
+ #include <string>
+ #include <vector>
++#include <iostream>
+
+ namespace pid_control
+ {
+@@ -42,7 +43,15 @@ class SensorManager
+     // TODO(venture): Should implement read/write by name.
+     Sensor* getSensor(const std::string& name) const
+     {
+-        return _sensorMap.at(name).get();
++        try
++        {
++            return _sensorMap.at(name).get();
++        }
++        catch(const std::out_of_range& ex)
++        {
++            std::cerr << "Exception: out_of_range::" << ex.what() << " (sensor name: " << name << ")\n";
++            return NULL;
++        }
+     }
+
+     sdbusplus::bus_t& getPassiveBus(void)
+--
+2.34.1

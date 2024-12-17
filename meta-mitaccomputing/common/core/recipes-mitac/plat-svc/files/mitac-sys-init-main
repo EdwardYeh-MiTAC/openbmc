@@ -1,0 +1,77 @@
+#!/bin/bash -e
+# shellcheck source=meta-mitaccomputing/common/meta-common/recipes-mitac/plat-tool/files/mitac-common-functions
+LIBPATH=/usr/libexec
+source $LIBPATH/mitac-common-functions
+
+power_on_led_init() {
+    systemctl start obmc-led-group-start@power_on.service
+}
+
+# set initial value for GPIO output pins
+
+PLATFORM_ID='DEFAULT'
+get_platform_id PLATFORM_ID
+#PLATFORM_SHORT_ID=${PLATFORM_ID%%-*}
+PLATFORM_SHORT_ID=${PLATFORM_ID::5}
+PLATFORM_FULL_NAME="com.mitac.Hardware.Chassis.Model.$PLATFORM_ID"
+PLATFORM_COMPACT_NAME="com.mitac.Hardware.Chassis.Model.$PLATFORM_SHORT_ID"
+
+BOOT_FAN_PWM=30
+
+# Set default pwm for cooling
+set +e
+echo $BOOT_FAN_PWM > /sys/devices/platform/pwm-fan0/hwmon/hwmon1/pwm1
+echo $BOOT_FAN_PWM > /sys/devices/platform/pwm-fan1/hwmon/hwmon2/pwm1
+echo $BOOT_FAN_PWM > /sys/devices/platform/pwm-fan2/hwmon/hwmon3/pwm1
+echo $BOOT_FAN_PWM > /sys/devices/platform/pwm-fan3/hwmon/hwmon4/pwm1
+echo $BOOT_FAN_PWM > /sys/devices/platform/pwm-fan4/hwmon/hwmon5/pwm1
+echo $BOOT_FAN_PWM > /sys/devices/platform/pwm-fan5/hwmon/hwmon6/pwm1
+set -e
+
+if [ -d $LIBPATH/$PLATFORM_FULL_NAME ]; then
+	echo "Use platform config from $LIBPATH/$PLATFORM_FULL_NAME"
+	MAINBOARD_LIB=$LIBPATH/$PLATFORM_FULL_NAME/mainboard-init-functions
+	if [ -f $MAINBOARD_LIB ]; then
+		source $MAINBOARD_LIB
+		echo "Call init-uboot"
+		init-uboot
+		echo "Init kernel"
+		init-kernel
+		echo "Init peripherial"
+		init-peripheral
+		echo "Init service"
+		init-service
+	else
+		echo "Can't find mainboard-init-functions"
+		exit 1
+	fi
+
+elif [ -d $LIBPATH/$PLATFORM_COMPACT_NAME ]; then
+	echo "Use platform config from $LIBPATH/$PLATFORM_COMPACT_NAME"
+	MAINBOARD_LIB=$LIBPATH/$PLATFORM_COMPACT_NAME/mainboard-init-functions
+	if [ -f $MAINBOARD_LIB ]; then
+		source $MAINBOARD_LIB
+		echo "Call init-uboot"
+		init-uboot
+		echo "Init kernel"
+		init-kernel
+		echo "Init peripherial"
+		init-peripheral
+		echo "Init service"
+		init-service
+	else
+		echo "Can't find mainboard-init-functions"
+		exit 1
+	fi
+
+else
+	echo "Can't find platform folder from either $LIBPATH/$PLATFORM_COMPACT_NAME or $LIBPATH/$PLATFORM_FULL_NAME."
+	exit 1
+fi
+
+echo "Notify CPLD that BMC is ready."
+set_gpio bmc-ready 0
+
+power_on_led_init
+
+exit 0

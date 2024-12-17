@@ -1,0 +1,357 @@
+{
+  "Exposes": [
+    {
+      "Address": "0x50",
+      "Bus": 1,
+      "Name": "Baseboard FRU",
+      "Type": "EEPROM"
+    },
+    {
+      "Address": "0x4B",
+      "Bus": 8,
+      "Name": "Outlet_Temp",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 40
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 38
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 8,
+      "Name": "P12V",
+      "PowerState": "On",
+      "ScaleFactor": 0.1124,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 14.333
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.32
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 13.2
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 10.8
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 10.68
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 10.091
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 9,
+      "Name": "P12V_AUX",
+      "ScaleFactor": 0.1124,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 14.333
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.32
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 13.2
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 10.8
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 10.68
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 10.091
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 10,
+      "Name": "P5V",
+      "PowerState": "On",
+      "ScaleFactor": 0.4112554113,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 5.65
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 5.55
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 5.5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 4.5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 4.45
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 4.15
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 12,
+      "Name": "P3V3_AUX",
+      "ScaleFactor": 0.4107,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 3.729
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 3.564
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 3.531
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 3.069
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 3.036
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 2.739
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 13,
+      "Name": "P1V8_BMC_AUX",
+      "ScaleFactor": 1,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1.944
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1.926
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1.674
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1.656
+        }
+      ],
+      "Type": "ADC"
+    },
+            {
+            "LED": "fan1_fault",
+            "Name": "1U System Fan connector 1",
+            "Pwm": 0,
+            "Status": "disabled",
+            "Tachs": [
+                0,
+                1
+            ],
+            "Type": "IntelFanConnector"
+        },
+        {
+            "LED": "fan2_fault",
+            "Name": "1U System Fan connector 2",
+            "Pwm": 1,
+            "Status": "disabled",
+            "Tachs": [
+                2,
+                3
+            ],
+            "Type": "IntelFanConnector"
+        },
+        {
+            "LED": "fan3_fault",
+            "Name": "1U System Fan connector 3",
+            "Pwm": 2,
+            "Status": "disabled",
+            "Tachs": [
+                4,
+                5
+            ],
+            "Type": "IntelFanConnector"
+        },
+        {
+            "LED": "fan4_fault",
+            "Name": "1U System Fan connector 4",
+            "Pwm": 3,
+            "Status": "disabled",
+            "Tachs": [
+                6,
+                7
+            ],
+            "Type": "IntelFanConnector"
+        },
+        {
+            "LED": "fan5_fault",
+            "Name": "1U System Fan connector 5",
+            "Pwm": 4,
+            "Status": "disabled",
+            "Tachs": [
+                8,
+                9
+            ],
+            "Type": "IntelFanConnector"
+        },
+        {
+            "LED": "fan6_fault",
+            "Name": "1U System Fan connector 6",
+            "Pwm": 5,
+            "Status": "disabled",
+            "Tachs": [
+                10,
+                11
+            ],
+            "Type": "IntelFanConnector"
+        }
+  ],
+  "xyz.openbmc_project.Inventory.Decorator.Ipmi": {
+    "EntityId": 7,
+    "EntityInstance": 0
+  },
+  "Name": "Mitac S8261 Baseboard",
+  "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'S8261*'})",
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "Model": "$BOARD_PRODUCT_NAME",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.AssetTag": {
+    "AssetTag": "$PRODUCT_ASSET_TAG"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Compatible": {
+    "Names": [
+      "com.mitac.Hardware.Chassis.Model.S8261"
+    ]
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "$PRODUCT_VERSION"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.I2CDevice": {
+    "Address": "$ADDRESS",
+    "Bus": "$BUS"
+  },
+  "xyz.openbmc_project.Inventory.Item.System": {}
+}

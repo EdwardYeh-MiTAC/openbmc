@@ -1,0 +1,108 @@
+{
+  "config": [
+    {
+      "NVMeDriveIndex": 0,
+      "NVMeDriveBusID": 36
+    },
+    {
+      "NVMeDriveIndex": 1,
+      "NVMeDriveBusID": 37
+    },
+    {
+      "NVMeDriveIndex": 2,
+      "NVMeDriveBusID": 38
+    },
+    {
+      "NVMeDriveIndex": 3,
+      "NVMeDriveBusID": 39
+    },
+    {
+      "NVMeDriveIndex": 4,
+      "NVMeDriveBusID": 40
+    },
+    {
+      "NVMeDriveIndex": 5,
+      "NVMeDriveBusID": 41
+    },
+    {
+      "NVMeDriveIndex": 6,
+      "NVMeDriveBusID": 42
+    },
+    {
+      "NVMeDriveIndex": 7,
+      "NVMeDriveBusID": 43
+    },
+    {
+      "NVMeDriveIndex": 8,
+      "NVMeDriveBusID": 44
+    },
+    {
+      "NVMeDriveIndex": 9,
+      "NVMeDriveBusID": 45
+    },
+    {
+      "NVMeDriveIndex": 10,
+      "NVMeDriveBusID": 46
+    },
+    {
+      "NVMeDriveIndex": 11,
+      "NVMeDriveBusID": 47
+    },
+    {
+      "NVMeDriveIndex": 14,
+      "NVMeDriveBusID": 48
+    },
+    {
+      "NVMeDriveIndex": 15,
+      "NVMeDriveBusID": 49
+    },
+    {
+      "NVMeDriveIndex": 12,
+      "NVMeDriveBusID": 50
+    },
+    {
+      "NVMeDriveIndex": 13,
+      "NVMeDriveBusID": 51
+    },
+    {
+      "NVMeDriveIndex": 16,
+      "NVMeDriveBusID": 52
+    },
+    {
+      "NVMeDriveIndex": 17,
+      "NVMeDriveBusID": 53
+    },
+    {
+      "NVMeDriveIndex": 18,
+      "NVMeDriveBusID": 54
+    },
+    {
+      "NVMeDriveIndex": 19,
+      "NVMeDriveBusID": 55
+    },
+    {
+      "NVMeDriveIndex": 22,
+      "NVMeDriveBusID": 56
+    },
+    {
+      "NVMeDriveIndex": 23,
+      "NVMeDriveBusID": 57
+    },
+    {
+      "NVMeDriveIndex": 20,
+      "NVMeDriveBusID": 58
+    },
+    {
+      "NVMeDriveIndex": 21,
+      "NVMeDriveBusID": 59
+    }
+  ],
+  "threshold": [
+    {
+      "criticalHigh": 75,
+      "criticalLow": 0,
+      "maxValue": 127,
+      "minValue": -127
+    }
+  ]
+}

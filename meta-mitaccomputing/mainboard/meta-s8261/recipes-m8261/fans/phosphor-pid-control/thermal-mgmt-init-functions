@@ -1,0 +1,7 @@
+init-phosphor-pid-control() {
+        CFG_FILE=/usr/libexec/com.mitac.Hardware.Chassis.Model.S8261/phosphor-pid-control.json
+        echo "thermal-mgmt-init-functions: init-phosphor-pid-control"
+        rm /usr/share/swampd/config.json
+        echo "Create symbolic link from $CFG_FILE to /usr/share/swampd/config.json"
+        ln -s $CFG_FILE /usr/share/swampd/config.json
+}

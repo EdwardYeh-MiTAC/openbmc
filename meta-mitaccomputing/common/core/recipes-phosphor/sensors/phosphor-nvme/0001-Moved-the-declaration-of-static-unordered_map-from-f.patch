@@ -1,0 +1,41 @@
+From 90803792f45ccf99bdd0a5460cfc9e2e70cc345e Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 4 Nov 2024 14:51:34 +0000
+Subject: [PATCH 1/1] Moved the declaration of static unordered_map from
+ function to as private member of the class to avoid the core dump issue.
+
+---
+ nvme_manager.cpp | 3 ---
+ nvme_manager.hpp | 3 +++
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/nvme_manager.cpp b/nvme_manager.cpp
+index 26d7b30..859eabc 100644
+--- a/nvme_manager.cpp
++++ b/nvme_manager.cpp
+@@ -65,9 +65,6 @@ void Nvme::setNvmeInventoryProperties(
+     const phosphor::nvme::Nvme::NVMeData& nvmeData,
+     const std::string& inventoryPath)
+ {
+-    static std::unordered_map<int, std::string> preSerial;
+-    static std::unordered_map<int, std::string> preSmartWarning;
+-    static std::unordered_map<int, std::string> preStatusFlags;
+
+     if (preSerial[config.busID].compare(nvmeData.serialNumber) != 0)
+     {
+diff --git a/nvme_manager.hpp b/nvme_manager.hpp
+index 2bd13a5..96e249b 100644
+--- a/nvme_manager.hpp
++++ b/nvme_manager.hpp
+@@ -163,6 +163,9 @@ class Nvme
+     uint16_t maxSmbusErrorRetry;
+     /** @brief Map of each NVMe smbus error count */
+     std::unordered_map<int, uint16_t> nvmeSmbusErrCnt;
++    std::unordered_map<int, std::string> preSerial;
++    std::unordered_map<int, std::string> preSmartWarning;
++    std::unordered_map<int, std::string> preStatusFlags;
+ };
+ } // namespace nvme
+ } // namespace phosphor
+--
+2.34.1

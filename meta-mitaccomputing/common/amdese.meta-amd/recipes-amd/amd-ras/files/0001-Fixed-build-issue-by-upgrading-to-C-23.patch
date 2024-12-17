@@ -1,0 +1,24 @@
+From 532dc8220f14db40f6e0af621c39aa6fa2320fcc Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 12 Nov 2024 03:29:49 +0000
+Subject: [PATCH 1/1] Fixed build issue by upgrading to C++23.
+
+---
+ meson.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meson.build b/meson.build
+index 0b4e21b..42e0945 100644
+--- a/meson.build
++++ b/meson.build
+@@ -4,7 +4,7 @@ project(
+   default_options: [
+     'warning_level=3',
+     'werror=true',
+-    'cpp_std=c++17'
++    'cpp_std=c++23'
+   ],
+   license: 'Apache-2.0',
+   version: '1.0',
+--
+2.34.1

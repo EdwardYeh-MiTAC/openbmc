@@ -1,0 +1,127 @@
+From 458d60f487450258e7c19f5fc8a6d2090a09d606 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 25 Oct 2024 01:39:04 +0000
+Subject: [PATCH 1/1] Support SensorThresholdFatalHigh and
+ SensorThresholdFatalLow events.
+
+---
+ redfish-core/include/registries/openbmc.json  | 36 ++++++++++++
+ .../registries/openbmc_message_registry.hpp   | 56 +++++++++++++++++++
+ 2 files changed, 92 insertions(+)
+
+diff --git a/redfish-core/include/registries/openbmc.json b/redfish-core/include/registries/openbmc.json
+index 885fef46..44b86687 100644
+--- a/redfish-core/include/registries/openbmc.json
++++ b/redfish-core/include/registries/openbmc.json
+@@ -1517,6 +1517,42 @@
+             "Resolution": "Check the sensor or subsystem for errors.",
+             "Severity": "Critical"
+         },
++        "SensorThresholdFatalHighGoingHigh": {
++            "Description": "Indicates that a threshold sensor has crossed a fatal high threshold going high.",
++            "Message": "%1 sensor crossed a fatal high threshold going high. Reading=%2 Threshold=%3.",
++            "MessageSeverity": "Fatal",
++            "NumberOfArgs": 3,
++            "ParamTypes": ["string", "number", "number"],
++            "Resolution": "Check the sensor or subsystem for errors.",
++            "Severity": "Fatal"
++        },
++        "SensorThresholdFatalHighGoingLow": {
++            "Description": "Indicates that a threshold sensor has crossed a fatal high threshold going low.",
++            "Message": "%1 sensor crossed a fatal high threshold going low. Reading=%2 Threshold=%3.",
++            "MessageSeverity": "OK",
++            "NumberOfArgs": 3,
++            "ParamTypes": ["string", "number", "number"],
++            "Resolution": "None.",
++            "Severity": "OK"
++        },
++        "SensorThresholdFatalLowGoingHigh": {
++            "Description": "Indicates that a threshold sensor has crossed a fatal low threshold going high.",
++            "Message": "%1 sensor crossed a fatal low threshold going high. Reading=%2 Threshold=%3.",
++            "MessageSeverity": "OK",
++            "NumberOfArgs": 3,
++            "ParamTypes": ["string", "number", "number"],
++            "Resolution": "None.",
++            "Severity": "OK"
++        },
++        "SensorThresholdFatalLowGoingLow": {
++            "Description": "Indicates that a threshold sensor has crossed a fatal low threshold going low.",
++            "Message": "%1 sensor crossed a fatal low threshold going low. Reading=%2 Threshold=%3.",
++            "MessageSeverity": "Fatal",
++            "NumberOfArgs": 3,
++            "ParamTypes": ["string", "number", "number"],
++            "Resolution": "Check the sensor or subsystem for errors.",
++            "Severity": "Fatal"
++        },
+         "SensorThresholdWarningHighGoingHigh": {
+             "Description": "Indicates that a threshold sensor has crossed a warning high threshold going high.",
+             "Message": "%1 sensor crossed a warning high threshold going high. Reading=%2 Threshold=%3.",
+diff --git a/redfish-core/include/registries/openbmc_message_registry.hpp b/redfish-core/include/registries/openbmc_message_registry.hpp
+index 35625042..68d2448a 100644
+--- a/redfish-core/include/registries/openbmc_message_registry.hpp
++++ b/redfish-core/include/registries/openbmc_message_registry.hpp
+@@ -2132,6 +2132,62 @@ constexpr std::array registry =
+             },
+             "Check the sensor or subsystem for errors.",
+         }},
++    MessageEntry{
++        "SensorThresholdFatalHighGoingHigh",
++        {
++            "Indicates that a threshold sensor has crossed a fatal high threshold going high.",
++            "%1 sensor crossed a fatal high threshold going high. Reading=%2 Threshold=%3.",
++            "Fatal",
++            3,
++            {
++                "string",
++                "number",
++                "number",
++            },
++            "Check the sensor or subsystem for errors.",
++        }},
++    MessageEntry{
++        "SensorThresholdFatalHighGoingLow",
++        {
++            "Indicates that a threshold sensor has crossed a fatal high threshold going low.",
++            "%1 sensor crossed a fatal high threshold going low. Reading=%2 Threshold=%3.",
++            "OK",
++            3,
++            {
++                "string",
++                "number",
++                "number",
++            },
++            "None.",
++        }},
++    MessageEntry{
++        "SensorThresholdFatalLowGoingHigh",
++        {
++            "Indicates that a threshold sensor has crossed a fatal low threshold going high.",
++            "%1 sensor crossed a fatal low threshold going high. Reading=%2 Threshold=%3.",
++            "OK",
++            3,
++            {
++                "string",
++                "number",
++                "number",
++            },
++            "None.",
++        }},
++    MessageEntry{
++        "SensorThresholdFatalLowGoingLow",
++        {
++            "Indicates that a threshold sensor has crossed a fatal low threshold going low.",
++            "%1 sensor crossed a fatal low threshold going low. Reading=%2 Threshold=%3.",
++            "Fatal",
++            3,
++            {
++                "string",
++                "number",
++                "number",
++            },
++            "Check the sensor or subsystem for errors.",
++        }},
+     MessageEntry{
+         "SensorThresholdWarningHighGoingHigh",
+         {
+--
+2.34.1

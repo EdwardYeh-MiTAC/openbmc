@@ -1,0 +1,131 @@
+From 38bc50d1f4528356bc9881209a96bb6e0cbd53c2 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 25 Oct 2024 03:32:08 +0000
+Subject: [PATCH 1/1] Experimental patch to support Fatal event.
+
+---
+ src/components/AppHeader/AppHeader.vue      |  2 ++
+ src/components/Mixins/DataFormatterMixin.js |  2 ++
+ src/components/Mixins/TableSortMixin.js     |  2 +-
+ src/locales/en-US.json                      |  5 +++-
+ src/store/modules/Logs/EventLogStore.js     | 28 ++++++++++++++++++---
+ 5 files changed, 34 insertions(+), 5 deletions(-)
+
+diff --git a/src/components/AppHeader/AppHeader.vue b/src/components/AppHeader/AppHeader.vue
+index 76c96c0..b15edd2 100644
+--- a/src/components/AppHeader/AppHeader.vue
++++ b/src/components/AppHeader/AppHeader.vue
+@@ -188,6 +188,8 @@ export default {
+           return 'warning';
+         case 'Critical':
+           return 'danger';
++        case 'Fatal':
++          return 'danger';
+         default:
+           return 'secondary';
+       }
+diff --git a/src/components/Mixins/DataFormatterMixin.js b/src/components/Mixins/DataFormatterMixin.js
+index 5ce7932..548decf 100644
+--- a/src/components/Mixins/DataFormatterMixin.js
++++ b/src/components/Mixins/DataFormatterMixin.js
+@@ -17,6 +17,8 @@ const DataFormatterMixin = {
+           return 'warning';
+         case 'Critical':
+           return 'danger';
++        case 'Fatal':
++          return 'danger';
+         default:
+           return '';
+       }
+diff --git a/src/components/Mixins/TableSortMixin.js b/src/components/Mixins/TableSortMixin.js
+index c099735..3488f0a 100644
+--- a/src/components/Mixins/TableSortMixin.js
++++ b/src/components/Mixins/TableSortMixin.js
+@@ -1,4 +1,4 @@
+-const STATUS = ['OK', 'Warning', 'Critical'];
++const STATUS = ['OK', 'Warning', 'Critical', 'Fatal'];
+
+ const TableSortMixin = {
+   methods: {
+diff --git a/src/locales/en-US.json b/src/locales/en-US.json
+index 8ba7ac9..87128d7 100644
+--- a/src/locales/en-US.json
++++ b/src/locales/en-US.json
+@@ -23,7 +23,8 @@
+             "selected": "Selected",
+             "ok": "OK",
+             "warning": "Warning",
+-            "critical": "Critical"
++            "critical": "Critical",
++            "fatal": "Fatal"
+         },
+         "ariaLabel": {
+             "clearSearch": "Clear search input",
+@@ -850,10 +851,12 @@
+             "currentValue": "Current value",
+             "lowerWarning": "Lower warning",
+             "lowerCritical": "Lower critical",
++            "lowerFatal": "Lower fatal",
+             "name": "Name",
+             "status": "Status",
+             "upperWarning": "Upper warning",
+             "upperCritical": "Upper critical"
++            "upperFatal": "Upper fatal"
+         }
+     },
+     "pageSerialOverLan": {
+diff --git a/src/store/modules/Logs/EventLogStore.js b/src/store/modules/Logs/EventLogStore.js
+index e67da39..b0d3ab3 100644
+--- a/src/store/modules/Logs/EventLogStore.js
++++ b/src/store/modules/Logs/EventLogStore.js
+@@ -2,23 +2,45 @@ import api, { getResponseCount } from '@/store/api';
+ import i18n from '@/i18n';
+
+ const getHealthStatus = (events, loadedEvents) => {
++  const SeverityId = {
++    Ok: 0,
++    Warning: 1,
++    Critical: 2,
++    Fatal: 3,
++  };
+   let status = loadedEvents ? 'OK' : '';
++  let sys_severity = SeverityId.Ok;
+   for (const event of events) {
+     if (event.filterByStatus === 'Unresolved') {
+-      if (event.severity === 'Warning') {
+-        status = 'Warning';
++      if (event.severity === 'Warning' && SeverityId.Warning > sys_severity) {
++        sys_severity = SeverityId.Warning;
++      }
++      if (event.severity === 'Critical' && SeverityId.Critical > sys_severity) {
++        sys_severity = SeverityId.Critical;
+       }
+       if (event.severity === 'Critical') {
+-        status = 'Critical';
++        sys_severity = SeverityId.Fatal;
+         break;
+       }
+     }
+   }
++  switch (sys_severity) {
++    case SeverityId.Warning:
++      status = 'Warning';
++      break;
++    case SeverityId.Critical:
++      status = 'Critical';
++      break;
++    case SeverityId.Fatal:
++      status = 'Fatal';
++      break;
++  }
+   return status;
+ };
+
+ // TODO: High priority events should also check if Log
+ // is resolved when the property is available in Redfish
++// TODO: How about Fatal?
+ const getHighPriorityEvents = (events) =>
+   events.filter(({ severity }) => severity === 'Critical');
+
+--
+2.34.1

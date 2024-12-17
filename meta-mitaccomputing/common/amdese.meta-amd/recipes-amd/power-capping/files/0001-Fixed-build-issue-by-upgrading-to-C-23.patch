@@ -1,0 +1,38 @@
+From 54e37b59d3ac0686aef09274b5225b4d9627d5d8 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 12 Nov 2024 03:32:40 +0000
+Subject: [PATCH 1/1] Fixed build issue by upgrading to C++23.
+
+---
+ CMakeLists.txt    | 2 +-
+ src/power_cap.cpp | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a6da54d..461d7d2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -5,7 +5,7 @@ option (
+     "Enable power capping logs"
+     OFF
+ )
+-set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD 23)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+diff --git a/src/power_cap.cpp b/src/power_cap.cpp
+index 70a9289..6856fb2 100644
+--- a/src/power_cap.cpp
++++ b/src/power_cap.cpp
+@@ -185,7 +185,7 @@ bool PowerCap::get_num_of_proc()
+     // variable board_id.
+     pf = popen(COMMAND_NUM_OF_CPU,"r");
+
+-    if(pf > 0)
++    if(pf != NULL)
+     {   // no error
+         if (fgets(data, COMMAND_LEN , pf) != NULL)
+         {
+--
+2.34.1

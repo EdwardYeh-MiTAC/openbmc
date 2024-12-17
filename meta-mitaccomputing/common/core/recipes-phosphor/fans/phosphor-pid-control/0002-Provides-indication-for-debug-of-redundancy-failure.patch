@@ -1,0 +1,23 @@
+From f1ff2d5251f2759555246b90cdd200389914b005 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 22 Nov 2024 06:48:09 +0000
+Subject: [PATCH 2/2] Provides indication for debug of redundancy failure.
+
+---
+ dbus/dbuspassiveredundancy.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/dbus/dbuspassiveredundancy.cpp b/dbus/dbuspassiveredundancy.cpp
+index 640e587..41d9b3f 100644
+--- a/dbus/dbuspassiveredundancy.cpp
++++ b/dbus/dbuspassiveredundancy.cpp
+@@ -166,6 +166,7 @@ void DbusPassiveRedundancy::populateFailures(void)
+             {
+                 continue;
+             }
++	    std::cerr << "Reported Redundancy issue from owner: " << owner << " path: " << path << " \n";
+             std::vector<std::string> collection =
+                 std::get<std::vector<std::string>>(
+                     getAll[redundancy::collection]);
+--
+2.34.1

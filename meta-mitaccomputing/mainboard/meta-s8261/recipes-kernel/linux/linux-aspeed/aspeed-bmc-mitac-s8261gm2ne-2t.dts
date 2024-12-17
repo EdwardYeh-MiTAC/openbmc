@@ -1,0 +1,291 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Copyright 2019 IBM Corp.
+
+/dts-v1/;
+
+#include "aspeed-g6.dtsi"
+#include <dt-bindings/gpio/aspeed-gpio.h>
+
+/ {
+	model = "MiTAC S8261GM2NE-2T";
+	compatible = "aspeed,ast2600-evb", "aspeed,ast2600";
+
+	aliases {
+		serial4 = &uart5;
+	};
+
+	chosen {
+		bootargs = "console=ttyS4,115200n8";
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x80000000>;
+	};
+
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		video_engine_memory: video {
+			size = <0x04000000>;
+			alignment = <0x01000000>;
+			compatible = "shared-dma-pool";
+			reusable;
+		};
+
+		gfx_memory: framebuffer {
+			size = <0x01000000>;
+			alignment = <0x01000000>;
+			compatible = "shared-dma-pool";
+			reusable;
+		};
+	};
+};
+
+&mdio2 {
+	status = "okay";
+
+	ethphy2: ethernet-phy@2 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0>;
+	};
+};
+
+&mac2 {
+	status = "okay";
+
+	phy-mode = "rgmii";
+	phy-handle = <&ethphy2>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_rgmii3_default>;
+};
+
+&mac3 {
+        status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_rmii4_default>;
+	clock-names = "MACCLK", "RCLK";
+        use-ncsi;
+};
+
+
+&rtc {
+	status = "okay";
+};
+
+&fmc {
+	status = "okay";
+	flash@0 {
+		status = "okay";
+		m25p,fast-read;
+		label = "bmc";
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <50000000>;
+#include "openbmc-flash-layout-64.dtsi"
+	};
+};
+
+&spi1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_spi1_default>;
+
+	flash@0 {
+		status = "okay";
+		m25p,fast-read;
+		label = "pnor";
+		spi-rx-bus-width = <1>;
+		spi-max-frequency = <50000000>;
+	};
+};
+
+&uart5 {
+	// Workaround for A0
+	compatible = "snps,dw-apb-uart";
+};
+
+&lpc_snoop {
+	status = "okay";
+	snoop-ports = <0x80>, <0x81>;
+};
+
+&lpc_ctrl {
+	//Enable lpc clock
+	status = "okay";
+};
+
+/*
+&lpc_pcc {
+	rec-mode = <0x1>;
+	port-addr = <0x80>;
+	port-addr-hbits-select = <0x1>;
+	port-addr-xbits = <0x1>;
+	status = "okay";
+};
+*/
+
+&fsim0 {
+	status = "okay";
+};
+
+&ehci1 {
+	status = "okay";
+};
+
+&uhci {
+	status = "okay";
+};
+
+&sdc {
+	status = "okay";
+};
+
+&vhub {
+	status = "okay";
+	pinctrl-names = "default";
+};
+
+&video {
+	status = "okay";
+	memory-region = <&video_engine_memory>;
+};
+
+&kcs1 {
+	status = "okay";
+	aspeed,lpc-io-reg = <0xca8>;
+};
+
+&kcs3 {
+	status = "okay";
+	aspeed,lpc-io-reg = <0xca2>;
+	aspeed,lpc-interrupts = <1 IRQ_TYPE_LEVEL_HIGH>;
+};
+
+&wdt1 {
+        status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_wdtrst1_default>;
+        aspeed,reset-type = "soc";
+        aspeed,external-signal;
+        aspeed,ext-push-pull;
+        aspeed,ext-active-high;
+        aspeed,ext-pulse-duration = <256>;
+};
+
+&i2c0 {
+	status = "okay";
+};
+&i2c1 {
+	status = "okay";
+	// MB FRU
+	eeprom@50 {
+		compatible = "atmel,24c256";
+		reg = <0x50>;
+	};
+
+};
+&i2c2 {
+	status = "okay";
+};
+&i2c3 {
+	status = "okay";
+};
+&i2c4 {
+	status = "okay";
+};
+&i2c5 {
+	status = "okay";
+};
+&i2c6 {
+	status = "okay";
+};
+&i2c7 {
+	status = "okay";
+};
+&i2c8 {
+	status = "okay";
+};
+&i2c9 {
+	status = "okay";
+};
+
+/* M24 MDC3
+&i2c10 {
+	status = "okay";
+};
+*/
+
+&i2c12 {
+	status = "okay";
+};
+&i2c13 {
+	status = "okay";
+};
+&i2c14 {
+	status = "okay";
+};
+
+&gpio0 {
+	gpio-line-names =
+	/*A0-A7*/	"gpio-a0","","","","","","","",
+	/*B0-B7*/	"gpio-b0","chassis-power-good","","","","","","",
+	/*C0-C7*/	"gpio-c0","","","",
+			"","","","",
+	/*D0-D7*/	"gpio-d0","","","",
+			"","","","",
+	/*E0-E7*/	"gpio-e0","","","","","","","",
+	/*F0-F7*/	"gpio-f0","","",
+			"","","",
+			"","",
+	/*G0-G7*/	"identify-led","","","",
+			"","spi-mux-bios","","bmc-ready",
+	/*H0-H7*/	"gpio-h0","","",
+			"","","","","",
+	/*I0-I7*/	"gpio-i0","","","","","","","",
+	/*J0-J7*/	"gpio-j0","","","","","","","",
+	/*K0-K7*/	"gpio-k0","","","","","","","",
+	/*L0-L7*/	"gpio-l0","","","","","","","",
+	/*M0-M7*/	"gpio-00","","","",
+			"","","","",
+	/*N0-N7*/	"gpio-n0","nmi-control","","",
+			"","","","",
+	/*O0-O7*/	"gpio-o0","","","","","","","",
+	/*P0-P7*/	"reset-button","reset-control","power-button","power-control",
+			"nmi-button","","","",
+	/*Q0-Q7*/	"gpio-q0","","","","","","","",
+	/*R0-R7*/	"gpio-r0","","","","","","","",
+	/*S0-S7*/	"gpio-s0","","","",
+			"","","","",
+	/*T0-T7*/	"gpio-t0","","","","","","","",
+	/*U0-U7*/	"gpio-u0","","","","","","","",
+	/*V0-V7*/	"gpio-v0","","",
+			"","","",
+			"","",
+	/*W0-W7*/	"gpio-w0","","","",
+			"","","","",
+	/*X0-X7*/	"gpio-x0","cpu0-thermtrip",
+			"cpu1-thermtrip","",
+			"","",
+			"","",
+	/*Y0-Y7*/	"gpio-y0","bios-post-complete","","","","","","",
+	/*Z0-Z7*/	"gpio-z0","","","","","","","";
+};
+
+&gpio1 {
+	gpio-line-names =
+	/*18A0-18A7*/	"","","identify-button","",
+			"","","","",
+	/*18B0-18B7*/	"","","","","","","","",
+	/*18C0-18C7*/	"","","","",
+			"","","","",
+	/*18D0-18D7*/	"","","","","","","","",
+	/*18E0-18E3*/	"","","","";
+};
+
+&gfx {
+	status = "okay";
+	memory-region = <&gfx_memory>;
+};

@@ -1,0 +1,24 @@
+From 5dbbed01c37abc0ff93f9970a2837c6ba8c8dddb Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 22 Nov 2024 05:43:42 +0000
+Subject: [PATCH 1/1] Support Storage type.
+
+---
+ schemas/global.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/schemas/global.json b/schemas/global.json
+index 5ef30fd..f8dcb87 100644
+--- a/schemas/global.json
++++ b/schemas/global.json
+@@ -91,7 +91,7 @@
+                 "Type": {
+                     "title": "Configuration Type",
+                     "description": "The schema for the type property. The type property identifies the type of the configuration.  When exported, configurations will be instantiated as children of: /xyz/openbmc_project/configuration/<Type>",
+-                    "enum": ["Board", "Chassis", "NVMe", "PowerSupply"]
++                    "enum": ["Board", "Chassis", "NVMe", "PowerSupply", "Storage"]
+                 },
+                 "xyz.openbmc_project.Common.UUID": {
+                     "$ref": "openbmc-dbus.json#/definitions/xyz/openbmc_project/Common/UUID"
+--
+2.34.1

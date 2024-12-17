@@ -1,0 +1,73 @@
+{
+  "Exposes": [
+    {
+      "ConnectsToType": "PMBus Upstream Port",
+      "Name": "PowerSupply$ADDRESS % 80 Downstream Port",
+      "Type": "DownstreamPort",
+      "PowerPort": true
+    },
+    {
+      "Address": "$address",
+      "Bus": "$bus",
+      "Name": "PSU$ADDRESS % 80 FRU",
+      "Type": "EEPROM"
+    },
+    {
+      "Address": "$ADDRESS + 8",
+      "Bus": 5,
+      "Labels": [
+        "temp1",
+        "fan1",
+        "pin",
+        "pout1",
+        "vin",
+        "vout1",
+        "iin",
+        "iout1"
+      ],
+      "Name": "PSU$ADDRESS % 80",
+      "PollRate": 10,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 55
+        }
+      ],
+      "Type": "pmbus",
+      "fan1_Name": "PSU$ADDRESS % 80 fan1",
+      "iin_Name": "PSU$ADDRESS % 80 IINPUT",
+      "iout1_Name": "PSU$ADDRESS % 80 IOUTPUT",
+      "pin_Name": "PSU$ADDRESS % 80 PINPUT",
+      "pout1_Name": "PSU$ADDRESS % 80 POUTPUT",
+      "temp1_Name": "PSU$ADDRESS % 80 TEMP",
+      "vin_Name": "PSU$ADDRESS % 80 VINPUT",
+      "vout1_Name": "PSU$ADDRESS % 80 VOUTPUT"
+    }
+  ],
+  "Name": "PowerSupply$ADDRESS % 80",
+  "Probe": [
+    "xyz.openbmc_project.FruDevice({'BUS': 5, 'ADDRESS': 80})",
+    "OR",
+    "xyz.openbmc_project.FruDevice({'BUS': 5, 'ADDRESS': 81})"
+  ],
+  "Type": "PowerSupply",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$PRODUCT_MANUFACTURER",
+    "Model": "$PRODUCT_PRODUCT_NAME",
+    "PartNumber": "$PRODUCT_PART_NUMBER",
+    "SerialNumber": "$PRODUCT_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.AssetTag": {
+    "AssetTag": "$PRODUCT_ASSET_TAG"
+  },
+  "xyz.openbmc_project.Software.Version": {
+    "Version": "$PRODUCT_VERSION"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Replaceable": {
+    "FieldReplaceable": true,
+    "HotPluggable": true
+  }
+}
