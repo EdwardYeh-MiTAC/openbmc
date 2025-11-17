@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch PowerCap property and applies the updated power cap to the AMD CPU using apml_tool
+
+[Service]
+ExecStart=/usr/bin/powercap_monitor
+StandardOutput=journal
+StandardError=journal
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

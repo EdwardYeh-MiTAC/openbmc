@@ -1,0 +1,192 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Copyright 2024 MiTAC-Computing Corp.
+
+/*
+&peci0 {
+        status = "okay";
+};
+*/
+
+&peci_legacy0 {
+	status = "okay";
+};
+
+&mctp0 {
+        status = "okay";
+        memory-region = <&mctp0_reserved>;
+};
+
+#define JESD300_SPD_I3C_MODE(bus, index, addr) \
+spd_ ## bus ## _ ## index: spd@addr,3c0000000 ## index ## { \
+        reg = <0x ## addr 0x3c0 0x000000 ## index ##>; \
+        assigned-address = <0x ## addr>; \
+        dcr = /bits/ 8 <0xda>; \
+        bcr = /bits/ 8 <0x6>; \
+}
+
+#define JESD300_PMIC_I3C_MODE(bus, index, addr) \
+pmic_ ## bus ## _ ## index: pmic@addr,204000000 ## index ## { \
+        reg = <0x ## addr 0x204 0x000000 ## index ##>; \
+        assigned-address = <0x ## addr>; \
+        dcr = /bits/ 8 <0xda>; \
+        bcr = /bits/ 8 <0x6>; \
+}
+
+#include <dt-bindings/i3c/i3c.h>
+&i3c2 {
+        bus-context = /bits/ 8 <I3C_BUS_CONTEXT_JESD403>;
+        /* I3C_SPD_BMC */
+        i2c-scl-hz = <100000>;
+        i3c-scl-hz = <6000000>;
+        i3c-pp-scl-high-ns = <70>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_hvi3c3_default>;
+        status = "okay";
+};
+
+
+&i3c3 {
+        bus-context = /bits/ 8 <I3C_BUS_CONTEXT_JESD403>;
+	/* I3C_SPD_BMC */
+	i2c-scl-hz = <100000>;
+	i3c-scl-hz = <6000000>;
+	i3c-pp-scl-high-ns = <70>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&pinctrl_hvi3c4_default>;
+        status = "okay";
+
+	/* Renesas RG3MxxB12A0 */
+	hub@70,3C000000100 {
+		reg = <0x70 0x3C0 0x00000100>;
+		assigned-address = <0x70>;
+		dcr = /bits/ 8 <0xc2>;
+
+		cp0-ldo = "disabled";
+		cp1-ldo = "disabled";
+		tp0145-ldo = "disabled";
+		tp2367-ldo = "disabled";
+		tp0145-pullup = "2k";
+		tp2367-pullup = "2k";
+
+		target-port@0 {
+			mode = "i3c";
+			pullup = "enabled";
+		};
+		target-port@1 {
+			mode = "i3c";
+			pullup = "enabled";
+		};
+		target-port@2 {
+			mode = "i3c";
+			pullup = "enabled";
+		};
+		target-port@3 {
+			mode = "i3c";
+			pullup = "enabled";
+		};
+		target-port@4 {
+			mode = "disabled";
+			pullup = "enabled";
+		};
+		target-port@5 {
+			mode = "disabled";
+			pullup = "enabled";
+		};
+		target-port@6 {
+			mode = "disabled";
+			pullup = "enabled";
+		};
+		target-port@7 {
+			mode = "disabled";
+			pullup = "enabled";
+		};
+
+		i3c0@01 {
+			bus-context = /bits/ 8 <I3C_BUS_CONTEXT_JESD403>;
+			i3c-scl-hz = <6000000>;
+			/* Renesas SPD5118 */
+			JESD300_SPD_I3C_MODE(0, 0, 50);
+			JESD300_SPD_I3C_MODE(0, 1, 51);
+			JESD300_SPD_I3C_MODE(0, 2, 52);
+			JESD300_SPD_I3C_MODE(0, 3, 53);
+			JESD300_SPD_I3C_MODE(0, 4, 54);
+			JESD300_SPD_I3C_MODE(0, 5, 55);
+			JESD300_SPD_I3C_MODE(0, 6, 56);
+			JESD300_SPD_I3C_MODE(0, 7, 57);
+
+			JESD300_PMIC_I3C_MODE(0, 0, 48);
+			JESD300_PMIC_I3C_MODE(0, 1, 49);
+			JESD300_PMIC_I3C_MODE(0, 2, 4a);
+			JESD300_PMIC_I3C_MODE(0, 3, 4b);
+			JESD300_PMIC_I3C_MODE(0, 4, 4c);
+			JESD300_PMIC_I3C_MODE(0, 5, 4d);
+			JESD300_PMIC_I3C_MODE(0, 6, 4e);
+			JESD300_PMIC_I3C_MODE(0, 7, 4f);
+		};
+		i3c1@02 {
+			bus-context = /bits/ 8 <I3C_BUS_CONTEXT_JESD403>;
+			i3c-scl-hz = <7000000>;
+			JESD300_SPD_I3C_MODE(1, 0, 50);
+			JESD300_SPD_I3C_MODE(1, 1, 51);
+			JESD300_SPD_I3C_MODE(1, 2, 52);
+			JESD300_SPD_I3C_MODE(1, 3, 53);
+			JESD300_SPD_I3C_MODE(1, 4, 54);
+			JESD300_SPD_I3C_MODE(1, 5, 55);
+			JESD300_SPD_I3C_MODE(1, 6, 56);
+			JESD300_SPD_I3C_MODE(1, 7, 57);
+
+			JESD300_PMIC_I3C_MODE(1, 0, 48);
+			JESD300_PMIC_I3C_MODE(1, 1, 49);
+			JESD300_PMIC_I3C_MODE(1, 2, 4a);
+			JESD300_PMIC_I3C_MODE(1, 3, 4b);
+			JESD300_PMIC_I3C_MODE(1, 4, 4c);
+			JESD300_PMIC_I3C_MODE(1, 5, 4d);
+			JESD300_PMIC_I3C_MODE(1, 6, 4e);
+			JESD300_PMIC_I3C_MODE(1, 7, 4f);
+
+		};
+		i3c2@03 {
+			bus-context = /bits/ 8 <I3C_BUS_CONTEXT_JESD403>;
+			i3c-scl-hz = <8000000>;
+			JESD300_SPD_I3C_MODE(2, 0, 50);
+			JESD300_SPD_I3C_MODE(2, 1, 51);
+			JESD300_SPD_I3C_MODE(2, 2, 52);
+			JESD300_SPD_I3C_MODE(2, 3, 53);
+			JESD300_SPD_I3C_MODE(2, 4, 54);
+			JESD300_SPD_I3C_MODE(2, 5, 55);
+			JESD300_SPD_I3C_MODE(2, 6, 56);
+			JESD300_SPD_I3C_MODE(2, 7, 57);
+
+			JESD300_PMIC_I3C_MODE(2, 0, 48);
+			JESD300_PMIC_I3C_MODE(2, 1, 49);
+			JESD300_PMIC_I3C_MODE(2, 2, 4a);
+			JESD300_PMIC_I3C_MODE(2, 3, 4b);
+			JESD300_PMIC_I3C_MODE(2, 4, 4c);
+			JESD300_PMIC_I3C_MODE(2, 5, 4d);
+			JESD300_PMIC_I3C_MODE(2, 6, 4e);
+			JESD300_PMIC_I3C_MODE(2, 7, 4f);
+		};
+		i3c3@04 {
+			bus-context = /bits/ 8 <I3C_BUS_CONTEXT_JESD403>;
+			i3c-scl-hz = <9000000>;
+			JESD300_SPD_I3C_MODE(3, 0, 50);
+			JESD300_SPD_I3C_MODE(3, 1, 51);
+			JESD300_SPD_I3C_MODE(3, 2, 52);
+			JESD300_SPD_I3C_MODE(3, 3, 53);
+			JESD300_SPD_I3C_MODE(3, 4, 54);
+			JESD300_SPD_I3C_MODE(3, 5, 55);
+			JESD300_SPD_I3C_MODE(3, 6, 56);
+			JESD300_SPD_I3C_MODE(3, 7, 57);
+
+			JESD300_PMIC_I3C_MODE(3, 0, 48);
+			JESD300_PMIC_I3C_MODE(3, 1, 49);
+			JESD300_PMIC_I3C_MODE(3, 2, 4a);
+			JESD300_PMIC_I3C_MODE(3, 3, 4b);
+			JESD300_PMIC_I3C_MODE(3, 4, 4c);
+			JESD300_PMIC_I3C_MODE(3, 5, 4d);
+			JESD300_PMIC_I3C_MODE(3, 6, 4e);
+			JESD300_PMIC_I3C_MODE(3, 7, 4f);
+		};
+	};
+};
+

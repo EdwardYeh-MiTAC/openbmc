@@ -1,0 +1,25 @@
+From 9e9be1ba4ca54a771923d7f5ee8004761937882e Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 6 Jan 2025 03:06:25 +0000
+Subject: [PATCH 5/5] Added to support TMP411 sensor.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/hwmon-temp/HwmonTempMain.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/hwmon-temp/HwmonTempMain.cpp b/src/hwmon-temp/HwmonTempMain.cpp
+index e71f9fd..18c9bf7 100644
+--- a/src/hwmon-temp/HwmonTempMain.cpp
++++ b/src/hwmon-temp/HwmonTempMain.cpp
+@@ -89,6 +89,7 @@ static const I2CDeviceTypeMap sensorTypes{
+     {"TMP100", I2CDeviceType{"tmp100", true}},
+     {"TMP112", I2CDeviceType{"tmp112", true}},
+     {"TMP175", I2CDeviceType{"tmp175", true}},
++    {"TMP411", I2CDeviceType{"tmp411", true}},
+     {"TMP421", I2CDeviceType{"tmp421", true}},
+     {"TMP432", I2CDeviceType{"tmp432", true}},
+     {"TMP441", I2CDeviceType{"tmp441", true}},
+-- 
+2.34.1
+

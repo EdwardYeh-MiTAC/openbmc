@@ -1,0 +1,54 @@
+{
+  "Exposes": [
+    {
+      "Address": "$ADDRESS",
+      "Bus": "$BUS",
+      "Name": "Riser $BUS $ADDRESS FRU",
+      "Type": "EEPROM"
+    },
+    {
+      "Address": "0x48",
+      "Bus": "$BUS",
+      "Name": "Riser $BUS $ADDRESS Temp",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 45
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 42
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    }
+  ],
+  "Name": "Riser $BUS $ADDRESS",
+  "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'R1520G61SRISER5CEM'})",
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "Model": "$BOARD_PRODUCT_NAME",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "mitac_riser_R1520G61SRISER5CEM"
+  }
+}

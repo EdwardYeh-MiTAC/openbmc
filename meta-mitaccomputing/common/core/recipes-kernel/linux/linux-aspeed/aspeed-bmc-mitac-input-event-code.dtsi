@@ -1,0 +1,2 @@
+
+#define INPUT_EVENT_CODE_IDENTIFY_BUTTON 2 // meta-mitaccomputing/common/core/recipes-phosphor/gpio/id-button/obmc/gpio/id_button

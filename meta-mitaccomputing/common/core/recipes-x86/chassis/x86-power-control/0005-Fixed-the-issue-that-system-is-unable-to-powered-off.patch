@@ -1,0 +1,26 @@
+From 4c87d21c5ecf5efa32f9477dcf9f6db5ed2ffb73 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Wed, 16 Apr 2025 01:05:40 +0000
+Subject: [PATCH 2/2] Fixed the issue that system is unable to powered-off from
+ ipmi force off command.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/power_control.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/power_control.cpp b/src/power_control.cpp
+index 19ee16a..8117a5e 100644
+--- a/src/power_control.cpp
++++ b/src/power_control.cpp
+@@ -2239,6 +2239,7 @@ static void nmiReset(void)
+         lg2::info("enablePassThrough called in currentHostStateMonitor, current PowerState: {STATE}",
+           "STATE", getPowerStateName(powerState));
+         if (powerState != PowerState::cycleOff &&
++            powerState != PowerState::transitionToOff &&
+             powerState != PowerState::transitionToCycleOff &&
+             powerState != PowerState::gracefulTransitionToCycleOff)
+         {
+-- 
+2.45.2
+

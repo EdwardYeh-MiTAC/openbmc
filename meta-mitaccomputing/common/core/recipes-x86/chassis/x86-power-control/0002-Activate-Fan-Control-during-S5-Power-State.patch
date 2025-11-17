@@ -1,0 +1,94 @@
+From 1825289402fecc35b0b49a0e3d98c4d886eae1a7 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Wed, 22 Jan 2025 08:28:20 +0000
+Subject: [PATCH 1/1] Activate Fan Control during S5 Power State.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/power_control.cpp | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/src/power_control.cpp b/src/power_control.cpp
+index 1e1fb0a..51164af 100644
+--- a/src/power_control.cpp
++++ b/src/power_control.cpp
+@@ -77,6 +77,7 @@ struct ConfigData
+     ConfigType type;
+ };
+ 
++static ConfigData fcbStbyEnConfig;
+ static ConfigData powerOutConfig;
+ static ConfigData powerOkConfig;
+ static ConfigData resetOutConfig;
+@@ -95,6 +96,7 @@ static ConfigData hpmStbyEnConfig;
+ // map for storing list of gpio parameters whose config are to be read from x86
+ // power control json config
+ boost::container::flat_map<std::string, ConfigData*> powerSignalMap = {
++    {"FcbStbyEn", &fcbStbyEnConfig},
+     {"PowerOut", &powerOutConfig},
+     {"PowerOk", &powerOkConfig},
+     {"ResetOut", &resetOutConfig},
+@@ -155,6 +157,7 @@ boost::container::flat_map<std::string, int> TimerMap = {
+ static bool nmiEnabled = true;
+ static bool nmiWhenPoweredOff = true;
+ static bool sioEnabled = true;
++static bool FcbStbyEnabled = false;
+ 
+ // Timers
+ // Time holding GPIOs asserted
+@@ -202,6 +205,7 @@ static gpiod::line postCompleteLine;
+ static boost::asio::posix::stream_descriptor postCompleteEvent(io);
+ static gpiod::line nmiOutLine;
+ static gpiod::line slotPowerLine;
++static gpiod::line fcbStbyEnLine;
+ 
+ static constexpr uint8_t beepPowerFail = 8;
+ 
+@@ -1820,6 +1824,11 @@ static void powerStateOff(const Event event)
+     {
+         case Event::psPowerOKAssert:
+         {
++            if (FcbStbyEnabled == true)
++            {
++                lg2::info("No action taken as fcb is enabled during standby.");
++                break;
++            }
+             if (sioEnabled == true)
+             {
+                 sioPowerGoodWatchdogTimerStart();
+@@ -1863,6 +1872,14 @@ static void powerStateTransitionToOff(const Event event)
+             gpioAssertTimer.cancel();
+             setPowerState(PowerState::off);
+             break;
++        case Event::sioPowerGoodDeAssert:
++            if (FcbStbyEnabled == true)
++            {
++                lg2::info("Transit to power off since FcbStbyEnabled is true.");
++                gpioAssertTimer.cancel();
++                setPowerState(PowerState::off);
++            }
++            break;
+         default:
+             lg2::info("No action taken.");
+             break;
+@@ -3538,6 +3555,17 @@ int main(int argc, char* argv[])
+         }
+     }
+ 
++    if (!fcbStbyEnConfig.lineName.empty())
++    {
++        FcbStbyEnabled = true;
++        lg2::info("Activate Fan Control during S5 Power State.");
++        if (!setGPIOOutput(fcbStbyEnConfig.lineName, fcbStbyEnConfig.polarity,
++                           fcbStbyEnLine))
++        {
++            return -1;
++        }
++    }
++
+     io.run();
+ 
+     return 0;
+-- 
+2.34.1
+

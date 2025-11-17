@@ -1,0 +1,13 @@
+
+bmc_heartbeat {
+	gpios = <&gpio0 ASPEED_GPIO(P, 7) GPIO_ACTIVE_LOW>;
+	default-state = "on";
+};
+identify {
+	gpios = <&gpio0 ASPEED_GPIO(F, 7) GPIO_ACTIVE_LOW>;
+	default-state = "on";
+};
+fault {
+	gpios = <&gpio0 ASPEED_GPIO(G, 3) GPIO_ACTIVE_LOW>;
+	default-state = "off";
+};

@@ -1,0 +1,25 @@
+# LAYER_CONF_VERSION is increased each time build/conf/bblayers.conf
+# changes incompatibly
+LCONF_VERSION = "8"
+
+BBPATH = "${TOPDIR}"
+BBFILES ?= ""
+
+BBLAYERS ?= " \
+  ##OEROOT##/meta \
+  ##OEROOT##/meta-openembedded/meta-oe \
+  ##OEROOT##/meta-openembedded/meta-networking \
+  ##OEROOT##/meta-openembedded/meta-perl \
+  ##OEROOT##/meta-openembedded/meta-python \
+  ##OEROOT##/meta-phosphor \
+  ##OEROOT##/meta-arm/meta-arm \
+  ##OEROOT##/meta-arm/meta-arm-toolchain \
+  ##OEROOT##/meta-security \
+  ##OEROOT##/meta-mitaccomputing/common/aspeedtech-bmc.meta-aspeed-sdk/meta-zephyr/meta-zephyr-core \
+  ##OEROOT##/meta-aspeed \
+  ##OEROOT##/meta-mitaccomputing \
+  ##OEROOT##/meta-mitaccomputing/mp-nda/meta-nda-mic-amd \
+  ##OEROOT##/meta-mitaccomputing/mp-nda/meta-nda-mic-intel \
+  ##OEROOT##/meta-mitaccomputing/mp-nda/meta-nda-mic \
+  ##OEROOT##/meta-mitaccomputing/mainboard/meta-mi-2700evb \
+"

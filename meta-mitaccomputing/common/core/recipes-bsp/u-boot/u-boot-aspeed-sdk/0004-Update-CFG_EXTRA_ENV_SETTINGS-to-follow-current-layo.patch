@@ -1,0 +1,36 @@
+From ef039b5edc86fcaedf9d1ef345e970a5e995840a Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 21 Apr 2025 05:54:28 +0000
+Subject: [PATCH 1/1] Update CFG_EXTRA_ENV_SETTINGS to follow current layout.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ include/configs/evb_ast2600.h | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+diff --git a/include/configs/evb_ast2600.h b/include/configs/evb_ast2600.h
+index 8786581f05..b7e13743ca 100644
+--- a/include/configs/evb_ast2600.h
++++ b/include/configs/evb_ast2600.h
+@@ -16,16 +16,10 @@
+ 
+ #define CFG_EXTRA_ENV_SETTINGS \
+ 	"loadaddr=" STR(CONFIG_SYS_LOAD_ADDR) "\0" \
+-	"bootspi=fdt addr 20160000 && fdt header get fitsize totalsize && " \
+-	"cp.b 20160000 ${loadaddr} ${fitsize} && bootm ${loadaddr}; " \
++	"bootspi=fdt addr 20100000 && fdt header get fitsize totalsize && " \
++	"cp.b 20100000 ${loadaddr} ${fitsize} && bootm ${loadaddr}; " \
+ 	"echo Error loading kernel FIT image\0" \
+ 	"loadaddr=" STR(CONFIG_SYS_LOAD_ADDR) "\0"	\
+-	"bootside=a\0"	\
+-	"rootfs=rofs-a\0"	\
+-	"setmmcargs=setenv bootargs ${bootargs} rootwait root=PARTLABEL=${rootfs}\0"	\
+-	"boota=setenv bootpart 2; setenv rootfs rofs-a; run setmmcargs; ext4load mmc 0:${bootpart} ${loadaddr} fitImage && bootm ${loadaddr}; echo Error loading kernel FIT image\0"	\
+-	"bootb=setenv bootpart 3; setenv rootfs rofs-b; run setmmcargs; ext4load mmc 0:${bootpart} ${loadaddr} fitImage && bootm ${loadaddr}; echo Error loading kernel FIT image\0"	\
+-	"bootmmc=if test \"${bootside}\" = \"b\"; then run bootb; run boota; else run boota; run bootb; fi\0"	\
+ 	"verify=yes\0"	\
+ 	""
+ #endif	/* __CONFIG_H */
+-- 
+2.25.1
+

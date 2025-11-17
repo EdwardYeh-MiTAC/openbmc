@@ -1,0 +1,158 @@
+{
+  "MitacMRD": [
+    {
+      "Id": "Dashboard_Baseboard_Voltages",
+      "Metrics": [
+        {
+          "MetricProperties": [
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/voltage_P12V_AUX",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/voltage_P1V0_AUX",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/voltage_P3V3_AUX",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/voltage_P3V_BAT",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/voltage_P5V",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/voltage_PSU0_VINPUT",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/voltage_PSU0_VOUTPUT",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/voltage_PSU1_VINPUT",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/voltage_PSU1_VOUTPUT"
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_CPU_Temperatures",
+      "Metrics": [
+        {
+          "MetricProperties": [
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_DTS_CPU0",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_DTS_CPU1"
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_DIMM_Temperatures",
+      "Metrics": [
+        {
+          "MetricProperties": [
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU0_DIMM_Ch_A",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU0_DIMM_Ch_B",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU0_DIMM_Ch_C",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU0_DIMM_Ch_D",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU0_DIMM_Ch_E",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU0_DIMM_Ch_F",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU0_DIMM_Ch_G",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU0_DIMM_Ch_H",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU1_DIMM_Ch_A",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU1_DIMM_Ch_B",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU1_DIMM_Ch_C",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU1_DIMM_Ch_D",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU1_DIMM_Ch_E",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU1_DIMM_Ch_F",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU1_DIMM_Ch_G",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/temperature_CPU1_DIMM_Ch_H"
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_PSU_Power",
+      "Metrics": [
+        {
+          "MetricProperties": [
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/power_PSU0_PINPUT",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/power_PSU0_POUTPUT",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/power_PSU1_PINPUT",
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/power_PSU1_POUTPUT"
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_Drive_Temperatures",
+      "Metrics": [
+        {
+          "MetricProperties": [
+            "/redfish/v1/Chassis/HSBP_11_87_Drive_0/Sensors/temperature_HSBP_11_87_Drive_0_Temp",
+            "/redfish/v1/Chassis/HSBP_11_87_Drive_1/Sensors/temperature_HSBP_11_87_Drive_1_Temp",
+            "/redfish/v1/Chassis/HSBP_11_87_Drive_2/Sensors/temperature_HSBP_11_87_Drive_2_Temp",
+            "/redfish/v1/Chassis/HSBP_11_87_Drive_3/Sensors/temperature_HSBP_11_87_Drive_3_Temp",
+            "/redfish/v1/Chassis/HSBP_11_87_Drive_4/Sensors/temperature_HSBP_11_87_Drive_4_Temp",
+            "/redfish/v1/Chassis/HSBP_11_87_Drive_5/Sensors/temperature_HSBP_11_87_Drive_5_Temp",
+            "/redfish/v1/Chassis/HSBP_11_87_Drive_6/Sensors/temperature_HSBP_11_87_Drive_6_Temp",
+            "/redfish/v1/Chassis/HSBP_11_87_Drive_7/Sensors/temperature_HSBP_11_87_Drive_7_Temp",
+            "/redfish/v1/Chassis/HSBP_11_84_Drive_0/Sensors/temperature_HSBP_11_84_Drive_0_Temp",
+            "/redfish/v1/Chassis/HSBP_11_84_Drive_1/Sensors/temperature_HSBP_11_84_Drive_1_Temp",
+            "/redfish/v1/Chassis/HSBP_11_84_Drive_2/Sensors/temperature_HSBP_11_84_Drive_2_Temp",
+            "/redfish/v1/Chassis/HSBP_11_84_Drive_3/Sensors/temperature_HSBP_11_84_Drive_3_Temp",
+            "/redfish/v1/Chassis/HSBP_11_84_Drive_4/Sensors/temperature_HSBP_11_84_Drive_4_Temp",
+            "/redfish/v1/Chassis/HSBP_11_84_Drive_5/Sensors/temperature_HSBP_11_84_Drive_5_Temp",
+            "/redfish/v1/Chassis/HSBP_11_84_Drive_6/Sensors/temperature_HSBP_11_84_Drive_6_Temp",
+            "/redfish/v1/Chassis/HSBP_11_84_Drive_7/Sensors/temperature_HSBP_11_84_Drive_7_Temp"
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_Drive_PDLU",
+      "Metrics": [
+        {
+          "MetricProperties": []
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1H"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    }
+  ]
+}

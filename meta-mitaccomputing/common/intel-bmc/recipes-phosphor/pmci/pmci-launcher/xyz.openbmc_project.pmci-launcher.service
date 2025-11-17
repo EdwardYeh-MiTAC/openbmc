@@ -1,0 +1,14 @@
+[Unit]
+Description=PMCI Launcher
+After=xyz.openbmc_project.EntityManager.service
+Wants=xyz.openbmc_project.EntityManager.service
+StartLimitBurst=5
+
+[Service]
+ExecStart=/usr/bin/pmci_launcher
+SyslogIdentifier=pmci_launcher
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

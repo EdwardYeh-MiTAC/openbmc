@@ -1,0 +1,35 @@
+From e508a9a3cbd8521481b336de1a437a377d6e539b Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 29 Jul 2025 07:33:16 +0000
+Subject: [PATCH 1/1] Suppress the build error (null dereference) from
+ compiling the function in boost lib 1.78.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ CMakeLists.txt | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ba22e99..cd5e2bb 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 3.5 FATAL_ERROR)
+ project (pmci_launcher CXX)
+ 
+ set (BUILD_SHARED_LIBRARIES OFF)
+-set (CMAKE_CXX_STANDARD 17)
++set (CMAKE_CXX_STANDARD 23)
+ set (CMAKE_CXX_STANDARD_REQUIRED ON)
+ 
+ set (
+@@ -25,7 +25,6 @@ set (
+     -Wduplicated-cond \
+     -Wduplicated-branches \
+     -Wlogical-op \
+-    -Wnull-dereference \
+     -Wuseless-cast \
+     -Wdouble-promotion \
+     -Wformat=2 \
+-- 
+2.45.2
+

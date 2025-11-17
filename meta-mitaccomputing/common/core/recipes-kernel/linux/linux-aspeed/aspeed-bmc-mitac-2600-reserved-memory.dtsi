@@ -1,0 +1,57 @@
+
+compatible = "aspeed,ast2600-evb", "aspeed,ast2600";
+
+aliases {
+	serial4 = &uart5;
+};
+
+chosen {
+	bootargs = "console=ttyS4,115200n8";
+};
+
+memory@80000000 {
+	device_type = "memory";
+	reg = <0x80000000 0x80000000>;
+};
+
+reserved-memory {
+	#address-cells = <1>;
+	#size-cells = <1>;
+	ranges;
+
+	video_engine_memory: video {
+		size = <0x04000000>;
+		alignment = <0x01000000>;
+		compatible = "shared-dma-pool";
+		reusable;
+	};
+
+	bmc_dev_memory: bmc-dev-memory@b1020000 {
+		reg = <0xb1020000 0x100000>;
+		no-map;
+	};
+
+	gfx_memory: framebuffer {
+		size = <0x01000000>;
+		alignment = <0x01000000>;
+		compatible = "shared-dma-pool";
+		reusable;
+	};
+
+	pcc_memory: pccbuffer {
+	       no-map;
+	       reg = <0xE0000000 0x00001000>; /* 4K */
+        };
+
+	mctp0_reserved: mctp0_reserved@b1000000 {
+		reg = <0xb1000000 0x10000>;
+		compatible = "shared-dma-pool";
+		no-map;
+	};
+
+	mctp1_reserved: mctp1_reserved@b1010000 {
+		reg = <0xb1010000 0x10000>;
+		compatible = "shared-dma-pool";
+		no-map;
+	};
+};

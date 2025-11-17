@@ -1,0 +1,33 @@
+#!/bin/bash
+
+FRU_DEVICE="/sys/bus/i2c/devices/4-0050/eeprom"
+HOST_COUNT=1
+MAC_ADDRESS_BASE="0x2040"
+PLATFORM_COMPACT_NAME="com.mitac.Hardware.Chassis.Model.SC513G6"
+
+get_mac_addr_from_fru()
+{
+    echo "Get MAC Address [$1] from FRU".
+    if [ -e $FRU_DEVICE ]; then
+        local ETH_INTF_INDEX=$1
+        local MAC_ADDRESS_OFFSET=$((MAC_ADDRESS_BASE + ETH_INTF_INDEX * 6))
+        local MAC_ADDRESS=`fru-simple-read  -i $FRU_DEVICE -o $MAC_ADDRESS_OFFSET`
+        echo "Identified MAC Address: $MAC_ADDRESS".
+        eval "$2=$MAC_ADDRESS"
+        return $?
+    else
+        local MAC_ADDRESS="FF:FF:FF:FF:FF:FF"
+        echo "Can't find the FRU Device. Please double check the configuration of FRU EEROM in Kernel DTS. ($FRU_DEVICE)"
+        echo "Here will return $MAC_ADDRESS to force using random EEPROM."
+        eval "$2=$MAC_ADDRESS"
+        return -1
+    fi
+}
+
+exec_before_power_control () {
+        echo "before_exec"
+}
+
+exec_after_power_control () {
+        echo "after_exec"
+}

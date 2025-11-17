@@ -1,0 +1,11 @@
+[Unit]
+Description=Mitac Power State Transition Monitor
+After=mitac-sys-init.service
+
+[Service]
+Type=simple
+ExecStart=/usr/libexec/mitac-power-transition-monitor
+SyslogIdentifier=MitacPwrStatMon
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,85 @@
+From c98dfa04f3e6cbcc40bebfda2a55ba101d46f32d Mon Sep 17 00:00:00 2001
+From: "amy.tsai" <amy.tsai@mitaccomputing.com>
+Date: Tue, 1 Jul 2025 14:26:59 +0800
+Subject: [PATCH] Fixed user enabled state is abnormal when renaming
+
+Root cause:
+- The /etc/shadow is updated after renaming,
+  so the old user enabled state always returns false.
+
+Solution:
+- Get current user configuration before renaming.
+
+Tested:
+- Platform S8056
+- Redfish-Protocol-Validator passes
+- Redfish-Service-Validator passes
+- Use POST method to add user
+  ```
+  $ curl -k -u root:0penBmc -H "Content-Type: application/json" \
+    -X POST https://${bmc}/redfish/v1/AccountService/Accounts \
+    -d '{
+      "UserName": "john",
+      "Password": "Mitac123",
+      "RoleId": "Administrator",
+      "Enabled": true
+    }'
+  ```
+- Use PATCH method to edit user
+  ```
+  $ curl -k -u root:0penBmc -H "Content-Type: application/json" \
+    -X PATCH https://${bmc}/redfish/v1/AccountService/Accounts/john \
+    -d '{
+      "UserName": "oliver",
+      "Password": "Mitac456",
+      "RoleId": "Operator",
+      "Enabled": false
+    }'
+  ```
+- Use GET method to confirm user setting
+  ```
+  $ curl -k -u root:0penBmc -H "Accept: application/json" \
+    https://${bmc}/redfish/v1/AccountService/Accounts/oliver
+  ```
+
+Reference:
+- https://micgitlab1.mic.com.tw/beoc/solution-enabling/openbmc/bmcweb/-/issues/3
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ user_mgr.cpp | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/user_mgr.cpp b/user_mgr.cpp
+index 2aa15e8..5acc87a 100644
+--- a/user_mgr.cpp
++++ b/user_mgr.cpp
+@@ -495,6 +495,14 @@ void UserMgr::createGroup(std::string groupName)
+ 
+ void UserMgr::renameUser(std::string userName, std::string newUserName)
+ {
++    // Get current user configuration in advance.
++    // The old username was not found in the /etc/shadow after renaming, and it
++    // causes the old user enabled state always returns false.
++    const auto& user = usersList[userName];
++    std::string priv = user.get()->userPrivilege();
++    std::vector<std::string> groupNames = user.get()->userGroups();
++    bool enabled = user.get()->userEnabled();
++
+     // All user management lock has to be based on /etc/shadow
+     // TODO  phosphor-user-manager#10 phosphor::user::shadow::Lock lock{};
+     throwForUserDoesNotExist(userName);
+@@ -511,10 +519,6 @@ void UserMgr::renameUser(std::string userName, std::string newUserName)
+                    userName, "NEWUSERNAME", newUserName);
+         elog<InternalFailure>();
+     }
+-    const auto& user = usersList[userName];
+-    std::string priv = user.get()->userPrivilege();
+-    std::vector<std::string> groupNames = user.get()->userGroups();
+-    bool enabled = user.get()->userEnabled();
+     sdbusplus::message::object_path tempObjPath(usersObjPath);
+     tempObjPath /= newUserName;
+     std::string newUserObj(tempObjPath);
+-- 
+2.43.0
+

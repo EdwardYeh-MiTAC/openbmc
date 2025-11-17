@@ -1,0 +1,103 @@
+{
+  "Exposes": [
+    {
+      "Address": "$ADDRESS",
+      "Bus": "$BUS",
+      "Name": "HSBP $BUS $ADDRESS FRU",
+      "Type": "EEPROM"
+    },
+    {
+      "Address": "0x4A",
+      "Bus": "$BUS",
+      "Name": "HSBP $BUS $ADDRESS Area 1 Temp",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 45
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 42
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    },
+    {
+      "Address": "0x4E",
+      "Bus": "$BUS",
+      "Name": "HSBP $BUS $ADDRESS Area 2 Temp",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 45
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 42
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    },
+    {
+      "Address": "0x76",
+      "Bus": "$BUS",
+      "ChannelNames": [
+        "Drive_0",
+        "Drive_1",
+        "Drive_2",
+        "Drive_3",
+        "Drive_4",
+        "Drive_5",
+        "Drive_6",
+        "Drive_7"
+      ],
+      "Name": "HSBP $BUS $ADDRESS",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9548Mux"
+    }
+  ],
+  "Name": "HSBP $BUS $ADDRESS",
+  "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'R1520G6HSBPE104'})",
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "Model": "$BOARD_PRODUCT_NAME",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "mitac_hsbp_R1520G6HSBPE104"
+  }
+}

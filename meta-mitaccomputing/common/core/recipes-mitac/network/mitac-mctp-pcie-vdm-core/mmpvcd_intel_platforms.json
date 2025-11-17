@@ -1,0 +1,19 @@
+{
+  "Drivers": [
+    "/usr/lib/mitac-mctp-pcie-vdm-drivers/libmctp-nvme-mi-generic-driver.so",
+    "/usr/lib/mitac-mctp-pcie-vdm-drivers/libmctp-spdm-generic-driver.so",
+    "/usr/lib/libbrcm-vdm-storelib7-driver.so"
+  ],
+  "BusOwners": [
+    {
+      "MCTPPhyTransBindId": 2,
+      "IntfName": "mctppci0",
+      "EId": 29,
+      "PciVDMAddr": {
+        "Bus": 0,
+        "Dev": 3,
+        "Func": 0
+      }
+    }
+  ]
+}

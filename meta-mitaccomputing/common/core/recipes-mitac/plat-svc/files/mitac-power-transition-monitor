@@ -1,0 +1,49 @@
+#!/bin/bash -e
+
+GetPwrState() {
+    PwrState=`busctl get-property xyz.openbmc_project.State.Host /xyz/openbmc_project/state/host0 xyz.openbmc_project.State.Host CurrentHostState | cut -d " " -f 2`
+    #echo $PwrState
+
+    if [[ $PwrState == *"Running"* ]]; then
+        CurrPwrState="on"
+    else
+        CurrPwrState="off"
+    fi
+    #echo "Host Power State: $CurrPwrState"
+}
+
+source /tmp/mainboard_env.sh
+
+while [ true ]
+do
+    GetPwrState
+    if [[ $CurrPwrState != $LastPwrState ]]; then
+        if [[ $LastPwrState == "off" ]]; then
+                echo "Call action for transition to ON"
+		set +e
+                action_power_transition_on
+		set -e
+        fi
+
+        if [[ $LastPwrState == "on" ]]; then
+                echo "Call action for transition to OFF"
+		set +e
+                action_power_transition_off
+		set -e
+	else
+		if [[ $CurrPwrState == "off" ]]; then
+			echo "Regular task while powered off"
+			set +e
+			action_power_status_off
+			set -e
+		else
+			echo "Regular task while powered on"
+			set +e
+			action_power_status_on
+			set -e
+		fi
+        fi
+    fi
+    LastPwrState=$CurrPwrState
+    sleep 5
+done

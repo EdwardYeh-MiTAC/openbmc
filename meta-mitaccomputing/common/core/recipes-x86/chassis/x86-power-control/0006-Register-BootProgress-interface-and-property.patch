@@ -1,0 +1,98 @@
+From d75050a2b36c037a5115e5673057eb6146d7ccda Mon Sep 17 00:00:00 2001
+From: "amy.tsai" <amy.tsai@mitaccomputing.com>
+Date: Wed, 23 Jul 2025 08:52:01 +0000
+Subject: [PATCH] Register BootProgress interface and property
+
+Description:
+- Register BootProgress interface and property in D-Bus
+
+Tested:
+- Platform S8261 and S8056
+- Check BMC console
+  ```
+  $ busctl get-property xyz.openbmc_project.State.Host \
+    /xyz/openbmc_project/state/host0 \
+    xyz.openbmc_project.State.Boot.Progress BootProgress
+  ```
+
+Reference:
+- https://micgitlab1.mic.com.tw/beoc/solution-enabling/openbmc/bmcweb/-/issues/6
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/power_control.cpp | 38 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
+
+diff --git a/src/power_control.cpp b/src/power_control.cpp
+index 8117a5e..206f2e2 100644
+--- a/src/power_control.cpp
++++ b/src/power_control.cpp
+@@ -33,6 +33,7 @@
+ #include <optional>
+ #include <regex>
+ #include <string_view>
++#include <unordered_set>
+ 
+ namespace power_control
+ {
+@@ -112,6 +113,19 @@ boost::container::flat_map<std::string, ConfigData*> powerSignalMap = {
+     {"SlotPower", &slotPowerConfig},
+     {"HpmStbyEn", &hpmStbyEnConfig}};
+ 
++static const std::unordered_set<std::string> validBootProgressStages = {
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.PrimaryProcInit",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.BusInit",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.MemoryInit",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.SecondaryProcInit",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.PCIInit",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.SystemSetup",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.SystemInitComplete",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.OSStart",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.OSRunning",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.OEM",
++    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.Unspecified"};
++
+ static std::string hostDbusName = "xyz.openbmc_project.State.Host";
+ static std::string chassisDbusName = "xyz.openbmc_project.State.Chassis";
+ static std::string osDbusName = "xyz.openbmc_project.State.OperatingSystem";
+@@ -132,6 +146,7 @@ static std::shared_ptr<sdbusplus::asio::dbus_interface> osIface;
+ static std::shared_ptr<sdbusplus::asio::dbus_interface> idButtonIface;
+ static std::shared_ptr<sdbusplus::asio::dbus_interface> nmiOutIface;
+ static std::shared_ptr<sdbusplus::asio::dbus_interface> restartCauseIface;
++static std::shared_ptr<sdbusplus::asio::dbus_interface> bootProgressIface;
+ 
+ static gpiod::line powerButtonMask;
+ static gpiod::line resetButtonMask;
+@@ -3653,6 +3668,29 @@ int main(int argc, char* argv[])
+ 
+     restartCauseIface->initialize();
+ 
++    // Boot Progress Interface
++    bootProgressIface =
++        hostServer.add_interface("/xyz/openbmc_project/state/host" + node,
++                                 "xyz.openbmc_project.State.Boot.Progress");
++
++    bootProgressIface->register_property(
++        "BootProgress",
++        std::string(
++            "xyz.openbmc_project.State.Boot.Progress.ProgressStages.Unspecified"),
++        [](const std::string& requested, std::string& resp) {
++            if (validBootProgressStages.find(requested) ==
++                validBootProgressStages.end())
++            {
++                lg2::error("Unrecognized Boot Progress");
++                throw std::invalid_argument("Unrecognized Boot Progress");
++                return 0;
++            }
++            resp = requested;
++            return 1;
++        });
++
++    bootProgressIface->initialize();
++
+     currentHostStateMonitor();
+ 
+     if (!hpmStbyEnConfig.lineName.empty())
+-- 
+2.45.2
+

@@ -1,0 +1,7 @@
+{
+  "Exposes": [],
+  "Name": "Nvme",
+  "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'S8261*'})",
+  "Type": "Storage",
+  "xyz.openbmc_project.Inventory.Item.Storage": {}
+}

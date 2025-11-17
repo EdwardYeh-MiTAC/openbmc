@@ -1,0 +1,14 @@
+{
+    "entries": [
+        {
+            "attribute_type": "string",
+            "attribute_name": "mitac_cicd_string",
+            "string_type": "ASCII",
+            "minimum_string_length": 0,
+            "maximum_string_length": 255,
+            "default_string": "",
+            "help_text": "String type for CICD",
+            "display_name": "mitac_cicd_string"
+        }
+    ]
+}

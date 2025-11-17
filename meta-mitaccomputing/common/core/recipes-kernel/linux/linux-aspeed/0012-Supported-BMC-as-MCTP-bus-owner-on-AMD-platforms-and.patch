@@ -1,0 +1,302 @@
+From 8631421d2cd2055bea29cada51ad2afbf81dfb61 Mon Sep 17 00:00:00 2001
+From: OpenEmbedded <oe.patch@oe>
+Date: Fri, 3 Oct 2025 07:01:27 +0000
+Subject: [PATCH 1/1] Supported BMC as MCTP bus owner on AMD platforms and BMC
+ as MCTP bus bridge on Intel platforms.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ drivers/net/mctp/mctp-pcie-vdm.c | 242 +++++++++++++++++++++++--------
+ 1 file changed, 183 insertions(+), 59 deletions(-)
+
+diff --git a/drivers/net/mctp/mctp-pcie-vdm.c b/drivers/net/mctp/mctp-pcie-vdm.c
+index cc238dd138b3..56425910da9d 100644
+--- a/drivers/net/mctp/mctp-pcie-vdm.c
++++ b/drivers/net/mctp/mctp-pcie-vdm.c
+@@ -37,6 +37,18 @@
+ #define MCTP_PCIE_VDM_MAX_MTU 512
+ /* 16byte */
+ #define MCTP_PCIE_VDM_HDR_SIZE 16
++#define MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET 13
++#define MCTP_PCIE_VDM_HDR_SRC_EID_OFFSET 14
++#define MCTP_PAYLOAD_IC_TYPE_SIZE 1
++#define MCTP_RECEIVE_PKT_TIMEOUT_MS 5
++
++#define MCTP_PCIE_VDM_NET_DEV_TX_QUEUE_LEN 1100
++#define MCTP_PCIE_VDM_DEV_TX_QUEUE_SIZE 64
++
++#define MCTP_PCIE_VDM_FMT_4DW 0x3
++#define MCTP_PCIE_VDM_TYPE_MSG 0x10
++#define MCTP_PCIE_VDM_CODE 0x0
++/* PCIe VDM message code */
+ #define MCTP_PAYLOAD_IC_TYPE_SIZE 1
+ #define MCTP_RECEIVE_PKT_TIMEOUT_MS 5
+ 
+@@ -193,7 +205,7 @@ static void mctp_pcie_vdm_update_route_table(struct mctp_pcie_vdm_dev *vdm_dev,
+ }
+ 
+ static void mctp_pcie_vdm_ctrl_msg_handler(struct mctp_pcie_vdm_dev *vdm_dev,
+-					   u8 *packet)
++					   u8 *packet, bool isTx)
+ {
+ 	u8 message_type =
+ 		FIELD_GET(MCTP_MSG_TYPE_MASK, packet[MCTP_PCIE_VDM_HDR_SIZE]);
+@@ -210,62 +222,172 @@ static void mctp_pcie_vdm_ctrl_msg_handler(struct mctp_pcie_vdm_dev *vdm_dev,
+ 	struct mctp_pcie_vdm_hdr *hdr = (struct mctp_pcie_vdm_hdr *)packet;
+ 
+ 	pr_debug("%s: Command Code: %d", __func__, ctrl_hdr->command_code);
+-	switch (ctrl_hdr->command_code) {
+-	case MCTP_CTRL_CMD_SET_ENDPOINT_ID:
+-		if ((ctrl_hdr->rq == 1) && (ctrl_hdr->datagram == 0)) {
+-			/* EID placed at byte2 of SET EID REQ DATA */
+-			u8 dst_eid =
+-				packet[MCTP_PCIE_VDM_HDR_SIZE +
+-				       MCTP_CTRL_MSG_RQDI_REQ_DATA_OFFSET + 1];
+-			u16 dst_bdf = hdr->pci_target_id;
+-
+-			mctp_pcie_vdm_update_route_table(vdm_dev, dst_eid,
+-							 dst_bdf);
+-		}
+-		break;
+-	case MCTP_CTRL_CMD_GET_ENDPOINT_ID:
+-		if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0)) {
+-			/* EID placed at byte2 of GET EID RSP DATA */
+-			u8 target_eid =
+-				packet[MCTP_PCIE_VDM_HDR_SIZE +
+-				       MCTP_CTRL_MSG_RQDI_RSP_DATA_OFFSET + 1];
+-			u16 src_bdf = hdr->pci_req_id;
+-
+-			mctp_pcie_vdm_update_route_table(vdm_dev, target_eid,
+-							 src_bdf);
+-		}
+-		break;
+-	case MCTP_CTRL_CMD_DISCOVERY_NOTIFY:
+-		hdr->pci_target_id = 0x0000;
+-		/* default use MCTP_PCIE_VDM_ROUTE_BY_ID, so no need to handle RSP class */
+-		if ((ctrl_hdr->rq == 1) && (ctrl_hdr->datagram == 0)) {
+-			hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
+-					  MCTP_PCIE_VDM_ROUTE_TO_RC;
+-		}
+-		break;
+-	case MCTP_CTRL_CMD_PREPARE_ENDPOINT_DISCOVERY:
+-	case MCTP_CTRL_CMD_ENDPOINT_DISCOVERY:
+-		if ((ctrl_hdr->rq == 1) && (ctrl_hdr->datagram == 0)) {
+-			pr_debug("%s: MCTP_CTRL_CMD_ENDPOINT_DISCOVERY Req from %02x: %x", __func__,
+-                hdr->pci_req_id,
+-			    hdr->route_type);
+-			hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
+-					  MCTP_PCIE_VDM_BROADCAST_FROM_RC;
+-			hdr->pci_target_id = 0xFFFF;
+-			u16 src_bdf = hdr->pci_req_id;
+-		} else if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0)) {
+-			hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
+-					  MCTP_PCIE_VDM_ROUTE_TO_RC;
+-			pr_debug("%s: MCTP_CTRL_CMD_ENDPOINT_DISCOVERY Resp: %x", __func__,
+-			    hdr->route_type);
+-		}
+-		break;
+-	default:
+-		/* Unknown command code or not supported currently */
+-		pr_debug("%s: Unsupported Command Code: %d", __func__,
+-			 ctrl_hdr->command_code);
+-		break;
+-	}
++    static u8 bo_eid = 0;
++    static u8 rc_eid = 0;
++
++    if (isTx) {
++        pr_debug("%s: TX (%d) --> (%d)", __func__, packet[MCTP_PCIE_VDM_HDR_SRC_EID_OFFSET], packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET]);
++        // BMC is Requester
++        switch (ctrl_hdr->command_code) {
++        case MCTP_CTRL_CMD_SET_ENDPOINT_ID:
++            if ((ctrl_hdr->rq == 1) && (ctrl_hdr->datagram == 0)) {
++                pr_debug("%s: MCTP_CTRL_CMD_SET_ENDPOINT_ID from BMC", __func__);
++                /* EID placed at byte2 of SET EID REQ DATA */
++                bo_eid = packet[MCTP_PCIE_VDM_HDR_SRC_EID_OFFSET];
++
++                u8 dst_eid =
++                    packet[MCTP_PCIE_VDM_HDR_SIZE +
++                           MCTP_CTRL_MSG_RQDI_REQ_DATA_OFFSET + 1];
++                u16 dst_bdf = hdr->pci_target_id;
++
++                mctp_pcie_vdm_update_route_table(vdm_dev, dst_eid,
++                                 dst_bdf);
++                packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET] = 0xFF;
++                hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
++                          MCTP_PCIE_VDM_BROADCAST_FROM_RC;
++                hdr->pci_target_id = 0xFFFF;
++            } else if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0)) {
++                packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET] = bo_eid;
++                u16 dst_bdf = hdr->pci_target_id;
++                mctp_pcie_vdm_update_route_table(vdm_dev, bo_eid,
++                                 dst_bdf);
++            }
++            break;
++        case MCTP_CTRL_CMD_GET_ENDPOINT_ID:
++            if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0)) {
++                /* EID placed at byte2 of GET EID RSP DATA */
++                u8 target_eid =
++                    packet[MCTP_PCIE_VDM_HDR_SIZE +
++                           MCTP_CTRL_MSG_RQDI_RSP_DATA_OFFSET + 1];
++                u16 src_bdf = hdr->pci_req_id;
++
++                mctp_pcie_vdm_update_route_table(vdm_dev, target_eid,
++                                 src_bdf);
++            }
++            break;
++        case MCTP_CTRL_CMD_DISCOVERY_NOTIFY:
++            hdr->pci_target_id = 0x0000;
++            /* default use MCTP_PCIE_VDM_ROUTE_BY_ID, so no need to handle RSP class */
++            if ((ctrl_hdr->rq == 1) && (ctrl_hdr->datagram == 0)) {
++                hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
++                          MCTP_PCIE_VDM_ROUTE_TO_RC;
++            }
++            break;
++        case MCTP_CTRL_CMD_PREPARE_ENDPOINT_DISCOVERY:
++        case MCTP_CTRL_CMD_ENDPOINT_DISCOVERY:
++            if ((ctrl_hdr->rq == 1) && (ctrl_hdr->datagram == 0)) {
++                bo_eid = packet[MCTP_PCIE_VDM_HDR_SRC_EID_OFFSET];
++                rc_eid = packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET];
++
++                pr_debug("%s: MCTP_CTRL_CMD_ENDPOINT_DISCOVERY Req from %02x: %x", __func__,
++                    hdr->pci_req_id,
++                    hdr->route_type);
++                packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET] = 0xFF;
++                hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
++                          MCTP_PCIE_VDM_BROADCAST_FROM_RC;
++                hdr->pci_target_id = 0xFFFF;
++                u16 src_bdf = hdr->pci_req_id;
++            } else if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0)) {
++                packet[MCTP_PCIE_VDM_HDR_SRC_EID_OFFSET] = rc_eid;
++                pr_debug("%s: MCTP_CTRL_CMD_ENDPOINT_DISCOVERY Resp: %x", __func__,
++                    hdr->route_type);
++            }
++            break;
++        default:
++            /* Unknown command code or not supported currently */
++            pr_debug("%s: Unsupported Command Code: %d", __func__,
++                 ctrl_hdr->command_code);
++            break;
++        }
++
++        if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0) && (packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET] == 0)) {
++            pr_debug("%s: Target is NULL in response message. Patched EID to %d", __func__, bo_eid);
++            packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET] = bo_eid;
++        }
++    } else {
++        // BMC is Receiver.
++        pr_debug("%s: RX (%d) --> (%d)", __func__, packet[MCTP_PCIE_VDM_HDR_SRC_EID_OFFSET], packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET]);
++        switch (ctrl_hdr->command_code) {
++        case MCTP_CTRL_CMD_SET_ENDPOINT_ID:
++            if ((ctrl_hdr->rq == 1) && (ctrl_hdr->datagram == 0)) {
++                pr_debug("%s: MCTP_CTRL_CMD_SET_ENDPOINT_ID from RC", __func__);
++                /* EID placed at byte2 of SET EID REQ DATA */
++                bo_eid = packet[MCTP_PCIE_VDM_HDR_SRC_EID_OFFSET];
++
++                u8 dst_eid =
++                    packet[MCTP_PCIE_VDM_HDR_SIZE +
++                           MCTP_CTRL_MSG_RQDI_REQ_DATA_OFFSET + 1];
++                u16 dst_bdf = hdr->pci_target_id;
++
++                mctp_pcie_vdm_update_route_table(vdm_dev, dst_eid,
++                                 dst_bdf);
++                packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET] = 0xFF;
++                hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
++                          MCTP_PCIE_VDM_BROADCAST_FROM_RC;
++                hdr->pci_target_id = 0xFFFF;
++            } else if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0)) {
++                packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET] = bo_eid;
++                u16 dst_bdf = hdr->pci_target_id;
++                mctp_pcie_vdm_update_route_table(vdm_dev, bo_eid,
++                                 dst_bdf);
++            }
++            break;
++        case MCTP_CTRL_CMD_GET_ENDPOINT_ID:
++            if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0)) {
++                /* EID placed at byte2 of GET EID RSP DATA */
++                u8 target_eid =
++                    packet[MCTP_PCIE_VDM_HDR_SIZE +
++                           MCTP_CTRL_MSG_RQDI_RSP_DATA_OFFSET + 1];
++                u16 src_bdf = hdr->pci_req_id;
++
++                mctp_pcie_vdm_update_route_table(vdm_dev, target_eid,
++                                 src_bdf);
++            }
++            break;
++        case MCTP_CTRL_CMD_DISCOVERY_NOTIFY:
++            hdr->pci_target_id = 0x0000;
++            /* default use MCTP_PCIE_VDM_ROUTE_BY_ID, so no need to handle RSP class */
++            if ((ctrl_hdr->rq == 1) && (ctrl_hdr->datagram == 0)) {
++                hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
++                          MCTP_PCIE_VDM_ROUTE_TO_RC;
++            }
++            break;
++        case MCTP_CTRL_CMD_PREPARE_ENDPOINT_DISCOVERY:
++        case MCTP_CTRL_CMD_ENDPOINT_DISCOVERY:
++            if ((ctrl_hdr->rq == 1) && (ctrl_hdr->datagram == 0)) {
++                pr_debug("%s: MCTP_CTRL_CMD_ENDPOINT_DISCOVERY Req from RC %02x: %x", __func__,
++                    hdr->pci_req_id,
++                    hdr->route_type);
++                hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
++                          MCTP_PCIE_VDM_BROADCAST_FROM_RC;
++                hdr->pci_target_id = 0xFFFF;
++                u16 src_bdf = hdr->pci_req_id;
++            } else if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0)) {
++                hdr->route_type = MCTP_PCIE_VDM_TYPE_MSG |
++                          MCTP_PCIE_VDM_ROUTE_TO_RC;
++                pr_debug("%s: MCTP_CTRL_CMD_ENDPOINT_DISCOVERY Resp from RC: %x", __func__,
++                    hdr->route_type);
++            }
++            break;
++        default:
++            /* Unknown command code or not supported currently */
++            pr_debug("%s: Unsupported Command Code: %d", __func__,
++                 ctrl_hdr->command_code);
++            break;
++        }
++
++        // Received an response
++        if ((ctrl_hdr->rq == 0) && (ctrl_hdr->datagram == 0)) {
++            if (packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET] == 0) {
++                pr_debug("%s: Target is NULL in response message. Patched EID to %d", __func__, bo_eid);
++                packet[MCTP_PCIE_VDM_HDR_DEST_EID_OFFSET] = bo_eid;
++            }
++            if (packet[MCTP_PCIE_VDM_HDR_SRC_EID_OFFSET] == 0) {
++                pr_debug("%s: Source is NULL in response message. Patched EID to %d", __func__, rc_eid);
++                packet[MCTP_PCIE_VDM_HDR_SRC_EID_OFFSET] = rc_eid;
++            }
++        }
++    }
+ }
+ 
+ static netdev_tx_t mctp_pcie_vdm_start_xmit(struct sk_buff *skb,
+@@ -318,7 +440,7 @@ static void mctp_pcie_vdm_xmit(struct mctp_pcie_vdm_dev *vdm_dev,
+ 	message_type = FIELD_GET(MCTP_MSG_TYPE_MASK, hdr_byte[MCTP_PCIE_VDM_HDR_SIZE]);
+ 
+ 	if (message_type == MCTP_CONTROL_MSG_TYPE) {
+-		mctp_pcie_vdm_ctrl_msg_handler(vdm_dev, hdr_byte);
++		mctp_pcie_vdm_ctrl_msg_handler(vdm_dev, hdr_byte, true);
+ 	} else {
+ 		if (hdr->route_type ==
+ 		    (MCTP_PCIE_VDM_TYPE_MSG | MCTP_PCIE_VDM_ROUTE_BY_ID)) {
+@@ -430,6 +552,8 @@ static void mctp_pcie_vdm_rx_work_handler(struct work_struct *work)
+ 
+ 		skb->protocol = htons(ETH_P_MCTP);
+ 		/* put data into tail sk buff */
++        // Patch received data first
++		mctp_pcie_vdm_ctrl_msg_handler(vdm_dev, packet, false);
+ 		skb_put_data(skb, &packet[sizeof(struct mctp_pcie_vdm_hdr)], len);
+ 		mctp_pcie_vdm_display_skb_buff_data(skb);
+ 
+@@ -445,7 +569,7 @@ static void mctp_pcie_vdm_rx_work_handler(struct work_struct *work)
+ 			stats->rx_dropped++;
+ 		}
+ 
+-		mctp_pcie_vdm_ctrl_msg_handler(vdm_dev, packet);
++		//mctp_pcie_vdm_ctrl_msg_handler(vdm_dev, packet, false);
+ 
+ 		if (vdm_hdr->route_type ==
+ 			(MCTP_PCIE_VDM_TYPE_MSG |
+-- 
+2.45.2
+

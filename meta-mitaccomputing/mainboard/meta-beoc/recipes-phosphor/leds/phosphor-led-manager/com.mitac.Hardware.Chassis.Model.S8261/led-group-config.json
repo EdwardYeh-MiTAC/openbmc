@@ -1,0 +1,317 @@
+{
+    "leds": [
+        {
+            "group": "bmc_booted",
+            "members": [
+                {
+                    "Name": "bmc_heartbeat",
+                    "Action": "Blink",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                }
+            ]
+        },
+        {
+            "group": "power_on",
+            "members": [
+            ]
+        },
+        {
+            "group": "enclosure_fault",
+            "members": [
+                {
+                    "Name": "css_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "error_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "battery_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "pcie_slot5_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "pcie_slot7_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                }
+            ]
+        },
+        {
+            "group": "enclosure_identify",
+            "members": [
+                {
+                    "Name": "identify",
+                    "Action": "Blink",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                }
+            ]
+        },
+        {
+            "group": "fan_fault",
+            "members": [
+                {
+                    "Name": "fan1_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "fan2_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "fan3_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "fan4_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "fan5_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "fan6_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                }
+            ]
+        },
+        {
+            "group": "fan_identify",
+            "members": [
+            ]
+        },
+        {
+            "group": "cpu1_dimm_fault",
+            "members": [
+                {
+                    "Name": "cpu1_dimm_a_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_b_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_c_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_d_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_e_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_f_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_g_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_h_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_i_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_j_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_k_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu1_dimm_l_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                }
+            ]
+        },
+        {
+            "group": "cpu2_dimm_fault",
+            "members": [
+                {
+                    "Name": "cpu2_dimm_a_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_b_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_c_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_d_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_e_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_f_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_g_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_h_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_i_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_j_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_k_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                },
+                {
+                    "Name": "cpu2_dimm_l_fault_led",
+                    "Action": "On",
+                    "DutyOn": 50,
+                    "Period": 1000,
+                    "Priority": "On"
+                }
+            ]
+        }
+    ]
+}

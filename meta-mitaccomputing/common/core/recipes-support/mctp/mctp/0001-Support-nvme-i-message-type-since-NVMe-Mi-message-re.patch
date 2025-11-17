@@ -1,0 +1,96 @@
+From 8e79bbd3ff2adf9b35fa37a1eb8460c2aa77a0f3 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 11 Aug 2025 08:06:59 +0000
+Subject: [PATCH 1/2] Support nvme-i message type since NVMe-Mi message
+ required MIC to be enabled by default.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/mctp-client.c | 57 +++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 50 insertions(+), 7 deletions(-)
+
+diff --git a/src/mctp-client.c b/src/mctp-client.c
+index 051d2c8..1d1cff0 100644
+--- a/src/mctp-client.c
++++ b/src/mctp-client.c
+@@ -55,6 +55,11 @@ static struct type_lookup_t {
+ 		.type = 4,
+ 		.description = "nvme over mctp per DSP0235",
+ 	},
++	{
++		.name = "nvme-i",
++		.type = 132,
++		.description = "nvme over mctp with data integrity per DSP0235",
++	},
+ 	{
+ 		.name = "spdm",
+ 		.type = 5,
+@@ -90,6 +95,18 @@ static int do_type_lookup(char *type_str)
+ 	return -ENOENT;
+ };
+ 
++static uint32_t nvme_mi_crc32_update(uint32_t crc, void *data, size_t len)
++{
++    int i;
++
++    while (len--) {
++        crc ^= *(unsigned char *)(data++);
++        for (i = 0; i < 8; i++)
++            crc = (crc >> 1) ^ ((crc & 1) ? 0x82F63B78 : 0);
++    }
++    return crc;
++}
++
+ static int do_send_recv(unsigned int net, mctp_eid_t eid, uint8_t type,
+ 			struct data_t *data)
+ {
+@@ -110,13 +127,39 @@ static int do_send_recv(unsigned int net, mctp_eid_t eid, uint8_t type,
+ 	addr.smctp_type = type;
+ 	addr.smctp_addr.s_addr = eid;
+ 
+-	rc = sendto(sd, data->data, data->len, 0, (struct sockaddr *)&addr,
+-		    sizeof(addr));
+-	if (rc < 0)
+-		err(EXIT_FAILURE, "sendto(%zd) failed", data->len);
+-	if (rc != (ssize_t)data->len)
+-		err(EXIT_FAILURE, "sendto(%zd) partial send (%zd)", data->len,
+-		    rc);
++    if ((type & 0x80) != 0x80)
++    {
++        // Without MIC
++	    rc = sendto(sd, data->data, data->len, 0, (struct sockaddr *)&addr,
++		        sizeof(addr));
++        if (rc < 0)
++            err(EXIT_FAILURE, "sendto(%zd) failed", data->len);
++        if (rc != (ssize_t)data->len)
++            err(EXIT_FAILURE, "sendto(%zd) partial send (%zd)", data->len,
++                rc);
++    }
++    else
++    {
++        // With MIC
++        uint8_t payload[data->len + 5];
++        payload[0] = type;
++        for (uint8_t offset = 0; offset < data->len; offset ++)
++            payload[offset + 1] = data->data[offset];
++
++        uint32_t crc_payload = ~nvme_mi_crc32_update(0xFFFFFFFF, payload, sizeof(payload) - 4);
++        payload[data->len + 1] = crc_payload & 0xff;
++        payload[data->len + 2] = (crc_payload >>  8) & 0xff;
++        payload[data->len + 3] = (crc_payload >> 16) & 0xff;
++        payload[data->len + 4] = (crc_payload >> 24) & 0xff;
++
++	    rc = sendto(sd, &payload[1], sizeof(payload) - 1, 0, (struct sockaddr *)&addr,
++		        sizeof(addr));
++        if (rc < 0)
++            err(EXIT_FAILURE, "sendto(%zd) failed", sizeof(payload) - 1);
++        if (rc != (ssize_t) sizeof(payload) - 1)
++            err(EXIT_FAILURE, "sendto(%zd) partial send (%zd)", sizeof(payload) - 1,
++                rc);
++    }
+ 
+ 	recvlen = recvfrom(sd, NULL, 0, MSG_TRUNC | MSG_PEEK,
+ 			   (struct sockaddr *)&addr, &addrlen);
+-- 
+2.45.2
+

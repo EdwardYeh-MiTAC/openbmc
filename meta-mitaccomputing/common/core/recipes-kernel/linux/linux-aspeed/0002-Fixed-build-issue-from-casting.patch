@@ -1,0 +1,35 @@
+From 8b53d754645abec79dea8877ad46a7a491e091be Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 21 Apr 2025 07:12:25 +0000
+Subject: [PATCH 1/1] Fixed build issue from casting.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ drivers/i3c/i3c-hub.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i3c/i3c-hub.c b/drivers/i3c/i3c-hub.c
+index 73a9b96e6635..b8c1422a6412 100644
+--- a/drivers/i3c/i3c-hub.c
++++ b/drivers/i3c/i3c-hub.c
+@@ -1325,7 +1325,7 @@ static void i3c_hub_detach_i2c_dev(struct i2c_dev_desc *dev)
+ }
+ 
+ static int i3c_hub_i2c_xfers(struct i2c_dev_desc *dev,
+-			     const struct i2c_msg *xfers, int nxfers)
++			     struct i2c_msg *xfers, int nxfers)
+ {
+ 	struct i3c_master_controller *parent = parent_controller_from_i2c_desc(dev);
+ 	struct logical_bus *bus = bus_from_i2c_desc(dev);
+@@ -1450,7 +1450,7 @@ static int i3c_hub_priv_xfers_smbus(struct i3c_dev_desc *dev,
+ }
+ 
+ static int i3c_hub_i2c_xfers_smbus(struct i2c_dev_desc *dev,
+-				   const struct i2c_msg *xfers, int nxfers)
++				   struct i2c_msg *xfers, int nxfers)
+ {
+ 	return 0;
+ }
+-- 
+2.25.1
+

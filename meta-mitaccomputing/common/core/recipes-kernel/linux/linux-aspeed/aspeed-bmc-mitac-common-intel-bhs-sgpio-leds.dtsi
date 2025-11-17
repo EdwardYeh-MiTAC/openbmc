@@ -1,0 +1,134 @@
+// CPU1
+dimm0_fault {
+	gpios = <&sgpiom0 17 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm1_fault {
+	gpios = <&sgpiom0 19 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm2_fault {
+	gpios = <&sgpiom0 21 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm3_fault {
+	gpios = <&sgpiom0 23 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm4_fault {
+	gpios = <&sgpiom0 25 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm5_fault {
+	gpios = <&sgpiom0 27 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm6_fault {
+	gpios = <&sgpiom0 29 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm7_fault {
+	gpios = <&sgpiom0 31 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm8_fault {
+	gpios = <&sgpiom0 33 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm9_fault {
+	gpios = <&sgpiom0 35 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm10_fault {
+	gpios = <&sgpiom0 37 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm11_fault {
+	gpios = <&sgpiom0 39 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm12_fault {
+	gpios = <&sgpiom0 129 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm13_fault {
+	gpios = <&sgpiom0 131 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm14_fault {
+	gpios = <&sgpiom0 133 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm15_fault {
+	gpios = <&sgpiom0 135 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+
+
+
+// CPU2
+dimm16_fault {
+	gpios = <&sgpiom0 57 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm17_fault {
+	gpios = <&sgpiom0 59 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm18_fault {
+	gpios = <&sgpiom0 61 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm19_fault {
+	gpios = <&sgpiom0 63 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm20_fault {
+	gpios = <&sgpiom0 65 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm21_fault {
+	gpios = <&sgpiom0 67 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm22_fault {
+	gpios = <&sgpiom0 69 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm23_fault {
+	gpios = <&sgpiom0 71 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm24_fault {
+	gpios = <&sgpiom0 73 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm25_fault {
+	gpios = <&sgpiom0 75 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm26_fault {
+	gpios = <&sgpiom0 77 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm27_fault {
+	gpios = <&sgpiom0 79 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+
+dimm28_fault {
+	gpios = <&sgpiom0 137 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm29_fault {
+	gpios = <&sgpiom0 139 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm30_fault {
+	gpios = <&sgpiom0 141 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};
+dimm31_fault {
+	gpios = <&sgpiom0 143 GPIO_ACTIVE_HIGH>;
+	default-state = "off";
+};

@@ -1,0 +1,29 @@
+From c7288d7174cc3db6515d76432dc5e9e3534d4853 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 30 Jun 2025 08:38:52 +0000
+Subject: [PATCH 1/1] Fixed build issue by add dummy disable_abr_wdt().
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ board/aspeed/evb_ast2700/evb_ast2700.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/board/aspeed/evb_ast2700/evb_ast2700.c b/board/aspeed/evb_ast2700/evb_ast2700.c
+index 25530fc34c..0947381d88 100644
+--- a/board/aspeed/evb_ast2700/evb_ast2700.c
++++ b/board/aspeed/evb_ast2700/evb_ast2700.c
+@@ -9,6 +9,11 @@
+ #define DEFAULT_SGPIO_BYTES 10
+ #define MAX_SGPIO_BYTES 16
+ 
++static void __maybe_unused disable_abr_wdt(void)
++{
++	printf("TODO: %s for AST2700.\n", __func__);
++}
++
+ static void __maybe_unused rearm_os_boot_wdt(void)
+ {
+ 	printf("TODO: %s for AST2700.\n", __func__);
+-- 
+2.45.2
+

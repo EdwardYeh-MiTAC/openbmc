@@ -1,0 +1,27 @@
+From bf5226a4bbc68b358eb5ada35b7cba84f10017b2 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Thu, 18 Sep 2025 08:59:22 +0000
+Subject: [PATCH 1/1] Temporarily use Other to identify the host image in PLDM
+ FW format. Will extend the VersionPurpose later.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ bios/bios_software_manager.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bios/bios_software_manager.cpp b/bios/bios_software_manager.cpp
+index d7623e4..8b72329 100644
+--- a/bios/bios_software_manager.cpp
++++ b/bios/bios_software_manager.cpp
+@@ -103,7 +103,7 @@ sdbusplus::async::task<bool> BIOSSoftwareManager::initDevice(
+ 
+     spiDevice->softwareCurrent = std::move(software);
+ 
+-    spiDevice->softwareCurrent->setVersion(SPIDevice::getVersion());
++    spiDevice->softwareCurrent->setVersion(SPIDevice::getVersion(), SoftwareVersion::VersionPurpose::Other);
+ 
+     devices.insert({config.objectPath, std::move(spiDevice)});
+ 
+-- 
+2.45.2
+

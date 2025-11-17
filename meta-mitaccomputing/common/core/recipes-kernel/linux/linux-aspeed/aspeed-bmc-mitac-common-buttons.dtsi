@@ -1,0 +1,7 @@
+#include "aspeed-bmc-mitac-input-event-code.dtsi"
+
+event-identify-button {
+	label = "IDENTIFY-BUTTON";
+	gpios = <&gpio0 ASPEED_GPIO(G, 4) GPIO_ACTIVE_LOW>;
+	linux,code = <INPUT_EVENT_CODE_IDENTIFY_BUTTON>;
+};

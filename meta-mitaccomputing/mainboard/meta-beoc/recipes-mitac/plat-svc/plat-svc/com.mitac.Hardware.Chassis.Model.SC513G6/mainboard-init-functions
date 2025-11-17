@@ -1,0 +1,107 @@
+#!/bin/bash -e
+LIBPATH=/usr/libexec
+source $LIBPATH/mitac-common-functions
+
+PLATFORM_COMPACT_NAME="com.mitac.Hardware.Chassis.Model.SC513G6"
+MB_LIB_PATH="$LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME"
+KERNEL_DTS_FN=aspeed-bmc-mitac-sc513g6
+FDFFILE="conf-$KERNEL_DTS_FN.dtb"
+
+DO_REBOOT=0
+
+refresh-uboot-arg () {
+    set +e
+    #$1: ARG NAME
+    #$2: Expectation
+    current=`fw_printenv $1 -n`
+    if [ "$current" != "$2" ]; then
+        echo "Updating $1"
+        fw_setenv $1 $2
+        echo "Current $1: <$current>"
+        echo "New $1: <$2>"
+        DO_REBOOT=1
+    else
+            echo "No need to update $1."
+    fi
+    set -e
+}
+
+init-uboot() {
+        echo "mainboard-init-functions: init-uboot ($VER)"
+    source $MB_LIB_PATH/mainboard_env.sh
+        BOOTCMD="mw.l 0x1e6e251c 00001d00; run bootspi"
+    refresh-uboot-arg bootcmd "$BOOTCMD"
+    refresh-uboot-arg fdtfile "$FDFFILE"
+    refresh-uboot-arg port80_snoop "yes"
+
+    # To make booting with selected DTB configuration.
+    # To avoid bmc hung at u-boot due to incorrect config from upgrade and downgrade of firmware, default option is mandatory.
+    BOOTSPI="fdt addr 20100000 && fdt header get fitsize totalsize && cp.b 20100000 \${loadaddr} \${fitsize} && bootm \${loadaddr}#\${fdtfile}; echo Booting with default DTB; bootm; echo Error loading kernel FIT image"
+    refresh-uboot-arg bootspi "$BOOTSPI"
+
+    echo "Update MAC Address if necessary."
+    set +e
+    get_mac_addr_from_fru 0 MACADDR0
+    if [ $? == 0 ]; then
+        echo "Update eth1addr"
+        refresh-uboot-arg eth1addr "$MACADDR0"
+    fi
+
+    get_mac_addr_from_fru 1 MACADDR1
+    if [ $? == 0 ]; then
+        echo "Update eth2addr"
+        refresh-uboot-arg eth2addr "$MACADDR1"
+    fi
+    set -e
+
+    if [ "$DO_REBOOT" == 1 ]; then
+        echo "Reboot as args changed."
+        reboot
+    fi
+}
+
+init-kernel() {
+    echo "mainboard-init-functions: init-kernel ($VER)"
+}
+
+init-i2c0() {
+    BUS=i2c-0
+    NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+}
+
+init-i2c2() {
+    BUS=i2c-2
+    NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+}
+
+init-i2c6() {
+    BUS=i2c-6
+    NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+}
+
+init-i2c8() {
+    BUS=i2c-8
+    NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+}
+
+init-i2c14() {
+    BUS=i2c-14
+    NEW_DEV=/sys/bus/i2c/devices/$BUS/new_device
+}
+
+init-peripheral() {
+    echo "mainboard-init-functions: init-peripheral ($VER)"
+}
+
+init-service() {
+    echo "mainboard-init-functions: init-service ($VER)"
+    ln -s $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/mainboard_env.sh /tmp/mainboard_env.sh
+
+    # Create symbolic link according to system.
+    # ln -s $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/MRD_default.json /tmp/MRD_System.json
+    ln -s $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/MRD_SC513G6.json /tmp/MRD_System.json
+
+    source $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/spd_link.sh
+
+    launch_intel_common_service
+}

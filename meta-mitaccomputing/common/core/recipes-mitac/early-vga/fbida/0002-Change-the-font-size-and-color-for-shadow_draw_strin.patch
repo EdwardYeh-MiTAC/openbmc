@@ -1,0 +1,47 @@
+From fa0001019fde007d9d5b1872eebd6b8673dc342e Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Wed, 14 May 2025 03:35:58 +0000
+Subject: [PATCH 2/3] Change the font size and color for shadow_draw_string.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ fb-gui.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/fb-gui.c b/fb-gui.c
+index 37634d0..772b91c 100644
+--- a/fb-gui.c
++++ b/fb-gui.c
+@@ -15,6 +15,8 @@
+ #include "readers.h"
+ #include "fb-gui.h"
+ 
++#define DEFAULT_FONT_SIZE 14
++
+ static int ys =  3;
+ static int xs = 10;
+ 
+@@ -154,6 +156,7 @@ void shadow_darkify(int x1, int x2, int y1,int y2, int percent)
+ 
+ int shadow_draw_string(int x, int y, char *str, int align)
+ {
++    cairo_set_source_rgb(context, 1, 1, 1);
+     cairo_text_extents_t te;
+ 
+     cairo_text_extents(context, str, &te);
+@@ -213,10 +216,11 @@ cairo_font_extents_t *shadow_font_init(char *font)
+         rc = sscanf(font, "%63[^:]:size=%d", fontname, &fontsize);
+         if (rc != 2) {
+             strncpy(fontname, font, sizeof(fontname));
+-            fontsize = 16;
+         }
+     }
+ 
++    // Force font size
++    fontsize = DEFAULT_FONT_SIZE;
+     cairo_select_font_face(context, fontname,
+                            CAIRO_FONT_SLANT_NORMAL,
+                            CAIRO_FONT_WEIGHT_NORMAL);
+-- 
+2.25.1
+

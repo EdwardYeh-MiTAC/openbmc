@@ -1,0 +1,41 @@
+{
+  "Exposes": [
+    {
+      "Address": "0x48",
+      "Bus": 24,
+      "Name": "Outlet_Temp_Left_Riser",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 45
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 42
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    }
+  ],
+  "Name": "M8261T85-L32T",
+  "Probe": [
+    "FOUND('Mitac_S8261_Baseboard')"
+  ],
+  "Type": "Board"
+}

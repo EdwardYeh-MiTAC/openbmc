@@ -1,0 +1,412 @@
+{
+  "Exposes": [
+    {
+      "Address": "$ADDRESS",
+      "Bus": "$BUS",
+      "Name": "FCB $BUS $ADDRESS",
+      "Type": "EEPROM"
+    },
+    {
+      "Address": "0x21",
+      "BindConnector": "System Fan connector 1",
+      "Bus": "$bus",
+      "Index": 9,
+      "Name": "Fan 1A",
+      "Presence": {
+        "PinName": "FAN1_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 27000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2430
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2520
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x21",
+      "BindConnector": "System Fan connector 1",
+      "Bus": "$bus",
+      "Index": 10,
+      "Name": "Fan 1B",
+      "Presence": {
+        "PinName": "FAN1_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 23000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2430
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2520
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x21",
+      "BindConnector": "System Fan connector 2",
+      "Bus": "$bus",
+      "Index": 13,
+      "Name": "Fan 2A",
+      "Presence": {
+        "PinName": "FAN2_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 27000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2438
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2544
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x21",
+      "BindConnector": "System Fan connector 2",
+      "Bus": "$bus",
+      "Index": 14,
+      "Name": "Fan 2B",
+      "Presence": {
+        "PinName": "FAN2_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 23000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2430
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2520
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x21",
+      "BindConnector": "System Fan connector 3",
+      "Bus": "$bus",
+      "Index": 1,
+      "Name": "Fan 3A",
+      "Presence": {
+        "PinName": "FAN3_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 27000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2438
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2544
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x21",
+      "BindConnector": "System Fan connector 3",
+      "Bus": "$bus",
+      "Index": 2,
+      "Name": "Fan 3B",
+      "Presence": {
+        "PinName": "FAN3_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 23000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2430
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2520
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x22",
+      "BindConnector": "System Fan connector 4",
+      "Bus": "$bus",
+      "Index": 9,
+      "Name": "Fan 4A",
+      "Presence": {
+        "PinName": "FAN4_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 27000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2430
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2520
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x22",
+      "BindConnector": "System Fan connector 4",
+      "Bus": "$bus",
+      "Index": 10,
+      "Name": "Fan 4B",
+      "Presence": {
+        "PinName": "FAN4_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 23000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2430
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2520
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x22",
+      "BindConnector": "System Fan connector 5",
+      "Bus": "$bus",
+      "Index": 13,
+      "Name": "Fan 5A",
+      "Presence": {
+        "PinName": "FAN5_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 27000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2438
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2544
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x22",
+      "BindConnector": "System Fan connector 5",
+      "Bus": "$bus",
+      "Index": 14,
+      "Name": "Fan 5B",
+      "Presence": {
+        "PinName": "FAN5_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 23000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2430
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2520
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x22",
+      "BindConnector": "System Fan connector 6",
+      "Bus": "$bus",
+      "Index": 1,
+      "Name": "Fan 6A",
+      "Presence": {
+        "PinName": "FAN6_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 27000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2438
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2544
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x22",
+      "BindConnector": "System Fan connector 6",
+      "Bus": "$bus",
+      "Index": 2,
+      "Name": "Fan 6B",
+      "Presence": {
+        "PinName": "FAN6_PRSNT_N",
+        "Polarity": "Low"
+      },
+      "MaxReading": 23000,
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2430
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2520
+        }
+      ],
+      "Type": "I2CFan"
+    },
+    {
+      "Name": "System Fan connector 1",
+      "Pwm": 0,
+      "PwmName": "Pwm_1",
+      "LED": "fan1_fault",
+      "Tachs": [
+        9,
+        10
+      ],
+      "Type": "IntelFanConnector"
+    },
+    {
+      "Name": "System Fan connector 2",
+      "Pwm": 4,
+      "PwmName": "Pwm_2",
+      "LED": "fan2_fault",
+      "Tachs": [
+        13,
+        14
+      ],
+      "Type": "IntelFanConnector"
+    },
+    {
+      "Name": "System Fan connector 3",
+      "Pwm": 8,
+      "PwmName": "Pwm_3",
+      "LED": "fan3_fault",
+      "Tachs": [
+        1,
+        2
+      ],
+      "Type": "IntelFanConnector"
+    },
+    {
+      "Name": "System Fan connector 4",
+      "Pwm": 0,
+      "PwmName": "Pwm_4",
+      "LED": "fan4_fault",
+      "Tachs": [
+        9,
+        10
+      ],
+      "Type": "IntelFanConnector"
+    },
+    {
+      "Name": "System Fan connector 5",
+      "Pwm": 4,
+      "PwmName": "Pwm_5",
+      "LED": "fan5_fault",
+      "Tachs": [
+        13,
+        14
+      ],
+      "Type": "IntelFanConnector"
+    },
+    {
+      "Name": "System Fan connector 6",
+      "Pwm": 8,
+      "PwmName": "Pwm_6",
+      "LED": "fan6_fault",
+      "Tachs": [
+        1,
+        2
+      ],
+      "Type": "IntelFanConnector"
+    }
+  ],
+  "Name": "FCB $BUS $ADDRESS",
+  "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'R2520G6FANBP*', 'BOARD_SERIAL_NUMBER': '5T-*'})",
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "Model": "$BOARD_PRODUCT_NAME",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "mitac_fcb_r2520g6fanbp-5t"
+  }
+}

@@ -1,0 +1,97 @@
+From 51bbd008912082e3a0750ed0ba25352036d5ea80 Mon Sep 17 00:00:00 2001
+From: OpenEmbedded <oe.patch@oe>
+Date: Mon, 11 Aug 2025 09:49:52 +0000
+Subject: [PATCH 2/2] Optional: Beautify dump of packet data.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ drivers/soc/aspeed/aspeed-mctp.c | 44 +++++++++++++++++++++++++-------
+ 1 file changed, 35 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/soc/aspeed/aspeed-mctp.c b/drivers/soc/aspeed/aspeed-mctp.c
+index 6e3dc36fa65f..1cf28171e037 100644
+--- a/drivers/soc/aspeed/aspeed-mctp.c
++++ b/drivers/soc/aspeed/aspeed-mctp.c
+@@ -370,20 +370,46 @@ struct aspeed_mctp_endpoint {
+ 
+ struct kmem_cache *packet_cache;
+ 
+-void data_dump(struct aspeed_mctp *priv, struct mctp_pcie_packet_data *data)
++void data_dump(struct aspeed_mctp *priv, struct mctp_pcie_packet_data *data, bool little_endian, bool isTx)
+ {
+ 	int i;
+ 
++	u8 eid = 0;
++	if (isTx) {
++		if (little_endian)
++			eid = (data->hdr[3] >> 16) & 0xff;
++		else
++			eid = (data->hdr[3] >> 8) & 0xff;
++	} else {
++		if (little_endian)
++			eid = (data->hdr[3] >> 16) & 0xff;
++		else
++			eid = (data->hdr[3] >> 8) & 0xff;
++	}
++
+ 	dev_dbg(priv->dev, "Address %zu", (size_t)data);
+-	dev_dbg(priv->dev, "VDM header:");
++	dev_dbg(priv->dev, "VDM header: (%s Endian)", little_endian ? "Little" : "Big");
+ 	for (i = 0; i < PCIE_VDM_HDR_SIZE_DW; i++) {
+-		dev_dbg(priv->dev, "%02x %02x %02x %02x", data->hdr[i] & 0xff,
++		dev_dbg(priv->dev, "%02x %s [%02x]: %02x %02x %02x %02x",
++			eid,
++			isTx ? "TH" : "RH",
++			i,
++			data->hdr[i] & 0xff,
+ 			(data->hdr[i] >> 8) & 0xff, (data->hdr[i] >> 16) & 0xff,
+ 			(data->hdr[i] >> 24) & 0xff);
+ 	}
+-	dev_dbg(priv->dev, "Data payload:");
+-	for (i = 0; i < PCIE_VDM_DATA_SIZE_DW; i++) {
+-		dev_dbg(priv->dev, "%02x %02x %02x %02x",
++	u32 packet_size = 0;
++	if (little_endian)
++		packet_size = FIELD_GET(MCTP_HDR_DW_LE_PACKET_SIZE, data->hdr[0]);
++	else
++		packet_size = ((data->hdr[0] >> 24) & 0xff) + (((data->hdr[0] >> 16) & 0x03) * 8);
++
++	dev_dbg(priv->dev, "Data payload: %d", packet_size);
++	for (i = 0; (i < PCIE_VDM_DATA_SIZE_DW) && (i < packet_size) ; i++) {
++		dev_dbg(priv->dev, "%02x %s [%02x]: %02x %02x %02x %02x",
++			eid,
++			isTx ? "T" : "R",
++			i,
+ 			data->payload[i] & 0xff, (data->payload[i] >> 8) & 0xff,
+ 			(data->payload[i] >> 16) & 0xff,
+ 			(data->payload[i] >> 24) & 0xff);
+@@ -631,7 +657,7 @@ static void aspeed_mctp_emit_tx_cmd(struct mctp_channel *tx,
+ 		sizeof(packet->data.hdr) / sizeof(u32);
+ 	u32 offset;
+ 
+-	data_dump(priv, &packet->data);
++	data_dump(priv, &packet->data, false, true);
+ 	aspeed_mctp_swap_pcie_vdm_hdr(&packet->data);
+ 
+ 	if (priv->match_data->vdm_hdr_direct_xfer) {
+@@ -970,7 +996,7 @@ static void aspeed_mctp_rx_tasklet(unsigned long data)
+ 			} else {
+ 				dev_dbg(priv->dev, "Failed to allocate RX packet\n");
+ 			}
+-			data_dump(priv, &rx_packet->data);
++			data_dump(priv, &rx_packet->data, true, false);
+ 			*hdr = 0;
+ 			rx->wr_ptr = (rx->wr_ptr + 1) % rx->buffer_count;
+ 			hdr = (u32 *)&rx_buf[rx->wr_ptr];
+@@ -1035,7 +1061,7 @@ static void aspeed_mctp_rx_tasklet(unsigned long data)
+ 			dev_dbg(priv->dev,
+ 				"rx->wr_ptr = %d, rx_cmd->rx_lo = %08x",
+ 				rx->wr_ptr, *hdr);
+-			data_dump(priv, &rx_packet->data);
++			data_dump(priv, &rx_packet->data, true, false);
+ 			*hdr = 0;
+ 			rx->wr_ptr = (rx->wr_ptr + 1) % rx->buffer_count;
+ 			payload = (u32 *)&rx_buf[rx->wr_ptr];
+-- 
+2.45.2
+

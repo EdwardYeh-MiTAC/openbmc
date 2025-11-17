@@ -1,0 +1,119 @@
+From c7fc51f8989e97129770e64887c851c0de8d1d47 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 6 Jan 2025 02:54:31 +0000
+Subject: [PATCH 4/5] Fixed the issue that unable to create hwmon-temp devices
+ when using MuxChannel due to lack of bus number from the config in
+ EntityManager.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/DeviceMgmt.cpp               | 24 +++++++++++++-----------
+ src/DeviceMgmt.hpp               | 17 +++++++++++++++--
+ src/hwmon-temp/HwmonTempMain.cpp |  3 ++-
+ 3 files changed, 30 insertions(+), 14 deletions(-)
+
+diff --git a/src/DeviceMgmt.cpp b/src/DeviceMgmt.cpp
+index 6d6c296..3ec215a 100644
+--- a/src/DeviceMgmt.cpp
++++ b/src/DeviceMgmt.cpp
+@@ -18,33 +18,35 @@
+ namespace fs = std::filesystem;
+ 
+ std::optional<I2CDeviceParams> getI2CDeviceParams(
+-    const I2CDeviceTypeMap& dtmap, const SensorBaseConfigMap& cfg)
++    const I2CDeviceTypeMap& dtmap, const SensorBaseConfigMap& cfg, const int logicalBusNumberFromMux)
+ {
+     auto findType = cfg.find("Type");
+     auto findBus = cfg.find("Bus");
+     auto findAddr = cfg.find("Address");
++    uint64_t bus = 0;
++    uint64_t addr = 0;
+ 
+-    if (findType == cfg.end() || findBus == cfg.end() || findAddr == cfg.end())
++    if (findType == cfg.end() || findAddr == cfg.end())
+     {
+         return std::nullopt;
+     }
+ 
+     const std::string* type = std::get_if<std::string>(&findType->second);
+-    const uint64_t* bus = std::get_if<uint64_t>(&findBus->second);
+-    const uint64_t* addr = std::get_if<uint64_t>(&findAddr->second);
+-
+-    if (type == nullptr || bus == nullptr || addr == nullptr)
+-    {
+-        return std::nullopt;
+-    }
+-
+     auto findDevType = dtmap.find(type->c_str());
+     if (findDevType == dtmap.end())
+     {
+         return std::nullopt;
+     }
+ 
+-    return I2CDeviceParams(findDevType->second, *bus, *addr);
++    addr = static_cast<uint64_t> (*std::get_if<uint64_t>(&findAddr->second));
++
++    if (logicalBusNumberFromMux > 0)
++    {
++        bus = logicalBusNumberFromMux;
++    } else {
++        bus = *std::get_if<uint64_t>(&findBus->second);
++    }
++    return I2CDeviceParams(findDevType->second, bus, addr);
+ }
+ 
+ static fs::path i2cBusPath(uint64_t bus)
+diff --git a/src/DeviceMgmt.hpp b/src/DeviceMgmt.hpp
+index 708c045..652e0cc 100644
+--- a/src/DeviceMgmt.hpp
++++ b/src/DeviceMgmt.hpp
+@@ -41,7 +41,7 @@ struct I2CDeviceParams
+ };
+ 
+ std::optional<I2CDeviceParams> getI2CDeviceParams(
+-    const I2CDeviceTypeMap& dtmap, const SensorBaseConfigMap& cfg);
++    const I2CDeviceTypeMap& dtmap, const SensorBaseConfigMap& cfg, const int logicalBusNumberFromMux);
+ 
+ class I2CDevice
+ {
+@@ -200,8 +200,21 @@ boost::container::flat_map<std::string,
+                 continue;
+             }
+ 
++            int busNumber = -1;
++            const auto& findMuxCh = sensor.find(name + ".MuxChannel");
++            if (findMuxCh != sensor.end())
++            {
++                I2CMux mux(findMuxCh->second);
++                auto findChName = findMuxCh->second.find("ChannelName");
++                if (std::get_if<std::string>(&findChName->second) != nullptr)
++                {
++                    I2CBus muxChannel = mux.getLogicalBus(
++                    std::get<std::string>(findChName->second));
++                    busNumber = static_cast<int>(muxChannel.getBus());
++                }
++            }
+             std::optional<I2CDeviceParams> params =
+-                getI2CDeviceParams(sensorTypes, cfg);
++                getI2CDeviceParams(sensorTypes, cfg, busNumber);
+             if (params.has_value() && !params->deviceStatic())
+             {
+                 // There exist error cases in which a sensor device that we
+diff --git a/src/hwmon-temp/HwmonTempMain.cpp b/src/hwmon-temp/HwmonTempMain.cpp
+index fb82578..e71f9fd 100644
+--- a/src/hwmon-temp/HwmonTempMain.cpp
++++ b/src/hwmon-temp/HwmonTempMain.cpp
+@@ -268,8 +268,9 @@ static SensorConfigMap
+                     {
+                         throw std::runtime_error("Channel name invalid");
+                     }
+-                    key.bus = mux.getLogicalBus(
++                    I2CBus busNumber = mux.getLogicalBus(
+                         std::get<std::string>(findChName->second));
++                    key.bus = static_cast<int>(busNumber.getBus());
+                 }
+                 catch (const std::exception& e)
+                 {
+-- 
+2.34.1
+

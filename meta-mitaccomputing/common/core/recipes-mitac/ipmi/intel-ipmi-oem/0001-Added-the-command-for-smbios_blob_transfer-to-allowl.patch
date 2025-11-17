@@ -1,0 +1,25 @@
+From e1f5f0a68e703795c704bdcb58935771873294cd Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Thu, 11 Sep 2025 07:24:46 +0000
+Subject: [PATCH 1/1] Added the command for smbios_blob_transfer to allowlist.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ ipmi-allowlist.conf | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/ipmi-allowlist.conf b/ipmi-allowlist.conf
+index af82e2f..ce0b27e 100644
+--- a/ipmi-allowlist.conf
++++ b/ipmi-allowlist.conf
+@@ -160,6 +160,7 @@
+ 0x2c:0x30:0x7f7f   //<Group Extension>:<Set TPM Configuration>
+ 0x2c:0x31:0x7f7f   //<Group Extension>:<TPM Configuration Update Complete>
+ 0x2c:0x37:0xff7f   //<Group Extension>:<Read PCIe Cable EEPROM Data>
++0x2e:0x80:0xffff   //<Mitac OEM>:<Command for smbios_blob_transfer>
+ 0x2e:0xC0:0x7f7f   //<Intel OEM>:<Enable/Disable Node Manager Policy Control>
+ 0x2e:0xC1:0x7f7f   //<Intel OEM>:<Set Node Manager Policy>
+ 0x2e:0xC2:0xff7f   //<Intel OEM>:<Get Node Manager Policy>
+-- 
+2.45.2
+

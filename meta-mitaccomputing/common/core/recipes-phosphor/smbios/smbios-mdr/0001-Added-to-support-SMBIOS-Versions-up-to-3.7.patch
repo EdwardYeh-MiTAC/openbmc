@@ -1,0 +1,30 @@
+From 8096fbc4291fe6a8e86d02c1110a79345dcbab9d Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Wed, 25 Jun 2025 03:00:55 +0000
+Subject: [PATCH 1/1] Added to support SMBIOS Versions up to 3.7.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ include/smbios_mdrv2.hpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/smbios_mdrv2.hpp b/include/smbios_mdrv2.hpp
+index 848e41f..a53cca5 100644
+--- a/include/smbios_mdrv2.hpp
++++ b/include/smbios_mdrv2.hpp
+@@ -176,10 +176,10 @@ static constexpr const char* tpmSuffix = "/chassis/motherboard/tpm";
+ 
+ static constexpr const char* firmwarePath = "/xyz/openbmc_project/software";
+ 
+-constexpr std::array<SMBIOSVersion, 8> supportedSMBIOSVersions{
++constexpr std::array<SMBIOSVersion, 9> supportedSMBIOSVersions{
+     SMBIOSVersion{3, 0}, SMBIOSVersion{3, 2}, SMBIOSVersion{3, 3},
+     SMBIOSVersion{3, 4}, SMBIOSVersion{3, 5}, SMBIOSVersion{3, 6},
+-    SMBIOSVersion{3, 7}, SMBIOSVersion{3, 8}};
++    SMBIOSVersion{3, 7}, SMBIOSVersion{3, 8}, SMBIOSVersion{3, 1}};
+ 
+ typedef enum
+ {
+-- 
+2.45.2
+
