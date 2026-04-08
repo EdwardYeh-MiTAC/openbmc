@@ -1,0 +1,114 @@
+From 26d077367524a64f3231384256890ca5192ed035 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 12 Sep 2025 02:53:50 +0000
+Subject: [PATCH 1/1] Show ethernet interfaces depending on presence of bonding
+ mode.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ early_vga.c | 64 +++++++++++++++++++++++++++++++++++------------------
+ 1 file changed, 43 insertions(+), 21 deletions(-)
+
+diff --git a/early_vga.c b/early_vga.c
+index 180fe64..b9dded0 100644
+--- a/early_vga.c
++++ b/early_vga.c
+@@ -55,7 +55,7 @@
+ #include <arpa/inet.h>
+ 
+ #define POSTCODE_INFO_LEN 20
+-#define BMC_ETH_INFO_LEN 50
++#define BMC_ETH_INFO_LEN 100
+ 
+ /* ---------------------------------------------------------------------- */
+ 
+@@ -428,36 +428,58 @@ static void status_error(unsigned char *msg)
+     sleep(2);
+ }
+ 
+-static char* get_network_intf_info()
++static bool get_net_info_from_socket(const int fd, const char* intfName, const char* msg, const int msg_max_len)
+ {
+-    int fd;
+-    boolean has_mac = 0;
++    struct ifreq ifr;
++    ifr.ifr_addr.sa_family = AF_INET;
++    strncpy(ifr.ifr_name, intfName, IFNAMSIZ-1);
++    if (ioctl(fd, SIOCGIFHWADDR, &ifr) < 0)
++        return false;
++
+     unsigned char mac_address[6];
++    memcpy(mac_address, ifr.ifr_hwaddr.sa_data, 6); 
++
++    if (ioctl(fd, SIOCGIFADDR, &ifr) == 0) {
++        snprintf(msg, msg_max_len, "[%s] %s, %02x:%02x:%02x:%02x:%02x:%02x", intfName, inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr), 
++                                                                            mac_address[0],
++                                                                            mac_address[1],
++                                                                            mac_address[2],
++                                                                            mac_address[3],
++                                                                            mac_address[4],
++                                                                            mac_address[5]);
++    } else {
++        snprintf(msg, msg_max_len, "[%s] Network Unplugged", intfName);
++    }
++
++    ioctl(fd, SIOCGIFADDR, ifr);
++    return true;
++}
++
++static const char* get_network_intf_info()
++{
++    int fd;
+     struct ifreq ifr;
+-    char* str = malloc(BMC_ETH_INFO_LEN);
++    int banner_buf_len = 150;
++    char* banner_buf = malloc(banner_buf_len);
+ 
+-    if (str == NULL)
++    if (banner_buf == NULL)
+         return NULL;
+ 
+     fd = socket(AF_INET, SOCK_DGRAM, 0);
+ 
+-    ifr.ifr_addr.sa_family = AF_INET;
+-    strncpy(ifr.ifr_name, "bond0", IFNAMSIZ-1);
+-    if (ioctl(fd, SIOCGIFHWADDR, &ifr) == 0) {
+-        memcpy(mac_address, ifr.ifr_hwaddr.sa_data, 6);
+-        has_mac = 1;
+-    }
+-    if (ioctl(fd, SIOCGIFADDR, &ifr) == 0) {
+-        if (has_mac) {
+-                snprintf(str, BMC_ETH_INFO_LEN, "BMC IP: %s, MAC: %s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr), ether_ntoa((struct ether_addr *) mac_address));
+-        } else {
+-                snprintf(str, BMC_ETH_INFO_LEN, "BMC IP: %s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+-        }
++    char bond0_buf[BMC_ETH_INFO_LEN];
++    if (get_net_info_from_socket(fd, "bond0", bond0_buf, BMC_ETH_INFO_LEN)) {
++        snprintf(banner_buf, banner_buf_len, "%s", bond0_buf);
+     } else {
+-    	snprintf(str, BMC_ETH_INFO_LEN, "BMC Network Unplugged");
++        char eth0_buf[BMC_ETH_INFO_LEN] = {0};
++        char eth1_buf[BMC_ETH_INFO_LEN] = {0};
++
++        bool eth0_presence = get_net_info_from_socket(fd, "eth0", eth0_buf, BMC_ETH_INFO_LEN);
++        bool eth1_presence = get_net_info_from_socket(fd, "eth1", eth1_buf, BMC_ETH_INFO_LEN);
++        snprintf(banner_buf, banner_buf_len, "%s %s", eth0_buf, eth1_buf);
+     }
+     close(fd);
+-    return (char*) str;
++    return banner_buf;
+ }
+ 
+ 
+@@ -471,7 +493,7 @@ static uint64_t update_post_code(unsigned char *desc, char *info)
+     DBusMessageIter args;
+     int ret;
+ 
+-    char* bmc_eth_info = get_network_intf_info();
++    const char* bmc_eth_info = get_network_intf_info();
+     if (bmc_eth_info != NULL) {
+         snprintf(bmc_eth_info_buffer, sizeof(bmc_eth_info_buffer), "%s", bmc_eth_info);
+         free(bmc_eth_info);
+-- 
+2.45.2
+

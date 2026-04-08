@@ -1,0 +1,132 @@
+From 336fa78fc038827fe41ccacac83c686322693dae Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 12 Dec 2025 06:26:54 +0000
+Subject: [PATCH 2/2] Adjusted getBusFRUs to avoid MUX channels setting be
+ impacted. Wrokaround the issue that device has empty name when the MUXDEV and
+ MUXCH is unable to be identified.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/fru_device/fru_device.cpp | 34 +++++++++++++++++++++++++++-------
+ 1 file changed, 27 insertions(+), 7 deletions(-)
+
+diff --git a/src/fru_device/fru_device.cpp b/src/fru_device/fru_device.cpp
+index 46c5d5d..f4e3251 100644
+--- a/src/fru_device/fru_device.cpp
++++ b/src/fru_device/fru_device.cpp
+@@ -181,18 +181,25 @@ static bool isMuxBus(size_t bus)
+ 
+ static std::optional<std::string> getMuxBusChannelName(size_t bus)
+ {
+-    if (!fs::exists("/dev/i2c-mux"))
++    if (getRootBus(bus) < 0)
+     {
+         return std::nullopt;
+     }
+ 
++    if (!fs::exists("/dev/i2c-mux"))
++        return std::nullopt;
++
+     auto ec = std::error_code();
+     auto devName = "i2c-" + std::to_string(bus);
+     for (auto& mux : fs::recursive_directory_iterator("/dev/i2c-mux"))
+     {
++        if (!fs::is_symlink(mux))
++            continue;
++
+         auto channel = std::filesystem::read_symlink(mux, ec);
+         if (ec)
+         {
++            lg2::warning("Bus {BUS} got the error (EC) ", "BUS", bus, "EC", ec.message());
+             continue;
+         }
+ 
+@@ -206,26 +213,35 @@ static std::optional<std::string> getMuxBusChannelName(size_t bus)
+ 
+ static std::optional<std::string> getMuxBusDevName(size_t bus)
+ {
+-    if (!fs::exists("/dev/i2c-mux"))
++    if (getRootBus(bus) < 0)
+     {
+         return std::nullopt;
+     }
+ 
++    if (!fs::exists("/dev/i2c-mux"))
++        return std::nullopt;
++
+     auto ec = std::error_code();
+     auto devName = "i2c-" + std::to_string(bus);
+     for (auto& mux : fs::recursive_directory_iterator("/dev/i2c-mux"))
+     {
++        if (!is_symlink(mux))
++            continue;
++
+         auto channel = std::filesystem::read_symlink(mux, ec);
+         if (ec)
+         {
++            lg2::warning("Bus {BUS} got the error (EC)", "BUS", bus, "EC", ec.message());
+             continue;
+         }
+ 
+         if (devName == channel.filename())
+         {
++            std::cerr << "Bus " << bus << " is mux: " << mux << std::endl;
+             return mux.path().parent_path().filename();
+         }
+     }
++    lg2::warning("Bus {BUS} unable to get Mux Name", "BUS", bus);
+     return std::nullopt;
+ }
+ 
+@@ -567,6 +583,7 @@ int getBusFRUs(int file, int first, int last, int bus,
+             {
+                 continue;
+             }
++
+             // skipping since no device is present in this range
+             if (ii >= startSkipTargetAddr && ii <= endSkipTargetAddr)
+             {
+@@ -817,7 +834,7 @@ static void findI2CDevices(const std::vector<fs::path>& i2cBuses,
+         lg2::debug("Scanning bus {BUS}", "BUS", bus);
+ 
+         // fd is closed in this function in case the bus locks up
+-        getBusFRUs(file, 0x03, 0x77, bus, device, powerIsOn, objServer);
++        getBusFRUs(file, 0x50, 0x57, bus, device, powerIsOn, objServer);
+ 
+         lg2::debug("Done scanning bus {BUS}", "BUS", bus);
+     }
+@@ -883,8 +900,6 @@ void addFruObjectToDbus(
+         objServer.add_interface(productName, "xyz.openbmc_project.FruDevice");
+     dbusInterfaceMap[std::pair<size_t, size_t>(bus, address)] = iface;
+ 
+-    auto muxChannel = getMuxBusChannelName(bus);
+-    auto muxDev = getMuxBusDevName(bus);
+     for (auto& property : formattedFRU)
+     {
+         std::regex_replace(property.second.begin(), property.second.begin(),
+@@ -934,8 +949,11 @@ void addFruObjectToDbus(
+     // baseboard will be 0, 0
+     iface->register_property("BUS", bus);
+     iface->register_property("ADDRESS", address);
+-    iface->register_property("MUXCH", muxChannel.value_or(""));
+-    iface->register_property("MUXDEV", muxDev.value_or(""));
++
++    auto muxChannel = getMuxBusChannelName(bus);
++    auto muxDev = getMuxBusDevName(bus);
++    iface->register_property("MUXCH", muxChannel.value_or(std::to_string(address)));
++    iface->register_property("MUXDEV", muxDev.value_or("Dev_" + std::to_string(bus)));
+ 
+     iface->initialize();
+ }
+@@ -1162,6 +1180,8 @@ void rescanOneBus(
+                                    static_cast<uint32_t>(busNum), device.first,
+                                    unknownBusObjectCount, powerIsOn, objServer,
+                                    systemBus);
++                //To alleviate timing issue from update of properties between entity_manager and fru_device.
++                std::this_thread::sleep_for(std::chrono::milliseconds(50));
+             }
+         });
+     scan->run();
+-- 
+2.45.2
+

@@ -1,0 +1,64 @@
+{
+  "Exposes": [
+    {
+      "Address": "0x4a",
+      "MuxChannel": {
+        "MuxName": "MUX_U17101",
+        "ChannelName": "R32"
+      },
+      "Name": "Riser Outlet_Temp_R TEMP_C",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 45
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 42
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    },
+    {
+      "Address": "0x74",
+      "MuxChannel": {
+        "MuxName": "MUX_U17101",
+        "ChannelName": "R32"
+      },
+      "ChannelNames": [
+        "ch0",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4",
+        "ch5",
+        "ch6",
+        "ch7"
+      ],
+      "Name": "R32_U10",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9548Mux"
+    }
+  ],
+  "Name": "Riser M8261T85-R32T",
+  "Probe": [
+    "FOUND('Baseboard S8261')"
+  ],
+  "Type": "Board"
+}

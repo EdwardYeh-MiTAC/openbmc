@@ -1,0 +1,73 @@
+From f3ca570d159b84043f300d206d321ab7e0f2f5ef Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Wed, 1 Apr 2026 05:48:34 +0000
+Subject: [PATCH 1/1] Make the AppendLimit of MetricReportDefinition for MiOBMC
+ dashboard can support the number more than TELEMETRY_MAX_APPEND_LIMIT.
+
+Description:
+- By default TELEMETRY_MAX_APPEND_LIMIT is 256 and shared by all sensors within a MetricReportDefinition.
+- For telemetry for power sensors might needs to support 8 hours for histogrim to support the utility doesn't have database and exporter to catch power reading.
+- This solution applied for all MetricReportDefinition which the prefix of Id is "Dashboard_".
+- Below configure support 8 Hours of sampling for 5 sensors. (9600 * 15Sec)/ 5 = 28800 Seconds = 8 Hours
+```
+    {
+      "Id": "Dashboard_PSU_Power",
+      "AppendLimit": 9600,
+      "Metrics": [
+        {
+          "MetricProperties": [
+            "/redfish/v1/Chassis/Baseboard_R520G6/Sensors/power_System_Total_Power_PWR_W",
+            "/redfish/v1/Chassis/Chassis_R520G6/Sensors/power_PSU_0_PIN_PWR_W",
+            "/redfish/v1/Chassis/Chassis_R520G6/Sensors/power_PSU_0_POUT_PWR_W",
+            "/redfish/v1/Chassis/Chassis_R520G6/Sensors/power_PSU_1_PIN_PWR_W",
+            "/redfish/v1/Chassis/Chassis_R520G6/Sensors/power_PSU_1_POUT_PWR_W"
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT15S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    }
+```
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/report_manager.cpp | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/src/report_manager.cpp b/src/report_manager.cpp
+index 2959d25..a5530e9 100644
+--- a/src/report_manager.cpp
++++ b/src/report_manager.cpp
+@@ -163,8 +163,20 @@ interfaces::Report& ReportManager::addReport(
+     auto [id, name] = utils::makeIdName(reportId, reportName, reportNameDefault,
+                                         existingReportIds);
+ 
+-    verifyAddReport(id, name, reportingType, interval, reportUpdates,
+-                    appendLimit, labeledMetricParams);
++    // name is valid for the request from dbus api.
++    if (name.starts_with("Dashboard_"))
++    {
++        // Cheat verifyAddReport not to verify appendLimit for Dashboards used
++        // by MiOBMC.
++        const uint64_t fakeAppendLimit = 1;
++        verifyAddReport(id, name, reportingType, interval, reportUpdates,
++                        fakeAppendLimit, labeledMetricParams);
++    }
++    else
++    {
++        verifyAddReport(id, name, reportingType, interval, reportUpdates,
++                        appendLimit, labeledMetricParams);
++    }
+ 
+     reports.emplace_back(
+         reportFactory->make(id, name, reportingType, reportActions, interval,
+-- 
+2.43.0
+

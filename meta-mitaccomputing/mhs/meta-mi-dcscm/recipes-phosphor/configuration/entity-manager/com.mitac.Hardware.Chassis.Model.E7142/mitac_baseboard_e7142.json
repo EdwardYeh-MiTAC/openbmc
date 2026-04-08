@@ -1,0 +1,494 @@
+{
+  "Exposes": [
+    {
+      "Address": "0x50",
+      "Bus": 1,
+      "Name": "Baseboard FRU",
+      "Type": "EEPROM_24C256"
+    },
+    {
+      "Address": "0x70",
+      "Bus": "4",
+      "ChannelNames": [
+        "ch0",
+        "Inlet_Temp",
+        "ch2",
+        "ch3",
+        "ch4",
+        "ch5",
+        "ch6",
+        "ch7"
+      ],
+      "Name": "MUX_U66",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9548Mux"
+    },
+    {
+      "Address": "0x4D",
+      "MuxChannel": {
+        "MuxName": "MUX_U66",
+        "ChannelName": "Inlet_Temp"
+      },
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 50
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 45
+        }
+      ],
+      "Name": "Inlet Temp L",
+      "Type": "TMP75"
+    },
+    {
+      "Address": "0x4C",
+      "MuxChannel": {
+        "MuxName": "MUX_U66",
+        "ChannelName": "Inlet_Temp"
+      },
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 50
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 45
+        }
+      ],
+      "Name": "Inlet Temp M",
+      "Type": "TMP75"
+    },
+    {
+      "Address": "0x4D",
+      "MuxChannel": {
+        "MuxName": "MUX_U66",
+        "ChannelName": "Inlet_Temp"
+      },
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 50
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 45
+        }
+      ],
+      "Name": "Inlet Temp L",
+      "Type": "TMP75"
+    },
+    {
+      "Address": "0x4E",
+      "MuxChannel": {
+        "MuxName": "MUX_U66",
+        "ChannelName": "Inlet_Temp"
+      },
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 50
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 45
+        }
+      ],
+      "Name": "Inlet Temp R",
+      "Type": "TMP75"
+    },
+    {
+      "Address": "0x70",
+      "Bus": "9",
+      "ChannelNames": [
+        "ch0",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4",
+        "ch5",
+        "ch6",
+        "ch7"
+      ],
+      "Name": "MUX_U60",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9548Mux"
+    },
+    {
+      "Address": "0x71",
+      "Bus": "9",
+      "ChannelNames": [
+        "ch0",
+        "OCP_S1",
+        "OCP_S2",
+        "ch3"
+      ],
+      "Name": "MUX_U63",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9546Mux"
+    },
+    {
+      "Address": "0x30",
+      "Bus": 0,
+      "CpuID": 0,
+      "Name": "CPU0",
+      "PresenceGpio": [
+        {
+          "Name": "CPU1_PRESENCE",
+          "Polarity": "Low"
+        }
+      ],
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Label": "DTS",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        },
+        {
+          "Direction": "less than",
+          "Label": "DTS",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2
+        }
+      ],
+      "Type": "XeonCPU"
+    },
+    {
+      "Address": "0x31",
+      "Bus": 0,
+      "CpuID": 0,
+      "Name": "CPU1",
+      "PresenceGpio": [
+        {
+          "Name": "CPU2_PRESENCE",
+          "Polarity": "High"
+        }
+      ],
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Label": "DTS",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        },
+        {
+          "Direction": "less than",
+          "Label": "DTS",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2
+        }
+      ],
+      "Type": "XeonCPU"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 0,
+      "Name": "P12V_AUX",
+      "ScaleFactor": 0.1124,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 14.333
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.32
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 13.2
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 10.8
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 10.68
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 10.091
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 2,
+      "Name": "P5V",
+      "PowerState": "On",
+      "ScaleFactor": 0.2717,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 5.65
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 5.55
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 5.5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 4.5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 4.45
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 4.15
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 3,
+      "Name": "P3V3_AUX",
+      "ScaleFactor": 0.4339,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 3.729
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 3.564
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 3.531
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 3.069
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 3.036
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 2.739
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 7,
+      "BridgeGpio": [
+        {
+          "Name": "cmos-bat-scaled-en-n",
+          "Polarity": "Low",
+          "SetupTime": 1
+        }
+      ],
+      "Name": "P3V_BAT",
+      "PollRate": 3600,
+      "ScaleFactor": 0.3333,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 3.296
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 3.263
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 2.457
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 2.138
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 8,
+      "Name": "P1V0_AUX",
+      "ScaleFactor": 1,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1.10
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1.05
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 0.95
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0.90
+        }
+      ],
+      "Type": "ADC"
+    },
+    // DCMI reference System_Total_Power_PWR_W for power reading
+    {
+      "Name": "System_Total_Power_PWR_W",
+      "MaxValue": 3000,
+      "MinValue": 0,
+      // System_Total_Power_PWR_W is sum of PIN from PSUs.
+      "Sensors": [
+        "PSU_0_PIN_PWR_W",
+        "PSU_1_PIN_PWR_W"
+      ],
+      "Type": "Sum",
+      "Units": "Watts"
+    },
+    {
+      "FirmwareInfo": {
+        "CompatibleHardware": "com.mitac.Hardware.E7142.SPI.Host",
+        "VendorIANA": 11183
+      },
+      "MuxOutputs": [
+        {
+          "Name": "spi-mux-bios",
+          "Polarity": "High"
+        }
+      ],
+      "Name": "BIOS",
+      "SPIControllerIndex": 1,
+      "SPIDeviceIndex": 0,
+      "Type": "SPIFlash"
+    },
+    {
+      "BDF": 0,
+      "DefaultEID": 0,
+      "GetRoutingInterval": 5,
+      "Index": 1,
+      "Name": "MCTP PCIe",
+      "PhysicalMediumID": "Pcie2",
+      "ReqRetryCount": 2,
+      "ReqToRespTimeMs": 120,
+      "Role": "Endpoint",
+      "TransportBindingType": "MctpPCIe",
+      "Type": "MctpConfiguration"
+    }
+  ],
+  "Name": "Baseboard E7142",
+  "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'E7142_DISABLED-*'})",
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "Model": "$BOARD_PRODUCT_NAME",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.AssetTag": {
+    "AssetTag": "$PRODUCT_ASSET_TAG"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Compatible": {
+    "Names": [
+      "com.mitac.Hardware.Chassis.Model.E7142"
+    ]
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "$PRODUCT_VERSION"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.I2CDevice": {
+    "Address": "$ADDRESS",
+    "Bus": "$BUS"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Ipmi": {
+    "EntityId": 7,
+    "EntityInstance": 0
+  },
+  "xyz.openbmc_project.Inventory.Item.Board.Motherboard": {},
+  "xyz.openbmc_project.Inventory.Item.System": {}
+}

@@ -1,0 +1,300 @@
+{
+  "Exposes": [
+    {
+      "Address": "$address",
+      "Bus": "$bus",
+      "Name": "DCSCM $bus $address FRU",
+      "Type": "EEPROM_24C64"
+    },
+    {
+      "Address": "0x49",
+      "Bus": "$bus",
+      "Name": "DCSCM $bus $address TEMP_C",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 45
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 42
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    },
+    {
+      "EntityId": 6,
+      "EntityInstance": 0,
+      "Index": 0,
+      "Name": "DCSCM P12V_AUX VOLT_V",
+      "ScaleFactor": 0.099,
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 6,
+      "EntityInstance": 0,
+      "Index": 1,
+      "Name": "DCSCM P5V_AUX VOLT_V",
+      "ScaleFactor": 0.2326,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 5.65
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 5.55
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 5.5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 4.5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 4.45
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 4.15
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 6,
+      "EntityInstance": 0,
+      "Index": 2,
+      "Name": "DCSCM P3V3_AUX VOLT_V",
+      "ScaleFactor": 0.358787879,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 3.729
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 3.564
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 3.531
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 3.069
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 3.036
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 2.739
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 6,
+      "EntityInstance": 0,
+      "Index": 3,
+      "Name": "DCSCM P1V8_AUX VOLT_V",
+      "ScaleFactor": 0.666666667,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1.944
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1.926
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1.674
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1.656
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 6,
+      "EntityInstance": 0,
+      "Index": 4,
+      "Name": "DCSCM P1V0_AUX VOLT_V",
+      "ScaleFactor": 1,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1.10
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1.05
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 0.95
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0.9
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 6,
+      "EntityInstance": 0,
+      "Index": 5,
+      "Name": "DCSCM P0V8_AUX VOLT_V",
+      "ScaleFactor": 1,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 0.94
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 0.89
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 0.81
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0.77
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 6,
+      "EntityInstance": 0,
+      "Index": 6,
+      "Name": "DCSCM P1V15_AUX VOLT_V",
+      "ScaleFactor": 1,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1.26
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1.2
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1.09
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1.03
+        }
+      ],
+      "Type": "ADC"
+    }
+  ],
+  "Name": "DCSCM $bus $address",
+  "Probe": [
+    "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'TM-DCSCM-2700'})"
+  ],
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+    "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "mitac_dcscm_tm-dcscm-2700"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.I2CDevice": {
+    "Address": "$ADDRESS",
+    "Bus": "$BUS"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Ipmi": {
+    "EntityId": 6,
+    "EntityInstance": "$BUS"
+  }
+}
+

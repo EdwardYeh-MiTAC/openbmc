@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Copyright 2024 MiTAC-Computing Corp.
+
+&display_port {
+        status = "okay";
+};
+
+&display_port_mcu {
+        status = "okay";
+};

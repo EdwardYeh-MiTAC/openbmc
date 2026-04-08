@@ -1,0 +1,25 @@
+From 506d26a9ca43a6a62c117f949c18359ed034043d Mon Sep 17 00:00:00 2001
+From: Allen Kang <allen.kang@mitaccomputing>
+Date: Wed, 22 Oct 2025 08:44:03 +0000
+Subject: [PATCH 2/2] Disable auto start ras service
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+
+---
+ service_files/com.amd.RAS.service | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/service_files/com.amd.RAS.service b/service_files/com.amd.RAS.service
+index 6f7c151..1dce7a1 100644
+--- a/service_files/com.amd.RAS.service
++++ b/service_files/com.amd.RAS.service
+@@ -5,6 +5,3 @@ After=xyz.openbmc_project.Chassis.Control.Power.service
+ [Service]
+ Restart=always
+ ExecStart=/usr/bin/amd-ras-manager
+-
+-[Install]
+-WantedBy=multi-user.target
+-- 
+2.34.1
+

@@ -1,0 +1,11 @@
+[Unit]
+Description=Update bond0 mac address to eth0's mac address if bonding interface is available.
+After=phosphor-ipmi-host.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c '/usr/libexec/update-bond-mac/update-bond-mac.sh'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

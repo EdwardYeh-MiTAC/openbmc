@@ -1,0 +1,259 @@
+#!/bin/bash
+FRU_DEVICE_SYMLINK="/tmp/SYSTEM_FRU.bin"
+
+refresh-uboot-arg () {
+    set +e
+    #$1: ARG NAME
+    #$2: Expectation
+    current=`fw_printenv $1 -n`
+    if [ "$current" != "$2" ]; then
+        log_oem_redfish_event \
+            "Update u-boot arg: $1" \
+            6 3 \
+            "OpenBMC.0.1.MiOBMC" \
+            "$current" "$2"
+        fw_setenv $1 $2
+        DO_REBOOT=1
+    else
+        echo "No need to update $1."
+    fi
+    set -e
+}
+
+log_oem_redfish_event()
+{
+    LOG_LEVEL=(emerg alert crit err warning notice info debug)
+    msg=$1
+    priority=$2
+    severity=$3
+    msgID=$4
+    msgArgs1=$5
+    msgArgs2=$6
+
+    logger -t MiOBMC -p user.${LOG_LEVEL[$2]}\
+    MESSAGE=${msg} \
+    PRIORITY=${priority} \
+    SEVERITY=${severity} \
+    REDFISH_MESSAGE_ID=${msgID} \
+    REDFISH_MESSAGE_ARGS=${msgArgs1},${msgArgs2}
+}
+
+ASSERT_FILE_EXIST()
+{
+    if [ -f "$1" ];
+    then
+        log_oem_redfish_event \
+            "File $1 exists." \
+            6 3 \
+            "OpenBMC.0.1.MiOBMC" \
+            "" ""
+    else
+        log_oem_redfish_event \
+            "File $1 not exists." \
+            3 1 \
+            "OpenBMC.0.1.MiOBMC" \
+            "" ""
+    fi
+}
+
+ASSERT_FUNCTION_EXIST()
+{
+    if [[ $(type -t "$1") == "function" ]];
+    then
+        log_oem_redfish_event \
+            "Function $1 exists." \
+            6 3 \
+            "OpenBMC.0.1.MiOBMC" \
+            "" ""
+    else
+        log_oem_redfish_event \
+            "Function $1 not exists." \
+            3 1 \
+            "OpenBMC.0.1.MiOBMC" \
+            "" ""
+    fi
+}
+
+update_mac()
+{
+    log_oem_redfish_event \
+        "Attemp to update $2 from setting $1." \
+        6 3 \
+        "OpenBMC.0.1.MiOBMC" \
+        "" ""
+    get_mac_addr_from_fru $1 MACADDR
+    if [ $? == 0 ]; then
+        refresh-uboot-arg $2 "$MACADDR"
+    else
+        log_oem_redfish_event \
+            "Update $2 failed." \
+            3 1 \
+            "OpenBMC.0.1.MiOBMC" \
+            "" ""
+    fi
+}
+
+deassert_identy_led()
+{
+    # Kernel set identify led on, here we use led manager to turn off LED for consistency.
+    # To asssert and then deassert is kind of workaround.
+    busctl set-property \
+	xyz.openbmc_project.LED.GroupManager \
+	/xyz/openbmc_project/led/groups/enclosure_identify \
+	xyz.openbmc_project.Led.Group Asserted b true
+    busctl set-property \
+	xyz.openbmc_project.LED.GroupManager \
+	/xyz/openbmc_project/led/groups/enclosure_identify \
+	xyz.openbmc_project.Led.Group Asserted b false
+}
+
+assert_bmc_heartbeat()
+{
+    busctl set-property \
+	xyz.openbmc_project.LED.GroupManager \
+	/xyz/openbmc_project/led/groups/bmc_booted \
+	xyz.openbmc_project.Led.Group Asserted b true
+}
+
+config_common_leds()
+{
+	assert_bmc_heartbeat
+	deassert_identy_led
+}
+
+disable_os_wdt()
+{
+    local WDT2_BASE=0x1e78504c
+    local BMC_KERNEL_WDT_SETTING=`devmem $WDT2_BASE`
+    echo "ASPEED WDT2 activated by u-boot for OS boot: $BMC_KERNEL_WDT_SETTING"
+    local NEW_SETTING=$(( BMC_KERNEL_WDT_SETTING & 0xFFFFFFFE ))
+    echo "Setting to override: $NEW_SETTING"
+    devmem $WDT2_BASE 32 $NEW_SETTING
+}
+
+set_gpio()
+{
+    local NET_NAME=$1
+    local OUT_VAL=$2
+    mapfile -t -d " " GPIO_INFO < <(gpiofind "$NET_NAME")
+    if [ "${#GPIO_INFO[@]}" -ne 2 ]; then
+        echo "set_gpio: can not find gpio, $NET_NAME"
+        return 1
+    fi
+
+    echo -n "set_gpio: set $NET_NAME = $OUT_VAL"
+    if ! gpioset "${GPIO_INFO[0]}" "${GPIO_INFO[1]%$'\n'}"="$OUT_VAL"; then
+        echo " failed"
+        return 1
+    fi
+
+    echo " success"
+    return 0
+}
+
+get_gpio()
+{
+    local NET_NAME=$1
+    local RET_VAL
+
+    mapfile -t -d " " GPIO_INFO < <(gpiofind "${NET_NAME}")
+    if [ "${#GPIO_INFO[@]}" -ne 2 ]; then
+        logger -p user.info "get_gpio: can not find gpio, ${NET_NAME}"
+        return 1
+    fi
+    if ! RET_VAL=$(gpioget "${GPIO_INFO[0]}" "${GPIO_INFO[1]%$'\n'}") ; then
+        logger -p user.info "get_gpio: get ${NET_NAME} failed"
+        return 1
+    fi
+    logger -p user.info "get_gpio: get ${NET_NAME} = ${RET_VAL}"
+    echo "${RET_VAL}"
+    return 0
+}
+
+get_fru_dev()
+{
+    if [ -f $FRU_DEVICE_SYMLINK ]; then
+        eval "$1=$FRU_DEVICE_SYMLINK"
+        return 0
+    fi
+
+    local FRU_BUS=(7)
+    for BUS in "${FRU_BUS[@]}"
+    do
+        FRU_DEVICE="/sys/bus/i2c/devices/$BUS-0050/eeprom"
+        if [ -f $FRU_DEVICE ]; then
+            ln -s $FRU_DEVICE $FRU_DEVICE_SYMLINK
+            eval "$1=$FRU_DEVICE_SYMLINK"
+            return $?
+        fi
+    done
+}
+
+get_platform_id()
+{
+    echo "Read FRU device to get Board Product Name."
+    local BOARD_PRODUCT_ID="DEFAULT"
+    local FRU_DEVICE=""
+    get_fru_dev FRU_DEVICE
+    if [ $? != 0 ]; then
+        return $?
+    fi
+
+    BOARD_PRODUCT_ID=`fru-simple-read  -i $FRU_DEVICE -b`
+    # Replace space with underline...
+    BOARD_PRODUCT_ID=$(echo $BOARD_PRODUCT_ID | xargs)
+    BOARD_PRODUCT_ID="${BOARD_PRODUCT_ID// /_}"
+    eval "$1=$BOARD_PRODUCT_ID"
+    return $?
+}
+
+find_profile () {
+        get_platform_id PN
+        echo $PN
+        profile_prefix=/usr/libexec/plat-svc/com.mitac.Hardware.Chassis.Model.
+        len=${#PN}
+        echo "$len"
+        for ((i=$len;i>=5;i--)); do
+                profile_path=$profile_prefix${PN::$i}
+                if [ -d $profile_path ]; then
+                        #echo "$profile_path is available"
+                        eval "$1=$profile_path"
+                        return 0
+                fi
+        done
+        return -1
+}
+
+init_mctp_network_dev () {
+    echo "Init MCTP Network Devices."
+    mctp link set mctppci0 up
+    # 68 is magic number. Do complete test after change it.
+    mctp link set mctppci0 mtu 68
+    mctp address add 100 dev mctppci0
+}
+
+init_mctp_network_amd () {
+    echo "Init MCTP network for AMD platforms. (Mode: BMC as Bus Owner)"
+    init_mctp_network_dev
+    BRIDGE_EID=0x30
+    mctp route add $BRIDGE_EID via mctppci0
+    mctp neigh add $BRIDGE_EID dev mctppci0 lladdr 0:0
+}
+
+init_mctp_network_intel () {
+    echo "Init MCTP network for Intel platforms. (Mode: CPU as Bus Owner)"
+    init_mctp_network_dev
+}
+
+launch_amd_common_service () {
+    echo "Launch AMD common service."
+    systemctl start powercap-monitor.service
+    init_mctp_network_amd
+    systemctl start mitac-mctp-engine-amd.service
+}
+
+launch_intel_common_service () {
+    echo "Launch Intel common service."
+    init_mctp_network_intel
+    systemctl start mitac-mctp-engine-intel.service
+}

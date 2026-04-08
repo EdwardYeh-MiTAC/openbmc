@@ -1,0 +1,71 @@
+From 2f8f54e8453d3d1bd63eef4f37f7030f12e9e867 Mon Sep 17 00:00:00 2001
+From: OpenEmbedded <oe.patch@oe>
+Date: Wed, 2 Apr 2025 08:51:10 +0000
+Subject: [PATCH 1/1] Fixed dac_mux issue when using display port and AST2700
+ chip.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ drivers/gpu/drm/aspeed/aspeed_gfx_drv.c | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c b/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c
+index 057d979a8eaa8..32abfd4b44b66 100644
+--- a/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c
++++ b/drivers/gpu/drm/aspeed/aspeed_gfx_drv.c
+@@ -571,6 +571,7 @@ static ssize_t dac_mux_store(struct device *dev, struct device_attribute *attr,
+ 			     const char *buf, size_t count)
+ {
+ 	struct aspeed_gfx *priv = dev_get_drvdata(dev);
++	u32 dac_mux_mask = priv->soc_crt_bit;
+ 	u32 val;
+ 	int rc;
+ 
+@@ -578,10 +579,17 @@ static ssize_t dac_mux_store(struct device *dev, struct device_attribute *attr,
+ 	if (rc)
+ 		return rc;
+ 
+-	if (val > 3)
++	if (priv->dp_support)
++		dac_mux_mask = priv->soc_dp_bit;
++
++	if (val == 0) {
++		rc = regmap_update_bits(priv->scu, priv->dac_reg, dac_mux_mask, 0);
++	} else if (val == 1) {
++		rc = regmap_update_bits(priv->scu, priv->dac_reg, dac_mux_mask, dac_mux_mask);
++	} else {
+ 		return -EINVAL;
++	}
+ 
+-	rc = regmap_update_bits(priv->scu, priv->dac_reg, 0x30000, val << 16);
+ 	if (rc < 0)
+ 		return 0;
+ 
+@@ -591,6 +599,8 @@ static ssize_t dac_mux_store(struct device *dev, struct device_attribute *attr,
+ static ssize_t dac_mux_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct aspeed_gfx *priv = dev_get_drvdata(dev);
++	u32 dac_mux_mask = priv->soc_crt_bit;
++
+ 	u32 reg;
+ 	int rc;
+ 
+@@ -598,7 +608,14 @@ static ssize_t dac_mux_show(struct device *dev, struct device_attribute *attr, c
+ 	if (rc)
+ 		return rc;
+ 
+-	return sprintf(buf, "%u\n", (reg >> 16) & 0x3);
++	if (priv->dp_support)
++		dac_mux_mask = priv->soc_dp_bit;
++
++	if ( reg & dac_mux_mask ) {
++		return sprintf(buf, "%u\n", 1);
++	} else {
++		return sprintf(buf, "%u\n", 0);
++	}
+ }
+ static DEVICE_ATTR_RW(dac_mux);
+ 
+-- 
+2.25.1
+

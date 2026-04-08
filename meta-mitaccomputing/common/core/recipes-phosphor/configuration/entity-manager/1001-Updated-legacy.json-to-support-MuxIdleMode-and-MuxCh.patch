@@ -1,0 +1,44 @@
+From 48ecd585037cfcd1570268d6bfe0fa470e93e260 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Wed, 16 Jul 2025 03:08:58 +0000
+Subject: [PATCH 1/2] Updated legacy.json to support MuxIdleMode and
+ MuxChannel.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ schemas/legacy.json | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/schemas/legacy.json b/schemas/legacy.json
+index 819db95..19ff2b8 100644
+--- a/schemas/legacy.json
++++ b/schemas/legacy.json
+@@ -1221,6 +1221,25 @@
+             "MinMaxType": {
+                 "type": "number"
+             },
++            "MuxIdleMode": {
++                "type": "string",
++                "enum": [
++                    "Disconnect",
++                    "AsIs"
++                ]
++            },
++            "MuxChannel": {
++                "properties": {
++                    "MuxName": {
++                        "type": "string"
++                    },
++                    "ChannelName": {
++                        "type": "string"
++                    }
++                },
++                "required": ["MuxName", "ChannelName"],
++                "type": "object"
++            },
+             "Units": {
+                 "type": "string",
+                 "enum": [
+-- 
+2.45.2
+

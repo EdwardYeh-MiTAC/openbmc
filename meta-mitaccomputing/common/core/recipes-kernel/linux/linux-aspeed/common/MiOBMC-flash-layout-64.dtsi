@@ -1,0 +1,43 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2025 MiTAC Computing Technology Corp.
+ */
+
+partitions {
+	compatible = "fixed-partitions";
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	u-boot@0 {
+		reg = <0x0 0xe0000>; // 896KB
+		label = "u-boot";
+	};
+
+	u-boot-env@e0000 {
+		reg = <0xe0000 0x20000>; // 128KB
+		label = "u-boot-env";
+	};
+
+	kernel@100000 {
+		reg = <0x100000 0x900000>; // 9MB
+		label = "kernel";
+	};
+
+	rofs@a00000 {
+		reg = <0xa00000 0x2600000>; // 46MB
+		label = "rofs";
+	};
+
+	rwfs@3600000 {
+		reg = <0x3600000 0xA00000>; // 10MB
+		label = "rwfs";
+	};
+};
+
+/* WARNING
+*   1. Adjust the layout in case of really necessary.
+*      Firmware images contains invalid layout might brick BMC.
+*   2. Make sure FLASH_ROFS_OFFSET, FLASH_RWFS_OFFSET alighted with layout.
+*   3. Do completely firmware upgrade/downgrade test before release to end-user.
+*   4. Do Regularly review the size of image-rofs.
+*/

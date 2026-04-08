@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+// Copyright 2024 MiTAC-Computing Corp.
+
+&espi {
+        status = "okay";
+        perif-dma-mode;
+        oob-dma-mode;
+        flash-dma-mode;
+};
+
+&chassis {
+        status = "okay";
+};
+
+&gfx {
+        pcie-reset-detect;
+        status = "okay";
+        memory-region = <&gfx_memory>;
+};
+
+// Make sure mctp0_reserved is defined in aspeed-bmc-mitac-2600-reserved-memory.dtsi
+&mctp0 {
+    status = "okay";
+    memory-region = <&mctp0_reserved>;
+};

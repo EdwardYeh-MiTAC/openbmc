@@ -1,0 +1,75 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Copyright (C) 2025 MiTAC Computing Technology Corp.
+ */
+
+
+partitions {
+    compatible = "fixed-partitions";
+    #address-cells = <1>;
+    #size-cells = <1>;
+    u-boot@0 {
+        reg = <0x0 0x400000>; // 4096KB
+        label = "u-boot";
+    };
+    u-boot-env@400000 {
+        reg = <0x400000 0x20000>; // 128KB
+        label = "u-boot-env";
+    };
+    kernel@420000 {
+        reg = <0x420000 0xa00000>; // 10240KB
+        label = "kernel";
+    };
+    rofs@e20000 {
+        reg = <0xe20000 0x3ce0000>; // 62336KB
+        label = "rofs";
+    };
+    rwfs@4b00000 {
+        reg = <0x4b00000 0x1500000>; // 21504KB
+        label = "rwfs";
+    };
+    pfm@6000000 {
+        reg = <0x6000000 0x20000>; // 128KB
+        label = "pfm";
+    };
+    reserved-1@6020000 {
+        reg = <0x6020000 0x200000>; // 128KB
+        label = "reserved-1";
+    };
+    rc-image@6220000 {
+        reg = <0x6220000 0x4b10000>; // 76864KB
+        label = "rc-image";
+    };
+    image-stg@ad30000 {
+        reg = <0xad30000 0x4b10000>; // 76864KB
+        label = "img-stg";
+    };
+    pfr-stg@f840000 {
+        reg = <0xf840000 0x100000>; // 1024KB
+        label = "pfr-stg";
+    };
+    cpld-stg@f940000 {
+        reg = <0xf940000 0x400000>; // 4096KB
+        label = "cpld-stg";
+    };
+    afm-stg@fd40000 {
+        reg = <0xfd40000 0x20000>; // 128KB
+        label = "afm-stg";
+    };
+    afm-rc@fd60000 {
+        reg = <0xfd60000 0x20000>; // 128KB
+        label = "afm-rc";
+    };
+    reserved-2@fd80000 {
+        reg = <0xfd80000 0x280000>; //
+        label = "reserved-2";
+    };
+};
+
+/* WARNING
+*   1. Adjust the layout in case of really necessary.
+*      Firmware images contains invalid layout might brick BMC.
+*   2. Make sure FLASH_ROFS_OFFSET, FLASH_RWFS_OFFSET alighted with layout.
+*   3. Do completely firmware upgrade/downgrade test before release to end-user.
+*   4. Do Regularly review the size of image-rofs.
+*/

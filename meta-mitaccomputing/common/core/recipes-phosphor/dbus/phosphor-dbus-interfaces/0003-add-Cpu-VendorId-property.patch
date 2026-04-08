@@ -1,0 +1,28 @@
+From fa71647972ad23192c1471c938b5e8386fd5e5d9 Mon Sep 17 00:00:00 2001
+From: Allen Kang <allen.kang@mitaccomputing>
+Date: Wed, 11 Feb 2026 10:26:50 +0000
+Subject: [PATCH] add Cpu VendorId property
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ yaml/xyz/openbmc_project/Inventory/Item/Cpu.interface.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/yaml/xyz/openbmc_project/Inventory/Item/Cpu.interface.yaml b/yaml/xyz/openbmc_project/Inventory/Item/Cpu.interface.yaml
+index c134417..b5c3160 100644
+--- a/yaml/xyz/openbmc_project/Inventory/Item/Cpu.interface.yaml
++++ b/yaml/xyz/openbmc_project/Inventory/Item/Cpu.interface.yaml
+@@ -61,6 +61,10 @@ properties:
+       description: >
+           The microcode information for this processor
+       default: 0
++    - name: VendorId
++      type: string
++      description: >
++          The vendor identification for this processor.
+
+ enumerations:
+     - name: Capability
+--
+2.34.1
+

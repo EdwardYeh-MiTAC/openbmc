@@ -1,0 +1,141 @@
+{
+  "MitacMRD": [
+    {
+      "Id": "Dashboard_Baseboard_Voltages",
+      "Metrics": [
+        {
+          "MetricProperties": [
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_P12V_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_P1V2_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_P1V8_PCH_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_P3V3_AUX_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_P3V3_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_P5V_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_PVCCIO_P0_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_PVCCIO_P1_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_PVCCP_P0_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_PVCCP_P1_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_PVDDQ_P0_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_PVDDQ_P1_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_PVNN_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_PVPP_P0_VOLT_V",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/voltage_Baseboard_PVPP_P1_VOLT_V"
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_CPU_Temperatures",
+      "Metrics": [
+        {
+          "MetricProperties": [
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/temperature_CPU_0_TEMP_C"
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_DIMM_Temperatures",
+      "Metrics": [
+        {
+          "MetricProperties": [
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_PSU_Power",
+      "AppendLimit": 9600,
+      "Metrics": [
+        {
+          "MetricProperties": [
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/power_System_Total_Power_PWR_W",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/power_PSU_0_PIN_PWR_W",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/power_PSU_0_POUT_PWR_W",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/power_PSU_1_PIN_PWR_W",
+            "/redfish/v1/Chassis/Baseboard_S8056/Sensors/power_PSU_1_POUT_PWR_W",
+            "/redfish/v1/Chassis/Chassis_B8056T70AE/Sensors/power_PSU_0_PIN_PWR_W",
+            "/redfish/v1/Chassis/Chassis_B8056T70AE/Sensors/power_PSU_0_POUT_PWR_W",
+            "/redfish/v1/Chassis/Chassis_B8056T70AE/Sensors/power_PSU_1_PIN_PWR_W",
+            "/redfish/v1/Chassis/Chassis_B8056T70AE/Sensors/power_PSU_1_POUT_PWR_W",
+            "/redfish/v1/Chassis/Chassis_B8056G68CE12HR/Sensors/power_PSU_0_PIN_PWR_W",
+            "/redfish/v1/Chassis/Chassis_B8056G68CE12HR/Sensors/power_PSU_0_POUT_PWR_W",
+            "/redfish/v1/Chassis/Chassis_B8056G68CE12HR/Sensors/power_PSU_1_PIN_PWR_W",
+            "/redfish/v1/Chassis/Chassis_B8056G68CE12HR/Sensors/power_PSU_1_POUT_PWR_W"
+          ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT15S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_Drive_Temperatures",
+      "Metrics": [
+        {
+          "MetricProperties": [
+	  ]
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1S"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    },
+    {
+      "Id": "Dashboard_Drive_PDLU",
+      "Metrics": [
+        {
+          "MetricProperties": []
+        }
+      ],
+      "MetricReportDefinitionType": "Periodic",
+      "ReportActions": [
+        "RedfishEvent",
+        "LogToMetricReportsCollection"
+      ],
+      "Schedule": {
+        "RecurrenceInterval": "PT1H"
+      },
+      "ReportUpdates": "AppendWrapsWhenFull"
+    }
+  ]
+}

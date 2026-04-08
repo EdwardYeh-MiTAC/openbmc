@@ -1,0 +1,740 @@
+{
+  "Exposes": [
+    {
+      "Address": "0x50",
+      "Bus": 1,
+      "Name": "Baseboard FRU",
+      "Type": "EEPROM_24C256"
+    },
+    {
+      "Address": "0x70",
+      "Bus": "0",
+      "ChannelNames": [
+        "ch0",
+        "ch1",
+        "ch2",
+        "ch3"
+      ],
+      "Name": "MUX_0_70",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9546Mux"
+    },
+    {
+      "Address": "0x71",
+      "Bus": "0",
+      "ChannelNames": [
+        "ch0",
+        "ch1",
+        "ch2",
+        "ch3"
+      ],
+      "Name": "MUX_0_71",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9546Mux"
+    },
+    {
+      "Address": "0x76",
+      "Bus": "0",
+      "ChannelNames": [
+        "ch0",
+        "ch1",
+        "ch2",
+        "ch3"
+      ],
+      "Name": "MUX_0_76",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9546Mux"
+    },
+    {
+      "Address": "0x70",
+      "Bus": "6",
+      "ChannelNames": [
+        "HHHL1",
+        "HHHL2",
+        "IOB_X550",
+        "IOB_RTM"
+      ],
+      "Name": "MUX_6_70",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9546Mux"
+    },
+    {
+      "Address": "0x71",
+      "Bus": "6",
+      "ChannelNames": [
+        "L32",
+        "PCIEX16_SLOT2",
+        "R32",
+        "PCIEX16_SLOT8"
+      ],
+      "Name": "MUX_U17101",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9546Mux"
+    },
+    {
+      "Address": "0x76",
+      "Bus": "6",
+      "ChannelNames": [
+        "ch0",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4",
+        "ch5",
+        "ch6",
+        "ch7"
+      ],
+      "Name": "MUX_6_76",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9548Mux"
+    },
+    {
+      "Address": "0x77",
+      "Bus": "6",
+      "ChannelNames": [
+        "ch0",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4",
+        "ch5",
+        "ch6",
+        "ch7"
+      ],
+      "Name": "MUX_6_77",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9548Mux"
+    },
+    {
+      "Address": "0x70",
+      "Bus": "7",
+      "ChannelNames": [
+        "ch0",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4",
+        "ch5",
+        "ch6",
+        "ch7"
+      ],
+      "Name": "MUX_7_70",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9548Mux"
+    },
+    {
+      "Address": "0x76",
+      "Bus": "7",
+      "ChannelNames": [
+        "ch0",
+        "ch1",
+        "ch2",
+        "ch3",
+        "ch4",
+        "ch5",
+        "ch6",
+        "ch7"
+      ],
+      "Name": "MUX_7_77",
+      "MuxIdleMode": "Disconnect",
+      "Type": "PCA9548Mux"
+    },
+    {
+      "Address": "0x4B",
+      "Bus": 8,
+      "Name": "Baseboard Outlet_Temp TEMP_C",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 45
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 42
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    },
+    {
+      "Address": "0x4C",
+      "Bus": 22,
+      "Name": "LOM",
+      "Name1": "Baseboard LOM_Temp TEMP_C",
+      "Labels": [
+                "temp2"
+      ],
+      "PollRate": 5.0,
+      "PowerState": "Always",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Index": 2,
+          "Value": 70
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Index": 2,
+          "Value": 55
+        }
+      ],
+      "Type": "TMP411"
+    },
+    {
+      "Address": "0x4c",
+      "Bus": 3,
+      "PowerState": "On",
+      "Name": "CPU 0 TEMP_C",
+      "EntityId": 3,
+      "EntityInstance": 0,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 95.0
+        }
+      ],
+      "Type": "SBTSI"
+    },
+    {
+      "Address": "0x3c",
+      "Bus": 3,
+      "PowerState": "On",
+      "Labels": [
+        "power1"
+      ],
+      "Name": "CPU 0 SBRMI",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Label": "power1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 400.0
+        }
+      ],
+      "power1_Name": "CPU 0 CPU Power Average PWR_W",
+      "Type": "SBRMI"
+    },
+    {
+      "Address": "0x48",
+      "Bus": 3,
+      "PowerState": "On",
+      "Name": "CPU 1 TEMP_C",
+      "EntityId": 3,
+      "EntityInstance": 1,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 95.0
+        }
+      ],
+      "Type": "SBTSI"
+    },
+    {
+      "Address": "0x38",
+      "Bus": 3,
+      "PowerState": "On",
+      "Labels": [
+        "power1"
+      ],
+      "Name": "CPU 1 SBRMI",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Label": "power1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 400.0
+        }
+      ],
+      "power1_Name": "CPU 1 CPU Power Average PWR_W",
+      "Type": "SBRMI"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 8,
+      "Name": "Baseboard P12V VOLT_V",
+      "PowerState": "On",
+      "ScaleFactor": 0.1362,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 14.333
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.32
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 13.2
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 10.8
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 10.68
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 10.091
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 9,
+      "Name": "Baseboard P12V_AUX VOLT_V",
+      "ScaleFactor": 0.1362,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 14.333
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.32
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 13.2
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 10.8
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 10.68
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 10.091
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 10,
+      "Name": "Baseboard P5V VOLT_V",
+      "PowerState": "On",
+      "ScaleFactor": 0.326797,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 5.65
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 5.55
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 5.5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 4.5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 4.45
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 4.15
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 12,
+      "Name": "Baseboard P3V3_AUX VOLT_V",
+      "ScaleFactor": 0.5,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 3.729
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 3.564
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 3.531
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 3.069
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 3.036
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 2.739
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "EntityId": 7,
+      "EntityInstance": 0,
+      "Index": 13,
+      "Name": "Baseboard P1V8_BMC_AUX VOLT_V",
+      "ScaleFactor": 0.90497,
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1.944
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1.926
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1.674
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1.656
+        }
+      ],
+      "Type": "ADC"
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 80,
+      "ILimitMin": 8,
+      "Inputs": [
+        "CPU 0 TEMP_C"
+      ],
+      "Name": "Pid Temp CPU 0",
+      "NegativeHysteresis": 3.0,
+      "OutLimitMax": 80,
+      "OutLimitMin": 20,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 60.0,
+      "SlewNeg": -0.4,
+      "SlewPos": 0.2,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 2"
+      ]
+    },
+    {
+      "Class": "Floor",
+      "Inputs": [
+        "CPU 0 TEMP_C"
+      ],
+      "Name": "Stepwise CPU 0",
+      "NegativeHysteresis": 2,
+      "Output": [
+        20.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "PositiveHysteresis": 0,
+      "Reading": [
+        40.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "Type": "Stepwise",
+      "Zones": [
+        "Pid Zone 2"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 80,
+      "ILimitMin": 8,
+      "Inputs": [
+        "CPU 1 TEMP_C"
+      ],
+      "Name": "Pid Temp CPU 1",
+      "NegativeHysteresis": 3.0,
+      "OutLimitMax": 80,
+      "OutLimitMin": 20,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 60.0,
+      "SlewNeg": -0.4,
+      "SlewPos": 0.2,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 5"
+      ]
+    },
+    {
+      "Class": "Floor",
+      "Inputs": [
+        "CPU 1 TEMP_C"
+      ],
+      "Name": "Stepwise CPU 1",
+      "NegativeHysteresis": 2,
+      "Output": [
+        20.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "PositiveHysteresis": 0,
+      "Reading": [
+        40.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "Type": "Stepwise",
+      "Zones": [
+        "Pid Zone 5"
+      ]
+    },
+    {
+        "LED": "fan1_fault",
+        "Name": "1U System Fan connector 1",
+        "Pwm": 0,
+        "PwmName": "Baseboard Pwm_0 PWM_PCT",
+        "Status": "disabled",
+        "Tachs": [
+            0,
+            1
+        ],
+        "Type": "IntelFanConnector"
+    },
+    {
+        "LED": "fan2_fault",
+        "Name": "1U System Fan connector 2",
+        "Pwm": 1,
+        "PwmName": "Baseboard Pwm_1 PWM_PCT",
+        "Status": "disabled",
+        "Tachs": [
+            2,
+            3
+        ],
+        "Type": "IntelFanConnector"
+    },
+    {
+        "LED": "fan3_fault",
+        "Name": "1U System Fan connector 3",
+        "Pwm": 2,
+        "PwmName": "Baseboard Pwm_2 PWM_PCT",
+        "Status": "disabled",
+        "Tachs": [
+            4,
+            5
+        ],
+        "Type": "IntelFanConnector"
+    },
+    {
+        "LED": "fan4_fault",
+        "Name": "1U System Fan connector 4",
+        "Pwm": 3,
+        "PwmName": "Baseboard Pwm_3 PWM_PCT",
+        "Status": "disabled",
+        "Tachs": [
+            6,
+            7
+        ],
+        "Type": "IntelFanConnector"
+    },
+    {
+        "LED": "fan5_fault",
+        "Name": "1U System Fan connector 5",
+        "Pwm": 4,
+        "PwmName": "Baseboard Pwm_4 PWM_PCT",
+        "Status": "disabled",
+        "Tachs": [
+            8,
+            9
+        ],
+        "Type": "IntelFanConnector"
+    },
+    {
+        "LED": "fan6_fault",
+        "Name": "1U System Fan connector 6",
+        "Pwm": 5,
+        "PwmName": "Baseboard Pwm_5 PWM_PCT",
+        "Status": "disabled",
+        "Tachs": [
+            10,
+            11
+        ],
+        "Type": "IntelFanConnector"
+    },
+    // DCMI reference System_Total_Power_PWR_W for power reading
+    {
+      "Name": "System_Total_Power_PWR_W",
+      "MaxValue": 3000,
+      "MinValue": 0,
+      // System_Total_Power_PWR_W is sum of PIN from PSUs.
+      "Sensors": [
+        "PSU_0_PIN_PWR_W",
+        "PSU_1_PIN_PWR_W"
+      ],
+      "Type": "Sum",
+      "Units": "Watts"
+    },
+    {
+      "FirmwareInfo": {
+        "CompatibleHardware": "com.mitac.Hardware.S8261.SPI.Host",
+        "VendorIANA": 11183
+      },
+      "MuxOutputs": [
+        {
+          "Name": "spi-mux-bios",
+          "Polarity": "High"
+        }
+      ],
+      "Name": "BIOS",
+      "SPIControllerIndex": 1,
+      "SPIDeviceIndex": 0,
+      "Type": "SPIFlash"
+    },
+    {
+      "BDF": 0,
+      "DefaultEID": 0,
+      "GetRoutingInterval": 5,
+      "Index": 1,
+      "Name": "MCTP PCIe",
+      "PhysicalMediumID": "Pcie2",
+      "ReqRetryCount": 2,
+      "ReqToRespTimeMs": 120,
+      "Role": "Endpoint",
+      "TransportBindingType": "MctpPCIe",
+      "Type": "MctpConfiguration"
+    }
+  ],
+  "Name": "Baseboard_S8261",
+  "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'S8261*'})",
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Item.Board.Motherboard": {},
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "Model": "$BOARD_PRODUCT_NAME",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.AssetTag": {
+    "AssetTag": "$PRODUCT_ASSET_TAG"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Compatible": {
+    "Names": [
+      "com.mitac.Hardware.Chassis.Model.S8261"
+    ]
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "$PRODUCT_VERSION"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.I2CDevice": {
+    "Address": "$ADDRESS",
+    "Bus": "$BUS"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Ipmi": {
+    "EntityId": 7,
+    "EntityInstance": 0
+  }
+}

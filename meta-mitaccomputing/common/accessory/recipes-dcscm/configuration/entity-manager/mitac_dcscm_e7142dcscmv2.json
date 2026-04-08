@@ -1,0 +1,64 @@
+{
+  "Exposes": [
+    {
+      "Address": "$address",
+      "Bus": "$bus",
+      "Name": "DCSCM $bus $address FRU",
+      "Type": "EEPROM_24C64"
+    },
+    {
+      "Address": "0x48",
+      "Bus": "$bus",
+      "Name": "DCSCM $bus $address TEMP_C",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 45
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 42
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    }
+  ],
+  "Name": "DCSCM $bus $address",
+  "Probe": [
+    "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'E7142DCSCMV2'})"
+  ],
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+    "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "mitac_dcscm_e7142dcscmv2"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.I2CDevice": {
+    "Address": "$ADDRESS",
+    "Bus": "$BUS"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Ipmi": {
+    "EntityId": 6,
+    "EntityInstance": "$BUS"
+  }
+}
+

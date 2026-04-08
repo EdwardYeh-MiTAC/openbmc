@@ -1,0 +1,41 @@
+{
+  "Exposes": [
+    {
+      "Address": "0x4a",
+      "Bus": 26,
+      "Name": "Riser Outlet_Temp_R TEMP_C",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 45
+        },
+        {
+          "Direction": "greater than",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 42
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 5
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 0
+        }
+      ],
+      "Type": "TMP75"
+    }
+  ],
+  "Name": "Riser M8261T85-R32T",
+  "Probe": [
+    "FOUND('Baseboard_S8261')"
+  ],
+  "Type": "Board"
+}

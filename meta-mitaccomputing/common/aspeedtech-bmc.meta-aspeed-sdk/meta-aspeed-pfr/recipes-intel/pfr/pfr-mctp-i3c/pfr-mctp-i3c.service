@@ -1,0 +1,11 @@
+[Unit]
+Description=Intel PFR MCTP I3C Message Handler
+
+[Service]
+ExecStart=/bin/sh -c "/usr/bin/mctp-i3c-starter.sh &"
+Type=oneshot
+RemainAfterExit=yes
+SyslogIdentifier=pfr-mctp-i3c
+
+[Install]
+WantedBy=multi-user.target

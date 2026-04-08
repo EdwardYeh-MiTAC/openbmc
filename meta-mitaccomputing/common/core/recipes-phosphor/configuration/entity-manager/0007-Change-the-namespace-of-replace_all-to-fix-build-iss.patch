@@ -1,0 +1,61 @@
+From 9825f5e99dfeea19ac2aac06754a81eac6ddac4e Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 12 Jan 2026 03:01:58 +0000
+Subject: [PATCH 1/1] Change the namespace of replace_all to fix build issue
+ with boost ver 1.88.0.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/entity_manager/overlay.cpp | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/entity_manager/overlay.cpp b/src/entity_manager/overlay.cpp
+index 50fe099..b7145c3 100644
+--- a/src/entity_manager/overlay.cpp
++++ b/src/entity_manager/overlay.cpp
+@@ -21,11 +21,11 @@
+ #include "utils.hpp"
+ 
+ #include <boost/algorithm/string/predicate.hpp>
++#include <boost/algorithm/string.hpp>
+ #include <boost/asio/io_context.hpp>
+ #include <boost/asio/steady_timer.hpp>
+ #include <boost/container/flat_map.hpp>
+ #include <boost/container/flat_set.hpp>
+-#include <boost/process/child.hpp>
+ #include <nlohmann/json.hpp>
+ #include <phosphor-logging/lg2.hpp>
+ 
+@@ -101,7 +101,7 @@ std::string jsonToString(const nlohmann::json& in)
+         // remove brackets and comma from array
+         std::string array = in.dump();
+         array = array.substr(1, array.size() - 2);
+-        boost::replace_all(array, ",", " ");
++        boost::algorithm::replace_all(array, ",", " ");
+         return array;
+     }
+     return in.dump();
+@@ -339,7 +339,7 @@ bool exportDevice(const std::string& type,
+             {
+                 bus = muxChannelMap[muxChannel["MuxName"]]
+                                    [muxChannel["ChannelName"]];
+-                boost::replace_all(busPath, "$Bus", std::to_string(*bus));
++                boost::algorithm::replace_all(busPath, "$Bus", std::to_string(*bus));
+             }
+             else
+             {
+@@ -351,9 +351,9 @@ bool exportDevice(const std::string& type,
+             idleMode = keyPair.value().get<std::string>();
+         }
+ 
+-        boost::replace_all(parameters, templateChar + keyPair.key(),
++        boost::algorithm::replace_all(parameters, templateChar + keyPair.key(),
+                            subsituteString);
+-        boost::replace_all(busPath, templateChar + keyPair.key(),
++        boost::algorithm::replace_all(busPath, templateChar + keyPair.key(),
+                            subsituteString);
+     }
+ 
+-- 
+2.45.2
+

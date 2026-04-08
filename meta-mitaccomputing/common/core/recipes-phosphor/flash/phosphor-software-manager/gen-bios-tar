@@ -1,0 +1,230 @@
+#!/bin/bash
+set -eo pipefail
+
+help=$(cat <<EOF
+Generate Tarball with Bios image and MANIFEST Script
+
+Generates a Bios image tarball from given file as input.
+Creates a MANIFEST for image verification and recreation
+Packages the image and MANIFEST together in a tarball
+
+usage: gen-bios-tar [OPTION] <Bios FILE>...
+
+Options:
+   -o, --out <file>       Specify destination file. Defaults to
+                          $(pwd)/obmc-bios.tar.gz if unspecified.
+   -s, --sign <path>      Sign the image. The optional path argument specifies
+                          the private key file. Defaults to the bash variable
+                          PRIVATE_KEY_PATH if available, or else uses the
+                          open-source private key in this script.
+   -m, --machine <name>   Optionally specify the target machine name of this
+                          image.
+   -v, --version <name>   Specify the version of bios image file
+   -c, --compatible <name>  Specify the compatible of host
+   -e, --extended <name>  Specify the extended version of bios image file
+   -h, --help             Display this help text and exit.
+EOF
+)
+
+#################################################################
+# It's the OpenBMC "public" private key (currently under
+# meta-phosphor/recipes-phosphor/flash/files/OpenBMC.priv):
+# https://gerrit.openbmc-project.xyz/c/openbmc/openbmc/+/8949/15/
+# meta-phosphor/common/recipes-phosphor/flash/files/OpenBMC.priv
+#
+#################################################################
+private_key=$'-----BEGIN PRIVATE KEY-----
+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
+JbmuCRNy7YvALVTzyQsQ4yw87BoONt1L
+-----END PRIVATE KEY-----
+'
+
+do_sign=false
+PRIVATE_KEY_PATH=${PRIVATE_KEY_PATH:-}
+private_key_path="${PRIVATE_KEY_PATH}"
+outfile=""
+machine=""
+version=""
+
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case $key in
+    -o|--out)
+      outfile="$2"
+      shift 2
+      ;;
+    -s|--sign)
+      do_sign=true
+      if [[ -n "${2}"  && "${2}" != -* ]]; then
+        private_key_path="$2"
+        shift 2
+      else
+        shift 1
+      fi
+      ;;
+    -m|--machine)
+      machine="$2"
+      shift 2
+      ;;
+    -v|--version)
+      version="$2"
+      shift 2
+      ;;
+    -e|--extended)
+      extended="$2"
+      shift 2
+      ;;
+    -c|--compatible)
+      compatible="$2"
+      shift 2
+      ;;
+    -h|--help)
+      echo "$help"
+      exit
+      ;;
+    -*)
+      echo "Unrecognised option $1"
+      echo "$help"
+      exit
+      ;;
+    *)
+      file="$1"
+      shift 1
+      ;;
+  esac
+done
+
+if [ ! -f "${file}" ]; then
+  echo "${file} not found, Please enter a valid Bios image file"
+  echo "$help"
+  exit 1
+fi
+
+if [[ -z $version ]]; then
+  echo "Please provide version of image with -v option"
+  exit 1
+fi
+
+if [[ -z $outfile ]]; then
+  outfile=$(pwd)/obmc-bios.tar.gz
+else
+  if [[ $outfile != /* ]]; then
+    outfile=$(pwd)/$outfile
+  fi
+fi
+
+scratch_dir=$(mktemp -d)
+# Remove the temp directory on exit.
+# The files in the temp directory may contain read-only files, so add
+# --interactive=never to skip the prompt.
+trap '{ rm -r --interactive=never ${scratch_dir}; }' EXIT
+
+if [[ "${do_sign}" == true ]]; then
+  if [[ -z "${private_key_path}" ]]; then
+    private_key_path=${scratch_dir}/OpenBMC.priv
+    echo "${private_key}" > "${private_key_path}"
+    echo "Image is NOT secure!! Signing with the open private key!"
+  else
+    if [[ ! -f "${private_key_path}" ]]; then
+      echo "Couldn't find private key ${private_key_path}."
+      exit 1
+    fi
+
+    echo "Signing with ${private_key_path}."
+  fi
+
+  public_key_file=publickey
+  public_key_path=${scratch_dir}/$public_key_file
+  openssl pkey -in "${private_key_path}" -pubout -out "${public_key_path}"
+fi
+
+manifest_location="MANIFEST"
+files_to_sign="$manifest_location $public_key_file"
+
+# Go to scratch_dir
+cp "${file}" "${scratch_dir}"
+cd "${scratch_dir}"
+files_to_sign+=" $(basename "${file}")"
+
+echo "Creating MANIFEST for the image"
+echo -e "purpose=xyz.openbmc_project.Software.Version.VersionPurpose.Host\n\
+version=$version" > $manifest_location
+
+if [[ -n "${extended}" ]]; then
+    echo -e "ExtendedVersion=\"${extended}\"" >> $manifest_location
+fi
+
+if [[ -n "${compatible}" ]]; then
+    echo -e "CompatibleName=\"${compatible}\"" >> $manifest_location
+fi
+
+if [[ -n "${machine}" ]]; then
+    echo -e "MachineName=${machine}" >> $manifest_location
+fi
+
+if [[ "${do_sign}" == true ]]; then
+  private_key_name=$(basename "${private_key_path}")
+  key_type="${private_key_name%.*}"
+  echo KeyType="${key_type}" >> $manifest_location
+  echo HashType="RSA-SHA256" >> $manifest_location
+
+  for file in $files_to_sign; do
+    openssl dgst -sha256 -sign "${private_key_path}" -out "${file}.sig" "$file"
+  done
+
+  additional_files="*.sig"
+fi
+
+# shellcheck disable=SC2086
+# Do not quote the files variables since they list multiple files
+# and tar would assume to be a single file name within quotes
+tar cvf $outfile $files_to_sign $additional_files
+echo "Bios image tarball is at $outfile"

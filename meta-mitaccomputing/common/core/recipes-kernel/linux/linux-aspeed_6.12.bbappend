@@ -1,0 +1,24 @@
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}-${PV}:"
+
+SRC_URI:append = "\
+    file://0003-To-improve-accustic-PWM-will-set-to-the-maximum-stat.patch \
+    file://0004-Support-peci-legacy-device-in-device-t.patch \
+    file://0005-Migrate-NCT7363-HWMON-driver-from-Linux-6.6.13.patch \
+    file://0006-Fixed-dac_mux-issue-when-using-display-port-and-AST2.patch \
+    file://0007-Fixed-build-issue-from-casting.patch \
+    file://0009-Add-AMD-APML-driver.patch \
+    file://0011-Optional-Beautify-dump-of-packet-data.patch \
+    file://0013-Implement-cache-for-LTC2497-driver-to-avoid-timeout-.patch \
+    file://0012-Downgrade-MCTP-driver-and-waiting-for-new-driver-eva.patch \
+    file://0014-Added-to-support-TUSB4041-usb-hub.patch \
+    "
+
+do_patch:append() {
+    for DTB in ${KERNEL_DEVICETREE}; do
+        DT=`/bin/basename $DTB .dtb`
+        if [ -r "${UNPACKDIR}/${DT}.dts" ]; then
+            cp ${UNPACKDIR}/${DT}.dts \
+                ${STAGING_KERNEL_DIR}/arch/${ARCH}/boot/dts/${KMACHINE}/
+        fi
+    done
+}

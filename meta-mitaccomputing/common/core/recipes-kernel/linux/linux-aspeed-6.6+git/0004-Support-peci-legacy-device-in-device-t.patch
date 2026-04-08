@@ -1,0 +1,145 @@
+From 9d44ffa7b35d959c40de6eab6173e4548db4d12e Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 21 Apr 2025 07:42:46 +0000
+Subject: [PATCH 1/1] Support peci-legacy device in device tree for AST2600 and
+ AST2700.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ arch/arm/boot/dts/aspeed/aspeed-g6.dtsi      | 25 ++++++++++++++++++++
+ arch/arm64/boot/dts/aspeed/aspeed-g7-a0.dtsi | 25 ++++++++++++++++++++
+ arch/arm64/boot/dts/aspeed/aspeed-g7.dtsi    | 25 ++++++++++++++++++++
+ 3 files changed, 75 insertions(+)
+
+diff --git a/arch/arm/boot/dts/aspeed/aspeed-g6.dtsi b/arch/arm/boot/dts/aspeed/aspeed-g6.dtsi
+index c3546f3cbd57..fa27344cee00 100644
+--- a/arch/arm/boot/dts/aspeed/aspeed-g6.dtsi
++++ b/arch/arm/boot/dts/aspeed/aspeed-g6.dtsi
+@@ -1118,6 +1118,13 @@ i2c: bus@1e78a000 {
+ 				ranges = <0 0x1e78a000 0x1000>;
+ 			};
+ 
++			peci_legacy: bus@1e78b000 {
++				compatible = "simple-bus";
++				#address-cells = <1>;
++				#size-cells = <1>;
++				ranges = <0x0 0x1e78b000 0x100>;
++			};
++
+ 			peci0: peci-controller@1e78b000 {
+ 				compatible = "aspeed,ast2600-peci";
+ 				reg = <0x1e78b000 0x100>;
+@@ -1336,6 +1343,24 @@ bmc_dev: bmc_dev@1e7e0000 {
+ 
+ #include "aspeed-g6-pinctrl.dtsi"
+ 
++&peci_legacy {
++	peci_legacy0: peci-bus@0 {
++		compatible = "aspeed,ast2600-peci";
++		reg = <0x0 0x100>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		interrupts = <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;
++		clocks = <&syscon ASPEED_CLK_GATE_REF0CLK>;
++		resets = <&syscon ASPEED_RESET_PECI>;
++		clock-frequency = <24000000>;
++		msg-timing = <1>;
++		addr-timing = <1>;
++		rd-sampling-point = <8>;
++		cmd-timeout-ms = <1000>;
++		status = "disabled";
++	};
++};
++
+ &i2c {
+ 
+ 	i2c_global: i2c-global-regs@0 {
+diff --git a/arch/arm64/boot/dts/aspeed/aspeed-g7-a0.dtsi b/arch/arm64/boot/dts/aspeed/aspeed-g7-a0.dtsi
+index 28df8bc53a0b..ecf162c1fe0d 100644
+--- a/arch/arm64/boot/dts/aspeed/aspeed-g7-a0.dtsi
++++ b/arch/arm64/boot/dts/aspeed/aspeed-g7-a0.dtsi
+@@ -1448,6 +1448,13 @@ udma: uart-dma@14c12000 {
+ 			interrupts-extended = <&intc0_4 19>;
+ 		};
+ 
++		peci_legacy: bus@14c1f000 {
++			compatible = "simple-bus";
++			#address-cells = <1>;
++			#size-cells = <1>;
++			ranges = <0x0 0x14c1f000 0x100>;
++		};
++
+ 		peci0: peci-controller@14c1f000 {
+ 			compatible = "aspeed,ast2600-peci";
+ 			reg = <0x0 0x14c1f000 0x0 0x100>;
+@@ -2110,6 +2117,24 @@ fsim1: fsi@23800000 {
+ 
+ #include "aspeed-g7-a0-pinctrl.dtsi"
+ 
++&peci_legacy {
++	peci_legacy0: peci-bus@0 {
++		compatible = "aspeed,ast2600-peci";
++		reg = <0x0 0x100>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		interrupts = <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;
++		clocks = <&syscon1 SCU1_CLK_GATE_IPEREFCLK>;
++		resets = <&syscon1 SCU1_RESET_PECI>;
++		clock-frequency = <24000000>;
++		msg-timing = <1>;
++		addr-timing = <1>;
++		rd-sampling-point = <8>;
++		cmd-timeout-ms = <1000>;
++		status = "disabled";
++	};
++};
++
+ &i2c {
+ 	i2c_global: i2c-global-regs@0 {
+ 		compatible = "aspeed,i2c-global", "simple-mfd", "syscon";
+diff --git a/arch/arm64/boot/dts/aspeed/aspeed-g7.dtsi b/arch/arm64/boot/dts/aspeed/aspeed-g7.dtsi
+index 7ba9ccce0a39..b1419bbb48c4 100644
+--- a/arch/arm64/boot/dts/aspeed/aspeed-g7.dtsi
++++ b/arch/arm64/boot/dts/aspeed/aspeed-g7.dtsi
+@@ -1704,6 +1704,13 @@ intc1_5: interrupt-controller@150 {
+ 			};
+ 		};
+ 
++		peci_legacy: bus@14c1f000 {
++			compatible = "simple-bus";
++			#address-cells = <1>;
++			#size-cells = <1>;
++			ranges = <0x0 0x14c1f000 0x100>;
++		};
++
+ 		peci0: peci-controller@14c1f000 {
+ 			compatible = "aspeed,ast2600-peci";
+ 			reg = <0x0 0x14c1f000 0x0 0x100>;
+@@ -2554,6 +2561,24 @@ xdma2: xdma@14c19000 {
+ 
+ #include "aspeed-g7-pinctrl.dtsi"
+ 
++&peci_legacy {
++	peci_legacy0: peci-bus@0 {
++		compatible = "aspeed,ast2600-peci";
++		reg = <0x0 0x100>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++		interrupts = <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;
++		clocks = <&syscon1 SCU1_CLK_GATE_IPEREFCLK>;
++		resets = <&syscon1 SCU1_RESET_PECI>;
++		clock-frequency = <24000000>;
++		msg-timing = <1>;
++		addr-timing = <1>;
++		rd-sampling-point = <8>;
++		cmd-timeout-ms = <1000>;
++		status = "disabled";
++	};
++};
++
+ &i2c {
+ 	i2c_global: i2c-global-regs@0 {
+ 		compatible = "aspeed,i2c-global", "simple-mfd", "syscon";
+-- 
+2.25.1
+

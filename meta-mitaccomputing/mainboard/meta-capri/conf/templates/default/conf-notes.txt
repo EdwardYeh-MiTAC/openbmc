@@ -1,0 +1,6 @@
+This is special project for Capri2 and Capri3. 
+Due to Capri 2 doesn't provide MB FRU data during manifucturing so that the implement of this project will force to update MB FRU to Capri 2. 
+You shall make sure you use this firmware image either on Capri2 or Capri3.
+
+Common targets are:
+    obmc-phosphor-image

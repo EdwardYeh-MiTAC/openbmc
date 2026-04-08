@@ -1,0 +1,50 @@
+From 1ab3641f442dd98859b8be2e51b792244644c609 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 12 Dec 2025 06:23:20 +0000
+Subject: [PATCH 1/2] Recreate mux channels when deviceIsCreated return
+ possitive but mux channels were not really be created by linux kernel.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/entity_manager/overlay.cpp | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+diff --git a/src/entity_manager/overlay.cpp b/src/entity_manager/overlay.cpp
+index 7413aa7..50fe099 100644
+--- a/src/entity_manager/overlay.cpp
++++ b/src/entity_manager/overlay.cpp
+@@ -115,6 +115,21 @@ static std::string deviceDirName(uint64_t bus, uint64_t address)
+     return name.str();
+ }
+ 
++bool isValidMux(uint64_t busIndex, uint64_t address)
++{
++
++    std::filesystem::path devDir(i2CDevsDir);
++    devDir /= deviceDirName(busIndex, address);
++    std::filesystem::path channelPath =
++            devDir / ("channel-0");
++    if (std::filesystem::exists(channelPath)) {
++        return true;
++    } else {
++        std::cerr << channelPath << "Lost channel devices and it seems not a normal mux.\n";
++        return false;
++    }
++}
++
+ void linkMux(const std::string& muxName, uint64_t busIndex, uint64_t address,
+              const std::vector<std::string>& channelNames)
+ {
+@@ -229,7 +244,8 @@ static int buildDevice(
+         createDevice(busPath, parameters, constructor);
+ 
+         // If it didn't work, delete it and try again in 500ms
+-        if (!deviceIsCreated(busPath, bus, address, hasHWMonDir))
++        if ((!deviceIsCreated(busPath, bus, address, hasHWMonDir)) ||
++            (!channelNames.empty() && !isValidMux(bus, address)))
+         {
+             deleteDevice(busPath, address, destructor);
+ 
+-- 
+2.45.2
+

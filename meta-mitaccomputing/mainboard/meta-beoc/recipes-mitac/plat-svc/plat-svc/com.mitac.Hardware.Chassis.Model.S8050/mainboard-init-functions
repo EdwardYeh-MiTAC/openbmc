@@ -1,0 +1,63 @@
+#!/bin/bash -e
+LIBPATH=/usr/libexec
+source $LIBPATH/mitac-common-functions
+
+PLATFORM_COMPACT_NAME="com.mitac.Hardware.Chassis.Model.S8050"
+MB_LIB_PATH="$LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME"
+source $MB_LIB_PATH/mainboard_env.sh
+ASSERT_FUNCTION_EXIST get_mac_addr_from_fru
+
+KERNEL_DTS_FN=aspeed-bmc-mitac-s8050
+FDFFILE="conf-$KERNEL_DTS_FN.dtb"
+
+DO_REBOOT=0
+
+init-uboot() {
+    echo "mainboard-init-functions: init-uboot ($VER)"
+    source $MB_LIB_PATH/mainboard_env.sh
+    BOOTCMD="mw.l 0x1e6e251c 00001f00; run bootspi"
+    refresh-uboot-arg bootcmd "$BOOTCMD"
+    refresh-uboot-arg fdtfile "$FDFFILE"
+
+    # To make booting with selected DTB configuration.
+    # To avoid bmc hung at u-boot due to incorrect config from upgrade and downgrade of firmware, default option is mandatory.
+    BOOTSPI="fdt addr 20100000 && fdt header get fitsize totalsize && cp.b 20100000 \${loadaddr} \${fitsize} && bootm \${loadaddr}#\${fdtfile}; echo Booting with default DTB; bootm; echo Error loading kernel FIT image"
+    refresh-uboot-arg bootspi "$BOOTSPI"
+
+    echo "Update MAC Address if necessary."
+    set +e
+    update_mac 0 ethaddr
+    update_mac 1 eth2addr
+    set -e
+
+    if [ "$DO_REBOOT" == 1 ]; then
+        log_oem_redfish_event \
+            "Reboot to make new u-boot args working." \
+            6 3 \
+            "OpenBMC.0.1.MiOBMC" \
+            "" ""
+        fw_setenv profile "$PROFILE_ID"
+        reboot
+    fi
+}
+
+init-kernel() {
+    echo "mainboard-init-functions: init-kernel ($VER)"
+}
+
+init-peripheral() {
+    echo "mainboard-init-functions: init-peripheral ($VER)"
+}
+
+init-service() {
+    echo "mainboard-init-functions: init-service ($VER)"
+    ln -s $MB_LIB_PATH/mainboard_env.sh /tmp/mainboard_env.sh
+
+    # Create symbolic link according to system.
+    # ln -s $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/MRD_default.json /tmp/MRD_System.json
+    ln -s $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/MRD_S8050.json /tmp/MRD_System.json
+
+    source $MB_LIB_PATH/spd_link.sh
+
+    launch_amd_common_service
+}

@@ -1,0 +1,29 @@
+From 348d3f8811b8d9159f55f34fa75b4ed4b8817d13 Mon Sep 17 00:00:00 2001
+From: OpenEmbedded <oe.patch@oe>
+Date: Mon, 17 Feb 2025 06:44:02 +0000
+Subject: [PATCH 1/1] To improve accustic, PWM will set to the maximum state of
+ cooling-pwm-values.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ drivers/hwmon/pwm-fan.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index 04c03146a961..c110f8b0c358 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -627,6 +627,10 @@ static int pwm_fan_probe(struct platform_device *pdev)
+ 		return ret;
+ 
+ 	ctx->pwm_fan_state = ctx->pwm_fan_max_state;
++	ret = set_pwm(ctx, ctx->pwm_fan_cooling_levels[ctx->pwm_fan_state]);
++	if (ret)
++		return ret;
++
+ 	if (IS_ENABLED(CONFIG_THERMAL)) {
+ 		cdev = devm_thermal_of_cooling_device_register(dev,
+ 			dev->of_node, "pwm-fan", ctx, &pwm_fan_cooling_ops);
+-- 
+2.34.1
+

@@ -1,0 +1,191 @@
+From da400b0c3bc019852e18967f76cd55dc4b29f1a6 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Wed, 5 Nov 2025 06:23:21 +0000
+Subject: [PATCH 1/2] Added base board init file for AST2600.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ board/aspeed/evb_ast2600/evb_ast2600.c | 120 +++++++++++++++++++++++--
+ 1 file changed, 114 insertions(+), 6 deletions(-)
+
+diff --git a/board/aspeed/evb_ast2600/evb_ast2600.c b/board/aspeed/evb_ast2600/evb_ast2600.c
+index 0755158330..e82658d558 100644
+--- a/board/aspeed/evb_ast2600/evb_ast2600.c
++++ b/board/aspeed/evb_ast2600/evb_ast2600.c
+@@ -3,6 +3,7 @@
+  * Copyright (c) Aspeed Technology Inc.
+  */
+ #include <common.h>
++#include <env.h>
+ #include <asm/io.h>
+ 
+ #define SCU_BASE	0x1e6e2000
+@@ -13,6 +14,8 @@
+ #define   LPC_SNPWADR	(LPC_BASE + 0x90)
+ #define   LPC_HICRB		(LPC_BASE + 0x100)
+ #define GPIO_BASE	0x1e780000
++#define AST_WDT1_BASE	0x1e785000
++#define AST_WDT2_BASE	0x1e785040
+ 
+ /* HICR5 Bits */
+ #define HICR5_EN_SIOGIO (1 << 31)		/* Enable SIOGIO */
+@@ -29,6 +32,25 @@
+ 
+ /* HICRB Bits */
+ #define HICRB_EN80HSGIO (1 << 13)	/* Enable 80hSGIO */
++#define DEFAULT_SGPIO_BYTES 10
++#define MAX_SGPIO_BYTES 16
++
++static void __maybe_unused disable_abr_wdt(void)
++{
++	u32 value;
++	value = readl(ASPEED_FMC_WDT2) & 0xfffffffe;
++	puts("Disarm ABR timer...\n");
++	writel(value, ASPEED_FMC_WDT2);
++}
++
++static void __maybe_unused rearm_os_boot_wdt(void)
++{
++	const u32 timout_sec=180;
++	printf("Set watchdog timeout to %d second...\n", timout_sec);
++	writel(timout_sec *  1000000, AST_WDT2_BASE + 0x04);
++	writel(0x4755, AST_WDT2_BASE + 0x08);
++	writel(0x93, AST_WDT2_BASE + 0x0c);
++}
+ 
+ static void __maybe_unused port80h_snoop_init(void)
+ {
+@@ -53,7 +75,7 @@ static void __maybe_unused port80h_snoop_init(void)
+ 	writel(value, LPC_HICRB);
+ }
+ 
+-static void __maybe_unused sgpio_init(void)
++static void __maybe_unused sgpio_init(u8 sgpio_bytes)
+ {
+ #define SGPIO_CLK_DIV(N)	((N) << 16)
+ #define SGPIO_BYTES(N)		((N) << 6)
+@@ -64,12 +86,22 @@ static void __maybe_unused sgpio_init(void)
+ 
+ 	u32 value;
+ 	/* set the sgpio clock to pclk/(2*(5+1)) or ~2 MHz */
+-	value = SGPIO_CLK_DIV(256) | SGPIO_BYTES(10) | SGPIO_ENABLE;
++	if  (sgpio_bytes == 0)
++		return;
++
++	if ((sgpio_bytes == 0) || (sgpio_bytes > MAX_SGPIO_BYTES)){
++		printf("Warning: Invalid assignment of sgpio_bytes (%d). It will use default %d bytes instead.\n", sgpio_bytes, DEFAULT_SGPIO_BYTES);
++		sgpio_bytes = DEFAULT_SGPIO_BYTES;
++	}
++	printf("Enable SGPIO with sgpio_bytes: %d\n", sgpio_bytes);
++	value = SGPIO_CLK_DIV(256) | SGPIO_BYTES(sgpio_bytes) | SGPIO_ENABLE;
+ 	writel(value, GPIO_BASE + GPIO554);
+ 	writel(readl(SCU_BASE | SCU_414) | SCU_414_SGPM_MASK,
+ 		SCU_BASE | SCU_414);
+ }
+ 
++
++
+ static void __maybe_unused espi_init(void)
+ {
+ 	u32 reg;
+@@ -98,17 +130,93 @@ static void __maybe_unused espi_init(void)
+ 	 *
+ 	 * If you are not sure what you are doing, DO NOT use it.
+ 	 */
++	reg = readl(ESPI_BASE + 0x000);
++	reg |= 0xef;
++	writel(reg, ESPI_BASE + 0x000);
++
++	writel(0x0, ESPI_BASE + 0x110);
++	writel(0x0, ESPI_BASE + 0x114);
++
++	reg = readl(ESPI_BASE + 0x00c);
++	reg |= 0x80000000;
++	writel(reg, ESPI_BASE + 0x00c);
++
++	writel(0xffffffff, ESPI_BASE + 0x094);
++	writel(0x1, ESPI_BASE + 0x100);
++	writel(0x1, ESPI_BASE + 0x120);
++
++	reg = readl(ESPI_BASE + 0x080);
++	reg |= 0x50;
++	writel(reg, ESPI_BASE + 0x080);
++
+ 	reg = readl(ESPI_BASE + 0x000);
+ 	reg |= 0x10;
+ 	writel(reg, ESPI_BASE + 0x000);
+ }
+ 
++void __maybe_unused acpi_init(void)
++{
++       u32 reg;
++
++       reg = readl(SCU_BASE + 0x510);
++
++       if (reg & BIT(30)) {
++               reg = BIT(5);
++               writel(reg, SCU_BASE + 0x510);
++       } else {
++               reg = readl(SCU_BASE + 0x51c);
++               reg |= BIT(10);
++               writel(reg, SCU_BASE + 0x51c);
++       }
++
++       /* PIN Mux */
++       reg = readl(SCU_BASE + 0x434);
++       reg |= BIT(8) | BIT(9) | BIT(10) | BIT(11) | BIT(12);
++       writel(reg, SCU_BASE + 0x434);
++       /* P0-P1 P2-P3 P4-P5 Passthrough */
++       reg = readl(SCU_BASE + 0x4bc);
++       reg |= BIT(24) | BIT(25) | BIT(26) | BIT(27) | BIT(28) | BIT(29);
++	printf("SCU4BC: %x", reg);
++       writel(reg, SCU_BASE + 0x4bc);
++       /* PBI and PBO */
++       reg = readl(SCU_BASE + 0x418);
++       reg |= BIT(5) | BIT(6);
++       writel(reg, SCU_BASE + 0x418);
++}
++
+ int board_early_init_f(void)
+ {
+-#if 0
+-	port80h_snoop_init();
+-	sgpio_init();
+-#endif
+ 	espi_init();
++	disable_abr_wdt();
+ 	return 0;
+ }
++
++void board_quiesce_devices(void)
++{
++	u32 default_sgpio_bytes = 0;
++	u32 sgpio_bytes;
++
++	printf("Board: %s\n", __FILE__);
++	if (!env_get("openbmconce")) {
++		printf("Enable BMC Kernel boot WDT for robustness.\n");
++		rearm_os_boot_wdt();
++	} else {
++		printf("Found openbmconce in env. Disarm BMC Kernel boot WDT.\n");
++	}
++
++	if (env_get_yesno("port80_snoop") == 1) {
++		printf("Enable Port80 Snoop.\n");
++		port80h_snoop_init();
++		// Port80 snoop is required to eanble SGPIO.
++		default_sgpio_bytes = DEFAULT_SGPIO_BYTES;
++	}
++
++	// When port80_snoop is enabled, it will force to enable sgpio.
++	sgpio_bytes = env_get_ulong("sgpio_bytes", 10, default_sgpio_bytes);
++	if (sgpio_bytes >0)
++		sgpio_init(sgpio_bytes);
++
++	printf("Enable ACPI and Passthrough GPIOs.\n");
++	acpi_init();
++	return;
++}
+-- 
+2.45.2
+

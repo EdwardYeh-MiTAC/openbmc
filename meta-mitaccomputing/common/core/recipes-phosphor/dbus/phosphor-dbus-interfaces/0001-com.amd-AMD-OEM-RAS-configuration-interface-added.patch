@@ -1,0 +1,126 @@
+From ae0b52d6bcf80b1ea7934ac94b53a94ec7344571 Mon Sep 17 00:00:00 2001
+From: Allen Kang <allen.kang@mitaccomputing>
+Date: Mon, 4 Aug 2025 02:37:08 +0000
+Subject: [PATCH] com.amd: AMD OEM RAS configuration interface added
+
+This commit introduces an AMD OEM interface that enables the setting
+and retrieval of configuration parameters used by the RAS application.
+
+Upstream-Status: Pending [https://gerrit.openbmc.org/c/openbmc/
+phosphor-dbus-interfaces/+/69972]
+
+Signed-off-by: Abinaya Dhandapani <abinaya.dhandapani@amd.com>
+---
+ meson.build                                   |  3 +
+ meson.options                                 |  1 +
+ yaml/com/amd/RAS/Configuration.interface.yaml | 73 +++++++++++++++++++
+ 3 files changed, 77 insertions(+)
+ create mode 100644 yaml/com/amd/RAS/Configuration.interface.yaml
+
+diff --git a/meson.build b/meson.build
+index 0fc06441e..770e747c4 100644
+--- a/meson.build
++++ b/meson.build
+@@ -24,6 +24,9 @@ endif
+
+ # Parse options to determine appropriate subdirectories to support.
+ yaml_selected_subdirs = []
++if get_option('data_com_amd')
++    yaml_selected_subdirs += 'com/amd'
++endif
+ if get_option('data_com_google')
+     yaml_selected_subdirs += 'com/google'
+ endif
+diff --git a/meson.options b/meson.options
+index c193bbdab..dbb722422 100644
+--- a/meson.options
++++ b/meson.options
+@@ -1,5 +1,6 @@
+ option('generate_md', type: 'boolean', value: true)
+ option('libphosphor_dbus', type: 'boolean', value: true)
++option('data_com_amd', type: 'boolean', value: true)
+ option('data_com_google', type: 'boolean', value: true)
+ option('data_com_ibm', type: 'boolean', value: true)
+ option('data_com_intel', type: 'boolean', value: true)
+diff --git a/yaml/com/amd/RAS/Configuration.interface.yaml b/yaml/com/amd/RAS/Configuration.interface.yaml
+new file mode 100644
+index 000000000..08dfd6d06
+--- /dev/null
++++ b/yaml/com/amd/RAS/Configuration.interface.yaml
+@@ -0,0 +1,73 @@
++description: >
++    Configuration parameters used by the AMD BMC RAS application.
++
++methods:
++    - name: SetAttribute
++      description: >
++          To set the new value on existing attribute name.
++      parameters:
++          - name: AttributeName
++            type: string
++            description: >
++                AttributeName which has to be changed.
++          - name: AttributeValue
++            type:
++                variant[boolean,string,int64,array[string],dict[string, string]]
++            description: >
++                New attribute value
++
++      errors:
++          - xyz.openbmc_project.Common.Error.InvalidArgument
++
++    - name: GetAttribute
++      description: >
++          To get the attribute value of existing attributes.
++      parameters:
++          - name: AttributeName
++            type: string
++            description: >
++                To get the RAS configuration attribute current values.
++
++      returns:
++          - name: Value
++            type:
++                variant[boolean,string,int64,array[string],dict[string, string]]
++            description: >
++                The attribute value.
++
++      errors:
++          - xyz.openbmc_project.Common.Error.InvalidArgument
++          - xyz.openbmc_project.Common.Error.InternalFailure
++          - xyz.openbmc_project.Common.File.Error.Open
++
++properties:
++    - name: RasConfigTable
++      type:
++          dict[string,struct[enum[self.AttributeType],string,variant[boolean,string,int64,array[string],dict[string,
++          string]],int64]]
++      description: >
++          map{attributeName,struct{attributeType,description,value,maxboundlimit}
++          Example : {"McaErrCounterOverflow",
++          {com.amd.RAS.Configuration.AttributeType.Integer,
++           "Error counter threshold overflow for MCA errors",10,0xFFF}
++enumerations:
++    - name: AttributeType
++      description: >
++          Attribute Type.
++      values:
++          - name: Boolean
++            description: >
++                Boolean value Type
++          - name: String
++            description: >
++                string value Type.
++          - name: Integer
++            description: >
++                unsigned integer value Type.
++          - name: ArrayOfStrings
++            description: >
++                Array of strings value Type.
++          - name: KeyValueMap
++            description: >
++                key-value pairs value Type.
++
+--
+2.34.1
+

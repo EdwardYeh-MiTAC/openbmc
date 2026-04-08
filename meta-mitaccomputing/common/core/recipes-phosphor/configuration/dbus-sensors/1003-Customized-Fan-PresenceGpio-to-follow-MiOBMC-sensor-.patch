@@ -1,0 +1,44 @@
+From f18ce8103be4347973f5b30ec206353ebdd9fa8b Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Thu, 22 Jan 2026 01:43:36 +0000
+Subject: [PATCH 1/1] Customized Fan PresenceGpio to follow MiOBMC sensor
+ naming convention.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/fan/PresenceGpio.cpp | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/src/fan/PresenceGpio.cpp b/src/fan/PresenceGpio.cpp
+index 6ac6fb9..13ca40f 100644
+--- a/src/fan/PresenceGpio.cpp
++++ b/src/fan/PresenceGpio.cpp
+@@ -29,6 +29,17 @@
+ 
+ static constexpr unsigned int pollIntervalSec = 1;
+ 
++static void replaceAll(std::string& str, const std::string& from, const std::string& to) {
++    if (from.empty())
++        return;
++    size_t start_pos = 0;
++    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
++        str.replace(start_pos, from.length(), to);
++        // Advance the position to immediately after the newly inserted 'to' string
++        start_pos += to.length();
++    }
++}
++
+ PresenceGpio::PresenceGpio(const std::string& deviceType,
+                            const std::string& deviceName,
+                            const std::string& gpioName) :
+@@ -40,6 +51,7 @@ PresenceGpio::PresenceGpio(const std::string& deviceType,
+         lg2::error("Error requesting gpio: '{NAME}'", "NAME", gpioName);
+         throw std::runtime_error("Failed to find GPIO " + gpioName);
+     }
++    replaceAll(this->deviceName, " SPEED_RPM", "");
+ }
+ 
+ PresenceGpio::~PresenceGpio()
+-- 
+2.45.2
+

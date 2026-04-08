@@ -1,0 +1,253 @@
+From 39e05885e4f47ff838378268b3008ad55239e554 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 9 Dec 2025 00:36:56 +0000
+Subject: [PATCH 1/1] Support using MuxChannel modifier.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/DeviceMgmt.cpp               | 71 +++++++++++++++++++++++++++-----
+ src/DeviceMgmt.hpp               | 29 ++++++++++++-
+ src/hwmon-temp/HwmonTempMain.cpp | 49 ++++++++++++++++++----
+ 3 files changed, 130 insertions(+), 19 deletions(-)
+
+diff --git a/src/DeviceMgmt.cpp b/src/DeviceMgmt.cpp
+index 4c690ba..464c6e6 100644
+--- a/src/DeviceMgmt.cpp
++++ b/src/DeviceMgmt.cpp
+@@ -15,27 +15,24 @@
+ #include <string>
+ #include <system_error>
+ #include <variant>
++#include <filesystem>
++#include <iostream>
+ 
+ std::optional<I2CDeviceParams> getI2CDeviceParams(
+-    const I2CDeviceTypeMap& dtmap, const SensorBaseConfigMap& cfg)
++    const I2CDeviceTypeMap& dtmap, const SensorBaseConfigMap& cfg, const int logicalBusNumberFromMux)
+ {
+     auto findType = cfg.find("Type");
+     auto findBus = cfg.find("Bus");
+     auto findAddr = cfg.find("Address");
++    uint64_t bus = 0;
++    uint64_t addr = 0;
+ 
+-    if (findType == cfg.end() || findBus == cfg.end() || findAddr == cfg.end())
++    if (findType == cfg.end() || findAddr == cfg.end())
+     {
+         return std::nullopt;
+     }
+ 
+     const std::string* type = std::get_if<std::string>(&findType->second);
+-    const uint64_t* bus = std::get_if<uint64_t>(&findBus->second);
+-    const uint64_t* addr = std::get_if<uint64_t>(&findAddr->second);
+-
+-    if (type == nullptr || bus == nullptr || addr == nullptr)
+-    {
+-        return std::nullopt;
+-    }
+ 
+     auto findDevType = dtmap.find(type->c_str());
+     if (findDevType == dtmap.end())
+@@ -43,7 +40,17 @@ std::optional<I2CDeviceParams> getI2CDeviceParams(
+         return std::nullopt;
+     }
+ 
+-    return I2CDeviceParams(findDevType->second, *bus, *addr);
++    addr = static_cast<uint64_t> (*std::get_if<uint64_t>(&findAddr->second));
++
++    if (logicalBusNumberFromMux > 0)
++    {
++        bus = logicalBusNumberFromMux;
++    }
++    else
++    {
++        bus = *std::get_if<uint64_t>(&findBus->second);
++    }
++    return I2CDeviceParams(findDevType->second, bus, addr);
+ }
+ 
+ static std::filesystem::path i2cBusPath(uint64_t bus)
+@@ -162,3 +169,47 @@ int I2CDevice::destroy() const
+ 
+     return 0;
+ }
++
++I2CMuxDev::I2CMuxDev(std::string muxName):_muxName(muxName) {
++
++}
++
++I2CMuxDev::~I2CMuxDev() {
++
++}
++
++int I2CMuxDev::resolveBusNum(const std::string channelName, uint64_t& busNum) {
++    const std::string I2cMuxDevPath = "/dev/i2c-mux/";
++    const std::string symlink_path = I2cMuxDevPath + _muxName + "/" + channelName;
++    if (std::filesystem::is_symlink(symlink_path))
++    {
++        const std::filesystem::path target = std::filesystem::read_symlink(symlink_path);
++        const std::string i2cDevName = target.filename().string();
++        const std::string I2cDevPrefix = "i2c-";
++        size_t anchor = i2cDevName.find(I2cDevPrefix);
++        if (anchor == std::string::npos)
++            return -1;
++
++        const std::string busNumStr = i2cDevName.substr(anchor + I2cDevPrefix.length());
++        try
++        {
++            busNum = std::stoull(busNumStr);
++            return 0;
++        }
++        catch (const std::out_of_range& oor)
++        {
++            lg2::error("Error: Value out of range for uint64_t: '{PATH}'", "PATH", target);
++            return -1;
++        }
++        catch (const std::invalid_argument& ia)
++        {
++            lg2::error("Error: Invalid argument (non-numeric characters): '{PATH}'", "PATH", target);
++            return -1;
++        }
++    }
++    else
++    {
++        lg2::error("Invalid symbolic link '{PATH}'", "PATH", symlink_path);
++        return -1;
++    }
++}
+diff --git a/src/DeviceMgmt.hpp b/src/DeviceMgmt.hpp
+index 09644ab..18aebdd 100644
+--- a/src/DeviceMgmt.hpp
++++ b/src/DeviceMgmt.hpp
+@@ -53,7 +53,7 @@ struct I2CDeviceParams
+ };
+ 
+ std::optional<I2CDeviceParams> getI2CDeviceParams(
+-    const I2CDeviceTypeMap& dtmap, const SensorBaseConfigMap& cfg);
++    const I2CDeviceTypeMap& dtmap, const SensorBaseConfigMap& cfg, const int logicalBusNumberFromMux);
+ 
+ class I2CDevice
+ {
+@@ -68,6 +68,17 @@ class I2CDevice
+     int destroy() const;
+ };
+ 
++class I2CMuxDev
++{
++  public:
++    explicit I2CMuxDev(std::string muxName);
++    ~I2CMuxDev();
++    int resolveBusNum(const std::string channelName, uint64_t& busNum);
++
++  private:
++    std::string _muxName;
++};
++
+ // HACK: this declaration "should" live in Utils.hpp, but that leads to a
+ // tangle of header-dependency hell because each header needs types declared
+ // in the other.
+@@ -143,8 +154,22 @@ boost::container::flat_map<std::string,
+                 continue;
+             }
+ 
++            int busNumber = -1;
++            const auto& findMuxCh = sensor.find(name + ".MuxChannel");
++            if (findMuxCh != sensor.end())
++            {
++                uint64_t logicBusNum;
++                auto findMuxName = findMuxCh->second.find("MuxName");
++                auto findChName = findMuxCh->second.find("ChannelName");
++
++                I2CMuxDev muxDev(std::get<std::string>(findMuxName->second));
++                if (muxDev.resolveBusNum(std::get<std::string>(findChName->second), logicBusNum) >= 0) {
++                    busNumber = logicBusNum;
++                }
++            }
++
+             std::optional<I2CDeviceParams> params =
+-                getI2CDeviceParams(sensorTypes, cfg);
++                getI2CDeviceParams(sensorTypes, cfg, busNumber);
+             if (params.has_value() && !params->deviceStatic())
+             {
+                 // There exist error cases in which a sensor device that we
+diff --git a/src/hwmon-temp/HwmonTempMain.cpp b/src/hwmon-temp/HwmonTempMain.cpp
+index fe4f5b8..55bcc2a 100644
+--- a/src/hwmon-temp/HwmonTempMain.cpp
++++ b/src/hwmon-temp/HwmonTempMain.cpp
+@@ -214,22 +214,58 @@ static SensorConfigMap buildSensorConfigMap(
+     {
+         for (const auto& [intf, cfg] : cfgData)
+         {
++            uint64_t busNum, addr;
++
+             auto busCfg = cfg.find("Bus");
+             auto addrCfg = cfg.find("Address");
+-            if ((busCfg == cfg.end()) || (addrCfg == cfg.end()))
++            if (addrCfg == cfg.end())
+             {
+                 continue;
+             }
+-
+-            if ((std::get_if<uint64_t>(&busCfg->second) == nullptr) ||
+-                (std::get_if<uint64_t>(&addrCfg->second) == nullptr))
++            if (std::get_if<uint64_t>(&addrCfg->second) == nullptr)
+             {
+-                lg2::error("'{PATH}' Bus or Address invalid", "PATH", path.str);
++                lg2::error("'{PATH}' Address invalid", "PATH", path.str);
+                 continue;
+             }
++            addr = std::get<uint64_t>(addrCfg->second);
++
++            if (std::get_if<uint64_t>(&busCfg->second) != nullptr)
++            {
++                if (std::get_if<uint64_t>(&addrCfg->second) == nullptr)
++                {
++                    lg2::error("'{PATH}' Bus invalid", "PATH", path.str);
++                    continue;
++                }
++                busNum = std::get<uint64_t>(busCfg->second);
++            }
++            else
++            {
++                const auto& muxChCfg = cfgData.find(intf + ".MuxChannel");
++                if (muxChCfg == cfgData.end())
++                {
++                    lg2::error(
++                        "'{PATH}': Both Bus and MuxChannel are not found.",
++                        "PATH", path.str);
++                    continue;
++                }
++                uint64_t logicBusNum;
++                auto findMuxName = muxChCfg->second.find("MuxName");
++                auto findChName = muxChCfg->second.find("ChannelName");
++
++                I2CMuxDev muxDev(std::get<std::string>(findMuxName->second));
++                if (muxDev.resolveBusNum(std::get<std::string>(findChName->second), logicBusNum) < 0)
++                {
++                    lg2::error(
++                        "'{PATH}': Unable to resolve bus number.",
++                        "PATH", path.str);
++                    continue;
++                }
++                busNum = logicBusNum;
++            }
+ 
+             std::vector<std::string> hwmonNames;
+             auto nameCfg = cfg.find("Name");
++
+             if (nameCfg != cfg.end())
+             {
+                 hwmonNames.push_back(std::get<std::string>(nameCfg->second));
+@@ -247,8 +283,7 @@ static SensorConfigMap buildSensorConfigMap(
+                 }
+             }
+ 
+-            SensorConfigKey key = {std::get<uint64_t>(busCfg->second),
+-                                   std::get<uint64_t>(addrCfg->second)};
++            SensorConfigKey key = {busNum, addr};
+             SensorConfig val = {path.str, cfgData, intf, cfg, hwmonNames};
+ 
+             auto [it, inserted] = configMap.emplace(key, std::move(val));
+-- 
+2.45.2
+

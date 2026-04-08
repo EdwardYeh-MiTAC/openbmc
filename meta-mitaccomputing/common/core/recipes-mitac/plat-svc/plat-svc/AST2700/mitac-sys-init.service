@@ -1,0 +1,11 @@
+[Unit]
+Description=Mitac System Initialization Service for AST2700 Platforms
+Before=phosphor-multi-gpio-monitor.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/mitac-sys-init-main
+SyslogIdentifier=MitacSysInitSrv
+
+[Install]
+WantedBy=multi-user.target

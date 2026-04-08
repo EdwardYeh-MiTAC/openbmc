@@ -1,0 +1,145 @@
+From 42c47c237f4bfb71c1051540408f9e9b8b8b2f79 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 23 Dec 2025 05:41:27 +0000
+Subject: [PATCH 1/1] Added to support VersionPurpose::Host when signed build
+ for BIOS is activated.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ bmc/image_verify.cpp | 92 +++++++++++++++++++++++++++++++++++++++++++-
+ bmc/image_verify.hpp |  3 ++
+ 2 files changed, 94 insertions(+), 1 deletion(-)
+
+diff --git a/bmc/image_verify.cpp b/bmc/image_verify.cpp
+index 687fff7..7b3a369 100644
+--- a/bmc/image_verify.cpp
++++ b/bmc/image_verify.cpp
+@@ -139,13 +139,85 @@ bool Signature::verifyFullImage()
+     return ret;
+ }
+ 
+-bool Signature::verify()
++bool Signature::verifyPurposeBIOS()
+ {
+     try
+     {
+         bool valid;
+         // Verify the MANIFEST and publickey file using available
+         // public keys and hash on the system.
++        debug("Purpose BIOS");
++        if (!systemLevelVerify())
++        {
++            error("System level Signature Validation failed");
++            return false;
++        }
++
++        bool biosFilesFound = false;
++        // image specific publickey file name.
++        fs::path publicKeyFile(imageDirPath / PUBLICKEY_FILE_NAME);
++
++        // Record the images which are being updated
++        // First check and Validate for the fullimage, then check and Validate
++        // for images with partitions
++        std::vector<std::string> imageUpdateList = {"bios.bin"};
++        valid = checkAndVerifyImage(imageDirPath, publicKeyFile,
++                                    imageUpdateList, biosFilesFound);
++        if (biosFilesFound && !valid)
++        {
++            return false;
++        }
++
++        if (!valid)
++        {
++            // Validate biosImages
++            imageUpdateList.clear();
++            imageUpdateList.assign(bmcImages.begin(), bmcImages.end());
++            valid = checkAndVerifyImage(imageDirPath, publicKeyFile,
++                                        imageUpdateList, biosFilesFound);
++            if (biosFilesFound && !valid)
++            {
++                return false;
++            }
++        }
++
++        if (!verifyFullImage())
++        {
++            error("Image full file Signature Validation failed");
++            return false;
++        }
++
++        if (!biosFilesFound)
++        {
++            error("Unable to find files to verify");
++            return false;
++        }
++
++        assert(valid);
++
++        debug("Successfully completed Signature validation.");
++        return true;
++    }
++    catch (const InternalFailure& e)
++    {
++        return false;
++    }
++    catch (const std::exception& e)
++    {
++        error("Error during processing: {ERROR}", "ERROR", e);
++        return false;
++    }
++
++}
++
++bool Signature::verifyPurposeBMC()
++{
++    try
++    {
++        bool valid;
++        debug("Purpose BMC");
++        // Verify the MANIFEST and publickey file using available
++        // public keys and hash on the system.
+         if (!systemLevelVerify())
+         {
+             error("System level Signature Validation failed");
+@@ -237,6 +309,24 @@ bool Signature::verify()
+         error("Error during processing: {ERROR}", "ERROR", e);
+         return false;
+     }
++
++}
++
++bool Signature::verify()
++{
++    if (purpose == VersionPurpose::BMC)
++    {
++        return verifyPurposeBMC();
++    }
++    else if (purpose == VersionPurpose::Host)
++    {
++        return verifyPurposeBIOS();
++    }
++    else
++    {
++        error("Unknown purpose");
++        return false;
++    }
+ }
+ 
+ bool Signature::systemLevelVerify()
+diff --git a/bmc/image_verify.hpp b/bmc/image_verify.hpp
+index 14ff93a..2b950ef 100644
+--- a/bmc/image_verify.hpp
++++ b/bmc/image_verify.hpp
+@@ -237,6 +237,9 @@ class Signature
+                              const std::string& publicKeyPath,
+                              const std::vector<std::string>& imageList,
+                              bool& fileFound);
++
++    bool verifyPurposeBIOS();
++    bool verifyPurposeBMC();
+ };
+ 
+ } // namespace image
+-- 
+2.45.2
+

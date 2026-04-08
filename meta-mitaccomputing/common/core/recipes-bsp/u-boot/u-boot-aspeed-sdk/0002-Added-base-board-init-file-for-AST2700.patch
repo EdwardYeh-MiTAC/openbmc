@@ -1,0 +1,94 @@
+From b0864532c62ea0a3a5280efcaabb4d4b21e0c1a3 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Wed, 5 Nov 2025 06:25:19 +0000
+Subject: [PATCH 2/2] Added base board init file for AST2700.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ board/aspeed/evb_ast2700/evb_ast2700.c | 72 ++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
+
+diff --git a/board/aspeed/evb_ast2700/evb_ast2700.c b/board/aspeed/evb_ast2700/evb_ast2700.c
+index b34aa6e168..0947381d88 100644
+--- a/board/aspeed/evb_ast2700/evb_ast2700.c
++++ b/board/aspeed/evb_ast2700/evb_ast2700.c
+@@ -2,4 +2,76 @@
+ /*
+  * Copyright (C) ASPEED Technology Inc.
+  */
++#include <common.h>
++#include <env.h>
++#include <asm/arch/platform.h>
++#include <asm/io.h>
++#define DEFAULT_SGPIO_BYTES 10
++#define MAX_SGPIO_BYTES 16
+ 
++static void __maybe_unused disable_abr_wdt(void)
++{
++	printf("TODO: %s for AST2700.\n", __func__);
++}
++
++static void __maybe_unused rearm_os_boot_wdt(void)
++{
++	printf("TODO: %s for AST2700.\n", __func__);
++}
++
++static void __maybe_unused port80h_snoop_init(void)
++{
++	printf("TODO: %s for AST2700.\n", __func__);
++}
++
++static void __maybe_unused sgpio_init(u8 sgpio_bytes)
++{
++	printf("TODO: %s for AST2700.\n", __func__);
++}
++
++static void __maybe_unused espi_init(void)
++{
++	printf("TODO: %s for AST2700.\n", __func__);
++}
++
++void __maybe_unused acpi_init(void)
++{
++	printf("TODO: %s for AST2700.\n", __func__);
++}
++
++int board_early_init_f(void)
++{
++	espi_init();
++	disable_abr_wdt();
++	return 0;
++}
++
++void board_quiesce_devices(void)
++{
++	u32 default_sgpio_bytes = 0;
++	u32 sgpio_bytes;
++
++	printf("Board: %s\n", __FILE__);
++	if (!env_get("openbmconce")) {
++		printf("Enable BMC Kernel boot WDT for robustness.\n");
++		rearm_os_boot_wdt();
++	} else {
++		printf("Found openbmconce in env. Disarm BMC Kernel boot WDT.\n");
++	}
++
++	if (env_get_yesno("port80_snoop") == 1) {
++		printf("Enable Port80 Snoop.\n");
++		port80h_snoop_init();
++		// Port80 snoop is required to eanble SGPIO.
++		default_sgpio_bytes = DEFAULT_SGPIO_BYTES;
++	}
++
++	// When port80_snoop is enabled, it will force to enable sgpio.
++	sgpio_bytes = env_get_ulong("sgpio_bytes", 10, default_sgpio_bytes);
++	if (sgpio_bytes >0)
++		sgpio_init(sgpio_bytes);
++
++	printf("Enable ACPI and Passthrough GPIOs.\n");
++	acpi_init();
++	return;
++}
+-- 
+2.45.2
+

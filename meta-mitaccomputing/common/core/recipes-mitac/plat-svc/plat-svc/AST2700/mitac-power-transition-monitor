@@ -1,0 +1,74 @@
+#!/bin/bash -e
+
+GetPwrState() {
+    PwrState=`busctl get-property xyz.openbmc_project.State.Host /xyz/openbmc_project/state/chassis0 xyz.openbmc_project.State.Chassis CurrentPowerState | cut -d " " -f 2`
+    #echo $PwrState
+
+    if [[ $PwrState == *"PowerState.On"* ]]; then
+        CurrPwrState="on"
+    elif [[ $PwrState == *"PowerState.Off"* ]]; then
+        CurrPwrState="off"
+    else
+        CurrPwrState="Unknown"
+    fi
+    #echo "Host Power State: $CurrPwrState"
+}
+
+TurnOnPowerLED() {
+    busctl set-property \
+        xyz.openbmc_project.LED.GroupManager \
+        /xyz/openbmc_project/led/groups/power_on \
+        xyz.openbmc_project.Led.Group Asserted b true
+}
+
+TurnOffPowerLED() {
+    busctl set-property \
+        xyz.openbmc_project.LED.GroupManager \
+        /xyz/openbmc_project/led/groups/power_on \
+        xyz.openbmc_project.Led.Group Asserted b false
+}
+
+source /tmp/mainboard_env.sh
+
+while [ true ]
+do
+    GetPwrState
+    if [[ $CurrPwrState != $LastPwrState ]]; then
+        if [[ $CurrPwrState == "on" ]]; then
+            echo "Call action for transition to ON"
+            set +e
+            TurnOnPowerLED
+            if declare -F "action_power_transition_on" >/dev/null; then
+                action_power_transition_on
+            fi
+            set -e
+        elif [[ $CurrPwrState == "off" ]]; then
+            echo "Call action for transition to OFF"
+            set +e
+            TurnOffPowerLED
+            if declare -F "action_power_transition_off" >/dev/null; then
+                action_power_transition_off
+            fi
+            set -e
+        else
+            echo "Unknown power state"
+        fi
+    else
+        if [[ $CurrPwrState == "on" ]]; then
+            set +e
+            if declare -F "action_power_status_on" >/dev/null; then
+                action_power_status_on
+            fi
+            set -e
+        elif [[ $CurrPwrState == "off" ]]; then
+            set +e
+            if declare -F "action_power_status_off" >/dev/null; then
+                action_power_status_off
+            fi
+            set -e
+        fi
+    fi
+
+    LastPwrState=$CurrPwrState
+    sleep 5
+done

@@ -1,0 +1,12 @@
+[Unit]
+Description=Mitac DCM Telemetry Report Definition Creator
+After=mitac-sys-init.service
+After=phosphor-virtual-sensor.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/mitac-dcm-telemetry --config /tmp/MRD_System.json 
+SyslogIdentifier=MitacDCMTelemetry
+
+[Install]
+WantedBy=multi-user.target

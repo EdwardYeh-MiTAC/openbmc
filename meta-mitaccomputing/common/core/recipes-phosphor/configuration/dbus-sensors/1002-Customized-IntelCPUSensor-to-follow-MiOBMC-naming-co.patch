@@ -1,0 +1,39 @@
+From 53ecd39942d922e5c5f98ddf04c43204516acac4 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 19 Jan 2026 08:39:13 +0000
+Subject: [PATCH 1/1] Customized IntelCPUSensor to follow MiOBMC naming
+ convention for CPU and DIMM sensors.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/intel-cpu/IntelCPUSensorMain.cpp | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/intel-cpu/IntelCPUSensorMain.cpp b/src/intel-cpu/IntelCPUSensorMain.cpp
+index eede838..1f41b82 100644
+--- a/src/intel-cpu/IntelCPUSensorMain.cpp
++++ b/src/intel-cpu/IntelCPUSensorMain.cpp
+@@ -122,16 +122,16 @@ std::string createSensorName(const std::string& label, const std::string& item,
+         sensorName += " " + item;
+     }
+ 
+-    std::string cpuStr = "CPU" + std::to_string(cpuId);
+-    constexpr const char* subLabel = "DIMM";
++    std::string cpuStr = "CPU " + std::to_string(cpuId);
++    constexpr const char* subLabel = "power";
+     std::size_t found = label.find(subLabel);
+     if (found != std::string::npos)
+     {
+-        sensorName = cpuStr + " " + sensorName;
++        sensorName = cpuStr + " " + sensorName + " PWR_W";
+     }
+     else
+     {
+-        sensorName += " " + cpuStr;
++        sensorName = cpuStr + " " + sensorName + " TEMP_C";
+     }
+     // converting to Upper Camel case whole name
+     bool isWordEnd = true;
+-- 
+2.45.2
+

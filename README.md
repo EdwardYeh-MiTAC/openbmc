@@ -1,3 +1,22 @@
+# Key Info by MiTAC Computing
+# MiOBMC (Branch: 2.18.0-MiOBMC)
+
+## Release Information
+* **Release Quarter:** 2026 Q1
+* **Upload Date:** 2026-04-08
+* **Base Version:** 2.18.0
+
+This branch contains the supported platform of MiTAC's products which includes
+- R2520G6, DC-SCM 2.0 with AST2600 for Intel BHS platform
+- S8050, main board with AST2600 for Turin
+- S8056, main board with AST2600 for Turin
+- Capri2/Capri3, OCP server with AST2600 for Genoa/Turin
+- B8261, barebone with AST2600 for Turin
+- R2513G6, barebone with AST2600 for Intel BHS platform
+
+# Known issues
+The listed HW be supported by this branch, especially AMD Turin platform may need to flash OpenBIOS since using AMI BIOS may cause abnormal no display issue, detail please contact MiTAC Computing
+
 # OpenBMC
 
 [![Build Status](https://jenkins.openbmc.org/buildStatus/icon?job=latest-master)](https://jenkins.openbmc.org/job/latest-master/)
@@ -53,7 +72,7 @@ supported hardware targets, see the following example:
 ```text
 $ . setup <machine> [build_dir]
 Target machine must be specified. Use one of:
-...
+beoc                    capri                   mi-dcscm
 ```
 
 A more complete list of supported machines can be found under
@@ -62,7 +81,7 @@ A more complete list of supported machines can be found under
 Once you know the target (e.g. romulus), source the `setup` script as follows:
 
 ```sh
-. setup romulus
+. setup beoc
 ```
 
 ### 4) Build

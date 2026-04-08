@@ -1,0 +1,11 @@
+[Unit]
+Description=Mitac System Initialization Service
+Before=phosphor-multi-gpio-monitor.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/mitac-sys-init-main
+SyslogIdentifier=MitacSysInitSrv
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,997 @@
+{
+  "Exposes": [
+    {
+      "BindConnector": "1U System Fan connector 1",
+      "Index": 0,
+      "Name": "Baseboard Fan 1A SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1080
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1260
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 1",
+      "Index": 1,
+      "Name": "Baseboard Fan 1B SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1110
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1295
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 2",
+      "Index": 2,
+      "Name": "Baseboard Fan 2A SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1080
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1260
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 2",
+      "Index": 3,
+      "Name": "Baseboard Fan 2B SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1110
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1295
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 3",
+      "Index": 4,
+      "Name": "Baseboard Fan 3A SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1080
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1260
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 3",
+      "Index": 5,
+      "Name": "Baseboard Fan 3B SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1110
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1295
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 4",
+      "Index": 6,
+      "Name": "Baseboard Fan 4A SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1080
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1260
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 4",
+      "Index": 7,
+      "Name": "Baseboard Fan 4B SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1110
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1295
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 5",
+      "Index": 8,
+      "Name": "Baseboard Fan 5A SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1080
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1260
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 5",
+      "Index": 9,
+      "Name": "Baseboard Fan 5B SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1110
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1295
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 6",
+      "Index": 10,
+      "Name": "Baseboard Fan 6A SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1080
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1260
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "1U System Fan connector 6",
+      "Index": 11,
+      "Name": "Baseboard Fan 6B SPEED_RPM",
+      "PowerState": "On",
+      "Thresholds": [
+        {
+          "Direction": "less than",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 1110
+        },
+        {
+          "Direction": "less than",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 1295
+        }
+      ],
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "Rear Fan connector 1",
+      "Index": 14,
+      "Name": "Chassis Rear Fan 1 SPEED_RPM",
+      "PowerState": "On",
+      "Type": "AspeedFan"
+    },
+    {
+      "BindConnector": "Rear Fan connector 2",
+      "Index": 15,
+      "Name": "Chassis Rear Fan 2 SPEED_RPM",
+      "PowerState": "On",
+      "Type": "AspeedFan"
+    },
+    {
+      "Name": "BMC",
+      "Type": "BMC"
+    },
+    {
+      "AllowedFailures": 1,
+      "Name": "FanRedundancy",
+      "Type": "FanRedundancy"
+    },
+    {
+      "Name": "PMBus Upstream Port",
+      "Type": "PMBus Upstream Port"
+    },
+    {
+      "Name": "Power Unit Redundancy",
+      "RedundantCount": 1,
+      "Type": "PURedundancy"
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 100,
+      "ILimitMin": 8,
+      "Inputs": [
+        "Baseboard Outlet_Temp TEMP_C"
+      ],
+      "Name": "Pid Temp Baseboard Outlet_Temp",
+      "NegativeHysteresis": 3.0,
+      "OutLimitMax": 35,
+      "OutLimitMin": 8,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0,
+      "SetPoint": 39.0,
+      "SlewNeg": -1,
+      "SlewPos": 0.8,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 3",
+        "Pid Zone 4"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 100,
+      "ILimitMin": 4,
+      "Inputs": [
+        "Riser Outlet_Temp_L TEMP_C"
+      ],
+      "Name": "Pid Temp Riser Outlet_Temp_L",
+      "NegativeHysteresis": 4.0,
+      "OutLimitMax": 60,
+      "OutLimitMin": 8,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0,
+      "SetPoint": 38.0,
+      "SlewNeg": -1,
+      "SlewPos": 0.8,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 5",
+        "Pid Zone 6",
+        "Pid Zone 8"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 100,
+      "ILimitMin": 8,
+      "Inputs": [
+        "Riser Outlet_Temp_R TEMP_C"
+      ],
+      "Name": "Pid Temp Riser Outlet_Temp_R",
+      "NegativeHysteresis": 4.0,
+      "OutLimitMax": 60,
+      "OutLimitMin": 8,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0,
+      "SetPoint": 38.0,
+      "SlewNeg": -1,
+      "SlewPos": 0.8,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 1",
+        "Pid Zone 2",
+        "Pid Zone 7"
+      ]
+    },
+    {
+      "Class": "fan",
+      "FFGainCoefficient": 1.0,
+      "Class": "fan",
+      "FFGainCoefficient": 1.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": 0.0,
+      "ILimitMax": 0.0,
+      "ILimitMin": 0.0,
+      "Inputs": [
+        "Baseboard Fan 1A SPEED_RPM",
+        "Baseboard Fan 1B SPEED_RPM"
+      ],
+      "Name": "Pid Fan 1",
+      "NegativeHysteresis": 0.0,
+      "OutLimitMax": 100.0,
+      "OutLimitMin": 8.0,
+      "Outputs": [
+        "Baseboard Pwm_0 PWM_PCT"
+      ],
+      "PCoefficient": 0.0,
+      "PositiveHysteresis": 0.0,
+      "SlewNeg": 0.0,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 1"
+      ]
+    },
+    {
+      "Class": "fan",
+      "FFGainCoefficient": 1.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": 0.0,
+      "ILimitMax": 0.0,
+      "ILimitMin": 0.0,
+      "Inputs": [
+        "Baseboard Fan 2A SPEED_RPM",
+        "Baseboard Fan 2B SPEED_RPM"
+      ],
+      "Name": "Pid Fan 2",
+      "NegativeHysteresis": 0.0,
+      "OutLimitMax": 100.0,
+      "OutLimitMin": 8.0,
+      "Outputs": [
+        "Baseboard Pwm_1 PWM_PCT"
+      ],
+      "PCoefficient": 0.0,
+      "PositiveHysteresis": 0.0,
+      "SlewNeg": 0.0,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 2"
+      ]
+    },
+    {
+      "Class": "fan",
+      "FFGainCoefficient": 1.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": 0.0,
+      "ILimitMax": 0.0,
+      "ILimitMin": 0.0,
+      "Inputs": [
+        "Baseboard Fan 3A SPEED_RPM",
+        "Baseboard Fan 3B SPEED_RPM"
+      ],
+      "Name": "Pid Fan 3",
+      "NegativeHysteresis": 0.0,
+      "OutLimitMax": 100.0,
+      "OutLimitMin": 8.0,
+      "Outputs": [
+        "Baseboard Pwm_2 PWM_PCT"
+      ],
+      "PCoefficient": 0.0,
+      "PositiveHysteresis": 0.0,
+      "SlewNeg": 0.0,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 3"
+      ]
+    },
+    {
+      "Class": "fan",
+      "FFGainCoefficient": 1.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": 0.0,
+      "ILimitMax": 0.0,
+      "ILimitMin": 0.0,
+      "Inputs": [
+        "Baseboard Fan 4A SPEED_RPM",
+        "Baseboard Fan 4B SPEED_RPM"
+      ],
+      "Name": "Pid Fan 4",
+      "NegativeHysteresis": 0.0,
+      "OutLimitMax": 100.0,
+      "OutLimitMin": 8.0,
+      "Outputs": [
+        "Baseboard Pwm_3 PWM_PCT"
+      ],
+      "PCoefficient": 0.0,
+      "PositiveHysteresis": 0.0,
+      "SlewNeg": 0.0,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 4"
+      ]
+    },
+    {
+      "Class": "fan",
+      "FFGainCoefficient": 1.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": 0.0,
+      "ILimitMax": 0.0,
+      "ILimitMin": 0.0,
+      "Inputs": [
+        "Baseboard Fan 5A SPEED_RPM",
+        "Baseboard Fan 5B SPEED_RPM"
+      ],
+      "Name": "Pid Fan 5",
+      "NegativeHysteresis": 0.0,
+      "OutLimitMax": 100.0,
+      "OutLimitMin": 8.0,
+      "Outputs": [
+        "Baseboard Pwm_4 PWM_PCT"
+      ],
+      "PCoefficient": 0.0,
+      "PositiveHysteresis": 0.0,
+      "SlewNeg": 0.0,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 5"
+      ]
+    },
+    {
+      "Class": "fan",
+      "FFGainCoefficient": 1.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": 0.0,
+      "ILimitMax": 0.0,
+      "ILimitMin": 0.0,
+      "Inputs": [
+        "Baseboard Fan 6A SPEED_RPM",
+        "Baseboard Fan 6B SPEED_RPM"
+      ],
+      "Name": "Pid Fan 6",
+      "NegativeHysteresis": 0.0,
+      "OutLimitMax": 100.0,
+      "OutLimitMin": 8.0,
+      "Outputs": [
+        "Baseboard Pwm_5 PWM_PCT"
+      ],
+      "PCoefficient": 0.0,
+      "PositiveHysteresis": 0.0,
+      "SlewNeg": 0.0,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 6"
+      ]
+    },
+    {
+      "Class": "fan",
+      "FFGainCoefficient": 1.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": 0.0,
+      "ILimitMax": 0.0,
+      "ILimitMin": 0.0,
+      "Inputs": [
+        "Chassis Rear Fan 1 SPEED_RPM"
+      ],
+      "Name": "Pid Fan 7",
+      "NegativeHysteresis": 0.0,
+      "OutLimitMax": 100.0,
+      "OutLimitMin": 8.0,
+      "Outputs": [
+        "Baseboard Pwm_6 PWM_PCT"
+      ],
+      "PCoefficient": 0.0,
+      "PositiveHysteresis": 0.0,
+      "SlewNeg": 0.0,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 7"
+      ]
+    },
+    {
+      "Class": "fan",
+      "FFGainCoefficient": 1.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": 0.0,
+      "ILimitMax": 0.0,
+      "ILimitMin": 0.0,
+      "Inputs": [
+        "Chassis Rear Fan 2 SPEED_RPM"
+      ],
+      "Name": "Pid Fan 8",
+      "NegativeHysteresis": 0.0,
+      "OutLimitMax": 100.0,
+      "OutLimitMin": 8.0,
+      "Outputs": [
+        "Baseboard Pwm_7 PWM_PCT"
+      ],
+      "PCoefficient": 0.0,
+      "PositiveHysteresis": 0.0,
+      "SlewNeg": 0.0,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 8"
+      ]
+    },
+    {
+      "FailSafePercent": 20,
+      "MinThermalOutput": 8,
+      "Name": "Pid Zone 1",
+      "Type": "Pid.Zone"
+    },
+    {
+      "FailSafePercent": 20,
+      "MinThermalOutput": 15,
+      "Name": "Pid Zone 2",
+      "Type": "Pid.Zone"
+    },
+    {
+      "FailSafePercent": 20,
+      "MinThermalOutput": 10,
+      "Name": "Pid Zone 3",
+      "Type": "Pid.Zone"
+    },
+    {
+      "FailSafePercent": 20,
+      "MinThermalOutput": 10,
+      "Name": "Pid Zone 4",
+      "Type": "Pid.Zone"
+    },
+    {
+      "FailSafePercent": 20,
+      "MinThermalOutput": 19,
+      "Name": "Pid Zone 5",
+      "Type": "Pid.Zone"
+    },
+    {
+      "FailSafePercent": 20,
+      "MinThermalOutput": 8,
+      "Name": "Pid Zone 6",
+      "Type": "Pid.Zone"
+    },
+    {
+      "FailSafePercent": 20,
+      "MinThermalOutput": 8,
+      "Name": "Pid Zone 7",
+      "Type": "Pid.Zone"
+    },
+    {
+      "FailSafePercent": 20,
+      "MinThermalOutput": 8,
+      "Name": "Pid Zone 8",
+      "Type": "Pid.Zone"
+    },
+    {
+      "FailSafePercent": 100,
+      "MinThermalOutput": 30,
+      "Name": "PSU",
+      "Type": "Pid.Zone"
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 80,
+      "ILimitMin": 8,
+      "Inputs": [
+        "CPU 0 TEMP_C"
+      ],
+      "Name": "Pid Temp CPU 0",
+      "NegativeHysteresis": 3.0,
+      "OutLimitMax": 80,
+      "OutLimitMin": 20,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 60.0,
+      "SlewNeg": -0.4,
+      "SlewPos": 0.2,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 5"
+      ]
+    },
+    {
+      "Class": "Floor",
+      "Inputs": [
+        "CPU 0 TEMP_C"
+      ],
+      "Name": "Stepwise CPU 0",
+      "NegativeHysteresis": 2,
+      "Output": [
+        20.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "PositiveHysteresis": 0,
+      "Reading": [
+        40.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "Type": "Stepwise",
+      "Zones": [
+        "Pid Zone 5"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 80,
+      "ILimitMin": 8,
+      "Inputs": [
+        "CPU 1 TEMP_C"
+      ],
+      "Name": "Pid Temp CPU 1",
+      "NegativeHysteresis": 3.0,
+      "OutLimitMax": 80,
+      "OutLimitMin": 20,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 65.0,
+      "SlewNeg": -0.4,
+      "SlewPos": 0.2,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 2"
+      ]
+    },
+    {
+      "Class": "Floor",
+      "Inputs": [
+        "CPU 1 TEMP_C"
+      ],
+      "Name": "Stepwise CPU 1",
+      "NegativeHysteresis": 2,
+      "Output": [
+        20.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "PositiveHysteresis": 0,
+      "Reading": [
+        40.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "Type": "Stepwise",
+      "Zones": [
+        "Pid Zone 2"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 55,
+      "ILimitMin": 8,
+      "Inputs": [
+        "Drive_0 TEMP_C",
+        "Drive_1 TEMP_C",
+        "Drive_2 TEMP_C",
+        "Drive_3 TEMP_C"
+      ],
+      "Name": "Pid Temp DriveBay 1",
+      "NegativeHysteresis": 5.0,
+      "OutLimitMax": 55,
+      "OutLimitMin": 8,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 50.0,
+      "SlewNeg": -1,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 6"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 55,
+      "ILimitMin": 8,
+      "Inputs": [
+        "Drive_4 TEMP_C",
+        "Drive_5 TEMP_C",
+        "Drive_6 TEMP_C",
+        "Drive_7 TEMP_C"
+      ],
+      "Name": "Pid Temp DriveBay 2",
+      "NegativeHysteresis": 5.0,
+      "OutLimitMax": 55,
+      "OutLimitMin": 8,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 50.0,
+      "SlewNeg": -1,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 5"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 55,
+      "ILimitMin": 8,
+      "Inputs": [
+        "Drive_8 TEMP_C",
+        "Drive_9 TEMP_C",
+        "Drive_10 TEMP_C",
+        "Drive_11 TEMP_C"
+      ],
+      "Name": "Pid Temp DriveBay 3",
+      "NegativeHysteresis": 5.0,
+      "OutLimitMax": 55,
+      "OutLimitMin": 8,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 50.0,
+      "SlewNeg": -1,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 4"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 55,
+      "ILimitMin": 8,
+      "Inputs": [
+        "Drive_12 TEMP_C",
+        "Drive_13 TEMP_C",
+        "Drive_14 TEMP_C",
+        "Drive_15 TEMP_C"
+      ],
+      "Name": "Pid Temp DriveBay 4",
+      "NegativeHysteresis": 5.0,
+      "OutLimitMax": 55,
+      "OutLimitMin": 8,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 50.0,
+      "SlewNeg": -1,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 3"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 55,
+      "ILimitMin": 8,
+      "Inputs": [
+        "Drive_16 TEMP_C",
+        "Drive_17 TEMP_C",
+        "Drive_18 TEMP_C",
+        "Drive_19 TEMP_C"
+      ],
+      "Name": "Pid Temp DriveBay 5",
+      "NegativeHysteresis": 5.0,
+      "OutLimitMax": 55,
+      "OutLimitMin": 8,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 50.0,
+      "SlewNeg": -1,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 2"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 55,
+      "ILimitMin": 8,
+      "Inputs": [
+        "Drive_20 TEMP_C",
+        "Drive_21 TEMP_C",
+        "Drive_22 TEMP_C",
+        "Drive_23 TEMP_C"
+      ],
+      "Name": "Pid Temp DriveBay 6",
+      "NegativeHysteresis": 5.0,
+      "OutLimitMax": 55,
+      "OutLimitMin": 8,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 50.0,
+      "SlewNeg": -1,
+      "SlewPos": 0.0,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 1"
+      ]
+    },
+    {
+      "Class": "temp",
+      "FFGainCoefficient": 0.0,
+      "FFOffCoefficient": 0.0,
+      "ICoefficient": -4.64,
+      "ILimitMax": 80,
+      "ILimitMin": 8,
+      // Temporary solution to ramp up all fans for any GPU thermal condition.
+      "Inputs": [
+        "GPU [A-Za-z0-9 _]* TEMP_C"
+      ],
+      "Name": "Pid Temp GPUs",
+      "NegativeHysteresis": 3.0,
+      "OutLimitMax": 80,
+      "OutLimitMin": 20,
+      "Outputs": [],
+      "PCoefficient": -0.15,
+      "PositiveHysteresis": 0.0,
+      "SetPoint": 60.0,
+      "SlewNeg": -0.4,
+      "SlewPos": 0.2,
+      "Type": "Pid",
+      "Zones": [
+        "Pid Zone 1",
+        "Pid Zone 2",
+        "Pid Zone 5",
+        "Pid Zone 6",
+        "Pid Zone 7",
+        "Pid Zone 8"
+      ]
+    },
+    {
+      "Class": "Floor",
+      "Inputs": [
+        "GPU [A-Za-z0-9 _]* TEMP_C"
+      ],
+      "Name": "Stepwise GPUs",
+      "NegativeHysteresis": 2,
+      "Output": [
+        20.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "PositiveHysteresis": 0,
+      "Reading": [
+        40.0,
+        80.0,
+        90.0,
+        100.0
+      ],
+      "Type": "Stepwise",
+      "Zones": [
+        "Pid Zone 1",
+        "Pid Zone 2",
+        "Pid Zone 5",
+        "Pid Zone 6",
+        "Pid Zone 7",
+        "Pid Zone 8"
+      ]
+    }
+  ],
+  "Name": "Chassis C8261",
+  "Probe": [
+    "FOUND('Baseboard S8261')",
+    "AND",
+    "xyz.openbmc_project.FruDevice({'PRODUCT_PRODUCT_NAME': 'B8261T85E8*'})"
+  ],
+  "Type": "Chassis",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$PRODUCT_MANUFACTURER",
+    "Model": "$PRODUCT_PRODUCT_NAME",
+    "PartNumber": "$PRODUCT_PART_NUMBER",
+    "SerialNumber": "$PRODUCT_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.AssetTag": {
+    "AssetTag": "$PRODUCT_ASSET_TAG"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Compatible": {
+    "Names": [
+      "com.mitac.Hardware.Chassis.Model.S8261"
+    ]
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "$PRODUCT_VERSION"
+  },
+  "xyz.openbmc_project.Inventory.Item.Chassis": {},
+  "xyz.openbmc_project.Inventory.Item.System": {},
+  "xyz.openbmc_project.Inventory.Decorator.Ipmi": {
+    "EntityId": 23,
+    "EntityInstance": "$BUS"
+  }
+}

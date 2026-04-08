@@ -1,0 +1,89 @@
+#!/bin/bash -e
+# shellcheck source=meta-mitaccomputing/common/meta-common/recipes-mitac/plat-tool/files/mitac-common-functions
+LIBPATH=/usr/libexec
+source $LIBPATH/mitac-common-functions
+
+BMC_BOOT_READY=`gpiofind bmc-boot-ready`
+if [ ! -z "$BMC_BOOT_READY" ]; then
+    echo "BMC_BOOT_READY is positive logic: $BMC_BOOT_READY"
+    gpioset $BMC_BOOT_READY=1
+else
+    echo "BMC_BOOT_READY is not declared in device tree."
+fi
+
+power_on_led_init() {
+	systemctl start obmc-led-group-start@power_on.service
+	config_common_leds
+}
+
+init_default_config() {
+	echo "Create symbolic link for led-group-config.json"
+	set +e
+	FILE_TO_REMOVE=/usr/share/phosphor-led-manager/led-group-config.json
+	rm $FILE_TO_REMOVE
+	ln -s /usr/share/phosphor-led-manager/$RESOURCE_ID/led-group-config.json $FILE_TO_REMOVE
+
+    NVME_CONFIG="/usr/share/phosphor-nvme/$RESOURCE_ID/nvme_config.json"
+    if [ -f  $NVME_CONFIG ]; then
+        FILE_TO_REMOVE=/etc/nvme/nvme_config.json
+        rm $FILE_TO_REMOVE
+        ln -s $NVME_CONFIG $FILE_TO_REMOVE
+    fi
+	set -e
+}
+
+# Disable BMC Kernel Boot WDT.
+disable_os_wdt
+
+# Get profile based on FRU information.
+find_profile PROFILE_PATH
+echo $PROFILE_PATH
+
+if [ -d $PROFILE_PATH ]; then
+    echo "Use platform config from $PROFILE_PATH"
+    MAINBOARD_LIB=$PROFILE_PATH/mainboard-init-functions
+    if [ -f $MAINBOARD_LIB ]; then
+        RESOURCE_ID=$(basename ${PROFILE_PATH})
+    set +e
+        init_default_config
+
+        source $MAINBOARD_LIB
+        echo "Call init-uboot"
+        init-uboot
+        echo "Init kernel"
+        init-kernel
+        echo "Init peripherial"
+        init-peripheral
+        echo "Init service"
+        init-service
+    set -e
+    else
+        echo "Can't find mainboard-init-functions"
+        exit 1
+    fi
+else
+    echo "Can't find platform folder."
+    exit 1
+fi
+
+echo "Notify CPLD that BMC is ready."
+# Awared different polarity.
+# set_gpio bmc-ready 0
+
+# TODO: Check with HW design
+set +e
+BMC_READY=`gpiofind bmc-ready-n`
+if [ ! -z "$BMC_READY" ]; then
+    echo "BMC_READY is negative logic: $BMC_READY"
+    gpioset $BMC_READY=0
+fi
+BMC_READY=`gpiofind bmc-ready`
+if [ ! -z "$BMC_READY" ]; then
+    echo "BMC_READY is positive logic: $BMC_READY"
+    gpioset $BMC_READY=1
+fi
+set -e
+
+power_on_led_init
+
+exit 0

@@ -1,0 +1,7 @@
+/xyz/openbmc_project/Chassis/Control/NMISource:
+    - Interface: xyz.openbmc_project.Chassis.Control.NMISource
+      Properties:
+          Enabled:
+              Default: 'false'
+          BMCSource:
+              Default: "NMISource::BMCSourceSignal::None"

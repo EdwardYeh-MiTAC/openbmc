@@ -1,0 +1,66 @@
+#!/bin/bash -e
+LIBPATH=/usr/libexec
+source $LIBPATH/mitac-common-functions
+
+PLATFORM_COMPACT_NAME="com.mitac.Hardware.Chassis.Model.Capri_V2"
+MB_LIB_PATH="$LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME"
+KERNEL_DTS_FN=aspeed-bmc-mitac-capri2
+FDFFILE="conf-$KERNEL_DTS_FN.dtb"
+
+DO_REBOOT=0
+
+refresh-uboot-arg () {
+    set +e
+    #$1: ARG NAME
+    #$2: Expectation
+    current=`fw_printenv $1 -n`
+    if [ "$current" != "$2" ]; then
+        echo "Updating $1"
+        fw_setenv $1 $2
+        echo "Current $1: <$current>"
+        echo "New $1: <$2>"
+        DO_REBOOT=1
+    else
+        echo "No need to update $1."
+    fi
+    set -e
+}
+
+init-uboot() {
+    echo "mainboard-init-functions: init-uboot ($VER)"
+    source $MB_LIB_PATH/mainboard_env.sh
+    # BOOTCMD="mw.l 0x1e6e251c 00001d00; run bootspi"
+    BOOTCMD="run bootspi"
+    refresh-uboot-arg bootcmd "$BOOTCMD"
+    refresh-uboot-arg fdtfile "$FDFFILE"
+
+    # To make booting with selected DTB configuration.
+    # To avoid bmc hung at u-boot due to incorrect config from upgrade and downgrade of firmware, default option is mandatory.
+    BOOTSPI="gpio set 137; fdt addr 20100000 && fdt header get fitsize totalsize && cp.b 20100000 \${loadaddr} \${fitsize} && bootm \${loadaddr}#\${fdtfile}; echo Booting with default DTB; bootm; echo Error loading kernel FIT image"
+    refresh-uboot-arg bootspi "$BOOTSPI"
+
+    if [ "$DO_REBOOT" == 1 ]; then
+        echo "Reboot as args changed."
+        fw_setenv profile "$PROFILE_ID"
+        reboot
+    fi
+}
+
+init-kernel() {
+    echo "mainboard-init-functions: init-kernel ($VER)"
+}
+
+init-peripheral() {
+    echo "mainboard-init-functions: init-peripheral ($VER)"
+}
+
+init-service() {
+    echo "mainboard-init-functions: init-service ($VER)"
+    ln -s $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/mainboard_env.sh /tmp/mainboard_env.sh
+    # Create symbolic link according to system.
+    ln -s $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/MRD_default.json /tmp/MRD_System.json
+
+    source $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/spd_link.sh
+
+    launch_amd_common_service
+}

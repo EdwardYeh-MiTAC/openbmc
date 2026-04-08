@@ -1,0 +1,293 @@
+From d61ea9022048078d78de3e569a0113d1a68b3c0f Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 30 Mar 2026 08:54:41 +0000
+Subject: [PATCH 1/1] Ignore ethernet interface when it is running on NC-SI
+ mode but can't find valid NC-SI NIC.
+
+Description:
+- Redfish EthernetInterfaceCollection for manager only list valid EthernetInterface.
+  For example, eth1 ususally is configured as NCSI mode. It will not show eth1 when NCSI NIC is not available.
+
+* Invalid case
+
+```
+root@mi-dcscm:~# ncsi-netlink -x 4 -p 0 -i
+<7> Get Info , PACKAGE : 0x0, INTERFACE: 0x7eaa49e8
+<3> Failed to receive the message , RC : -31
+
+
+{
+    "@odata.id": "/redfish/v1/Managers/bmc/EthernetInterfaces",
+    "@odata.type": "#EthernetInterfaceCollection.EthernetInterfaceCollection",
+    "Description": "Collection of EthernetInterfaces for this Manager",
+    "Members": [
+        {
+            "@odata.id": "/redfish/v1/Managers/bmc/EthernetInterfaces/eth0"
+        },
+        {
+            "@odata.id": "/redfish/v1/Managers/bmc/EthernetInterfaces/usb0"
+        }
+    ],
+    "Members@odata.count": 2,
+    "Name": "Ethernet Network Interface Collection"
+}
+```
+
+* Valid case
+
+```
+ncsi-netlink -x 4 -p 0 -i
+<7> Get Info , PACKAGE : 0x0, INTERFACE: 0x7ef28a28
+<7> Package id : 0
+<7>   package is forced
+<7>     Channel id : 0
+<7>     channel is active
+<7>       version 1.1 (mlx0.1)
+<7>       link state 0x20
+<7>     Channel id : 1
+<7>       version 1.1 (mlx0.1)
+<7>       link state 0x20
+
+/tmp/phosphor-network-manager
+<7> Get Info , PACKAGE : 0x0, INTERFACE: 0x7eb120b8
+<7> Network Intf 4 Package 0 is valid NC-SI NIC.
+<5> Unable to get the value of Network[DHCP] from /etc/systemd/network/00-bmc-usb0.network
+<6> ETHTOOL not supported on usb0
+<5> Unable to get the value of DHCP[UseDomains] from /etc/systemd/network/00-bmc-usb0.network
+<5> Unable to get the value of DHCP[UseDNS] from /etc/systemd/network/00-bmc-usb0.network
+<5> Unable to get the value of DHCP[UseNTP] from /etc/systemd/network/00-bmc-usb0.network
+<5> Unable to get the value of DHCP[UseHostname] from /etc/systemd/network/00-bmc-usb0.network
+<5> Unable to get the value of DHCP[SendHostname] from /etc/systemd/network/00-bmc-usb0.network
+<5> Unable to get the value of DHCP[UseDomains] from /etc/systemd/network/00-bmc-usb0.network
+<5> Unable to get the value of DHCP[UseDNS] from /etc/systemd/network/00-bmc-usb0.network
+<5> Unable to get the value of DHCP[UseNTP] from /etc/systemd/network/00-bmc-usb0.network
+<5> Unable to get the value of DHCP[UseHostname] from /etc/systemd/network/00-bmc-usb0.network
+<5> Unable to get the value of DHCP[SendHostname] from /etc/systemd/network/00-bmc-usb0.network
+
+
+{
+    "@odata.id": "/redfish/v1/Managers/bmc/EthernetInterfaces",
+    "@odata.type": "#EthernetInterfaceCollection.EthernetInterfaceCollection",
+    "Description": "Collection of EthernetInterfaces for this Manager",
+    "Members": [
+        {
+            "@odata.id": "/redfish/v1/Managers/bmc/EthernetInterfaces/eth0"
+        },
+        {
+            "@odata.id": "/redfish/v1/Managers/bmc/EthernetInterfaces/eth1"
+        },
+        {
+            "@odata.id": "/redfish/v1/Managers/bmc/EthernetInterfaces/usb0"
+        }
+    ],
+    "Members@odata.count": 3,
+    "Name": "Ethernet Network Interface Collection"
+}
+```
+
+- Supported the optional ENV VAR in case the package Id for NC-SI NIC is not 0. (eth0_PkgId, eth1_PkgId)
+
+```
+export
+export EDITOR="vi"
+export HOME="/home/root"
+export IGNORED_INTERFACES=""
+export LANG="C"
+export LOGNAME="root"
+export OLDPWD
+export OPIEDIR
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+export PS1="\\u@\\h:\\w\\\$ "
+export PWD="/home/root"
+export QPEDIR
+export QTDIR
+export SHELL="/bin/sh"
+export SHLVL="1"
+export SSH_CLIENT="::ffff:192.168.80.150 55838 22"
+export SSH_CONNECTION="::ffff:192.168.80.150 55838 ::ffff:192.168.80.117 22"
+export SSH_TTY="/dev/pts/0"
+export SYSTEMD_PAGER=""
+export TERM="xterm"
+export USER="root"
+export eth0_PkgId="3"
+export eth1_PkgId="0"
+```
+
+Tested:
+- SC513G6, R2520G6, S8261.
+
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/meson.build         |  3 ++
+ src/network_manager.cpp | 12 ++++++++
+ src/util.cpp            | 65 +++++++++++++++++++++++++++++++++++++++++
+ src/util.hpp            |  4 +++
+ 4 files changed, 84 insertions(+)
+
+diff --git a/src/meson.build b/src/meson.build
+index 7712b91..e5af1c2 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -48,6 +48,8 @@ networkd_deps = [
+     networkd_dbus_dep,
+     sdbusplus_dep,
+     stdplus_dep,
++    dependency('libnl-3.0'),
++    dependency('libnl-genl-3.0'),
+ ]
+ 
+ conf_header = configure_file(output: 'config.h', configuration: conf_data)
+@@ -69,6 +71,7 @@ networkd_lib = static_library(
+     'config_parser.cpp',
+     'dhcp_configuration.cpp',
+     'dns_updater.cpp',
++    'ncsi_util.cpp',
+     implicit_include_directories: false,
+     include_directories: src_includes,
+     dependencies: networkd_deps,
+diff --git a/src/network_manager.cpp b/src/network_manager.cpp
+index 75c759b..696bcf3 100644
+--- a/src/network_manager.cpp
++++ b/src/network_manager.cpp
+@@ -231,6 +231,18 @@ void Manager::addInterface(const InterfaceInfo& info)
+             ignoredIntf.emplace(info.idx);
+             return;
+         }
++        if (isNCSIEthIntf(*info.name))
++        {
++            const unsigned packageId =
++                phosphor::network::internal::getPackageIdFromEnv(*info.name);
++            if (!hasValidChannel(info.idx, packageId))
++            {
++                lg2::info(
++                    "Ignoring interface {NET_INTF} due to unable to find valid NC-SI NIC at package id {PKG_ID}.",
++                    "NET_INTF", *info.name, "PKG_ID", packageId);
++                ignoredIntf.emplace(info.idx);
++            }
++        }
+     }
+ 
+     auto infoIt = intfInfo.find(info.idx);
+diff --git a/src/util.cpp b/src/util.cpp
+index 6fba783..d0f76cc 100644
+--- a/src/util.cpp
++++ b/src/util.cpp
+@@ -3,6 +3,7 @@
+ #include "util.hpp"
+ 
+ #include "config_parser.hpp"
++#include "ncsi_util.hpp"
+ #include "types.hpp"
+ 
+ #include <sys/wait.h>
+@@ -15,6 +16,7 @@
+ #include <xyz/openbmc_project/Common/error.hpp>
+ 
+ #include <cctype>
++#include <filesystem>
+ #include <fstream>
+ #include <string>
+ #include <string_view>
+@@ -87,6 +89,37 @@ std::string_view getIgnoredInterfacesEnv()
+     return r;
+ }
+ 
++unsigned getPackageIdFromEnv(const std::string intfName)
++{
++    const std::string evnVarName = intfName + "_PkgId";
++    auto r = std::getenv(evnVarName.c_str());
++    unsigned pkgId = 0;
++    if (r == nullptr)
++    {
++        return pkgId;
++    }
++    try
++    {
++        pkgId = std::stoul(r);
++    }
++    catch (const std::invalid_argument& e)
++    {
++        lg2::error("Invalid argument for {ENV}: {EXCEPTION}", "ENV", evnVarName,
++                   "EXCEPTION", e.what());
++    }
++    catch (const std::out_of_range& e)
++    {
++        lg2::error("Out of range while process {ENV}: {EXCEPTION}", "ENV",
++                   evnVarName, "EXCEPTION", e.what());
++    }
++    catch (...)
++    {
++        lg2::error("An unknown error occurred while process {ENV}", "ENV",
++                   evnVarName);
++    }
++    return pkgId;
++}
++
+ /** @brief Parse the comma separated interface names */
+ std::unordered_set<std::string_view> parseInterfaces(
+     std::string_view interfaces)
+@@ -126,6 +159,38 @@ const std::unordered_set<std::string_view>& getIgnoredInterfaces()
+ 
+ } // namespace internal
+ 
++bool hasValidChannel(const unsigned intfId, const unsigned pkgId)
++{
++    phosphor::network::ncsi::NetlinkInterface interface(intfId);
++    auto info = interface.getInfo(pkgId);
++    if (info)
++    {
++        phosphor::network::ncsi::InterfaceInfo& iInfo = *info;
++        for (phosphor::network::ncsi::PackageInfo& pkg : iInfo.packages)
++        {
++            lg2::debug("Network Intf {INTFID} Package {ID} is valid NC-SI NIC.",
++                       "INTFID", intfId, "ID", pkg.id);
++            return true;
++        }
++    }
++    return false;
++}
++
++bool isNCSIEthIntf(const std::string intfName)
++{
++    const std::string filename =
++        "/sys/class/net/" + intfName + "/device/of_node/use-ncsi";
++
++    if (std::filesystem::exists(filename))
++    {
++        return true;
++    }
++    else
++    {
++        return false;
++    }
++}
++
+ std::optional<std::string> interfaceToUbootEthAddr(std::string_view intf)
+ {
+     constexpr auto pfx = "eth"sv;
+diff --git a/src/util.hpp b/src/util.hpp
+index ff3b59a..ff253e3 100644
+--- a/src/util.hpp
++++ b/src/util.hpp
+@@ -63,6 +63,9 @@ enum class DHCPType
+     v6
+ };
+ 
++bool isNCSIEthIntf(const std::string intfName);
++bool hasValidChannel(const unsigned intfId, const unsigned pkgId);
++
+ DHCPVal getDHCPValue(const config::Parser& config);
+ 
+ /** @brief Read a boolean DHCP property from a conf file
+@@ -95,6 +98,7 @@ std::unordered_set<std::string_view> parseInterfaces(
+ 
+ /** @brief Get the ignored interfaces */
+ const std::unordered_set<std::string_view>& getIgnoredInterfaces();
++unsigned getPackageIdFromEnv(const std::string intfName);
+ 
+ } // namespace internal
+ 
+-- 
+2.43.0
+

@@ -1,0 +1,16 @@
+&espi {
+	vwgpio: vwgpio@0 {
+		compatible = "aspeed,ast2600-espi-vw-gpio";
+		status = "disabled";
+	};
+};
+
+&vwgpio {
+	gpio-count = <32>;
+	gpio-names-mask = <0x000001F1>;
+	gpio-dir-mask = <0x00000FF0>;
+	gpio-names = "VW_FM_BIOS_POST_CMPLT_N",
+		"VW_FM_DUAL_PARTITION_N", "VW_FM_STANDALONE_MODE_N",
+		"VW_FM_4S_8S_N_MODE", "VW_FM_NODE_ID_1", "VW_FM_NODE_ID_0";
+	status = "okay";
+};

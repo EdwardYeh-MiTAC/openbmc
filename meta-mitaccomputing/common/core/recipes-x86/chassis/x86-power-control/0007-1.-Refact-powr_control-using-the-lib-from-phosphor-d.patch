@@ -1,0 +1,371 @@
+From a28fdd6ce773a53b2a0002aa0755771dc4010c8a Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Wed, 11 Feb 2026 06:03:53 +0000
+Subject: [PATCH 1/1] 1. Refact powr_control using the lib from 
+ phosphor-dbus-yaml. 2. Preset OperatingSystemState whenever BootProgress
+ transit to Post Complete or not Post Complete. 3. Support set_property and
+ timestamp update mechansim so that phosphor-host-ipmid could use dbus
+ interface to change BootProgress. 4. Implement BootProgressStages and
+ OperatingSystemOSStatus for PersistentState so that it is possible to restore
+ state once BMC reseted.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/power_control.cpp | 189 +++++++++++++++++++++++++++---------------
+ src/power_control.hpp |   8 ++
+ 2 files changed, 131 insertions(+), 66 deletions(-)
+
+diff --git a/src/power_control.cpp b/src/power_control.cpp
+index 206f2e2..93cb0f2 100644
+--- a/src/power_control.cpp
++++ b/src/power_control.cpp
+@@ -33,7 +33,6 @@
+ #include <optional>
+ #include <regex>
+ #include <string_view>
+-#include <unordered_set>
+ 
+ namespace power_control
+ {
+@@ -113,19 +112,6 @@ boost::container::flat_map<std::string, ConfigData*> powerSignalMap = {
+     {"SlotPower", &slotPowerConfig},
+     {"HpmStbyEn", &hpmStbyEnConfig}};
+ 
+-static const std::unordered_set<std::string> validBootProgressStages = {
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.PrimaryProcInit",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.BusInit",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.MemoryInit",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.SecondaryProcInit",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.PCIInit",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.SystemSetup",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.SystemInitComplete",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.OSStart",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.OSRunning",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.OEM",
+-    "xyz.openbmc_project.State.Boot.Progress.ProgressStages.Unspecified"};
+-
+ static std::string hostDbusName = "xyz.openbmc_project.State.Host";
+ static std::string chassisDbusName = "xyz.openbmc_project.State.Chassis";
+ static std::string osDbusName = "xyz.openbmc_project.State.OperatingSystem";
+@@ -270,44 +256,75 @@ void enablePassThrough(bool enable)
+     }
+ }
+ 
+-enum class OperatingSystemStateStage
+-{
+-    Inactive,
+-    Standby,
+-};
+-static OperatingSystemStateStage operatingSystemState;
+-static constexpr std::string_view getOperatingSystemStateStage(
+-    const OperatingSystemStateStage stage)
+-{
+-    switch (stage)
+-    {
+-        case OperatingSystemStateStage::Inactive:
+-            return "xyz.openbmc_project.State.OperatingSystem.Status.OSStatus.Inactive";
+-            break;
+-        case OperatingSystemStateStage::Standby:
+-            return "xyz.openbmc_project.State.OperatingSystem.Status.OSStatus.Standby";
+-            break;
+-        default:
+-            return "xyz.openbmc_project.State.OperatingSystem.Status.OSStatus.Inactive";
+-            break;
+-    }
+-};
+-static void setOperatingSystemState(const OperatingSystemStateStage stage)
++static OperatingSystemOSStatus operatingSystemState;
++
++static void setOperatingSystemState(const OperatingSystemOSStatus stage)
+ {
+     operatingSystemState = stage;
+ #if IGNORE_SOFT_RESETS_DURING_POST
+     // If POST complete has asserted set ignoreNextSoftReset to false to avoid
+     // masking soft resets after POST
+-    if (operatingSystemState == OperatingSystemStateStage::Standby)
++    if (operatingSystemState == OperatingSystemOSStatus::Standby)
+     {
+         ignoreNextSoftReset = false;
+     }
+ #endif
+-    osIface->set_property("OperatingSystemState",
+-                          std::string(getOperatingSystemStateStage(stage)));
++    std::string stageName = OperatingSystemStatus::convertOSStatusToString(stage);
++    osIface->set_property("OperatingSystemState", stageName);
++    appState.set(PersistentState::Params::OperatingSystemOSStatus, stageName);
+ 
+     lg2::info("Moving os state to {STATE} stage", "STATE",
+-              getOperatingSystemStateStage(stage));
++              OperatingSystemStatus::convertOSStatusToString(stage));
++}
++
++static std::string propBootProgress;
++
++static int handleBootProgressStageChange(const BootProgressStages progress)
++{
++    // Do not call bootProgressIface->set_property("BootProgress", bootProgressStageName) to avoid recursive
++    std::string bootProgressStageName = BootProgress::convertProgressStagesToString(progress);
++    if (bootProgressStageName != propBootProgress)
++    {
++        // Update BootProgressLastUpdate timestamp.
++        lg2::info("Host{HOST}: BootProgressStage moving to \"{PROGRESS}\" state", "HOST", node, "PROGRESS", bootProgressStageName);
++        std::uint64_t bootProgressLastUpdate = std::chrono::duration_cast<std::chrono::microseconds>(
++                             std::chrono::system_clock::now().time_since_epoch())
++                             .count();
++        bootProgressIface->set_property("BootProgressLastUpdate", bootProgressLastUpdate);
++        appState.set(PersistentState::Params::BootProgressStages, bootProgressStageName);
++        propBootProgress = bootProgressStageName;
++        // Update OperatingSystemState if necessary
++        switch (progress)
++        {
++            case BootProgressStages::Unspecified:
++            case BootProgressStages::PrimaryProcInit:
++            case BootProgressStages::BusInit:
++            case BootProgressStages::MemoryInit:
++            case BootProgressStages::SecondaryProcInit:
++            case BootProgressStages::PCIInit:
++            case BootProgressStages::MotherboardInit:
++                setOperatingSystemState(OperatingSystemOSStatus::Inactive);
++                break;
++            case BootProgressStages::SystemInitComplete:
++            case BootProgressStages::SystemSetup:
++                setOperatingSystemState(OperatingSystemOSStatus::Standby);
++                break;
++            default:
++                lg2::info("Host{HOST}: \"{PROGRESS}\" doesn't impact OperatingSystemOSStatus.", "HOST", node, "PROGRESS", bootProgressStageName);
++                break;
++        }
++    }
++    return 0;
++}
++static int updateBootProgressStage(const BootProgressStages progress)
++{
++    std::string bootProgressStageName = BootProgress::convertProgressStagesToString(progress);
++    if (!bootProgressIface->set_property("BootProgress", bootProgressStageName))
++    {
++        lg2::warning("Host{HOST}: updateBootProgressStage failed.", "HOST", node);
++        return -1;
++    }
++    return 0;
+ }
+ 
+ enum class PowerState
+@@ -923,6 +940,10 @@ const std::string PersistentState::getName(const Params parameter)
+     {
+         case Params::PowerState:
+             return "PowerState";
++        case Params::BootProgressStages:
++            return "BootProgressStages";
++        case Params::OperatingSystemOSStatus:
++            return "OperatingSystemOSStatus";
+     }
+     return "";
+ }
+@@ -932,6 +953,10 @@ const std::string PersistentState::getDefault(const Params parameter)
+     {
+         case Params::PowerState:
+             return "xyz.openbmc_project.State.Chassis.PowerState.Off";
++        case Params::BootProgressStages:
++            return "xyz.openbmc_project.State.Boot.Progress.ProgressStages.Unspecified";
++        case Params::OperatingSystemOSStatus:
++            return "xyz.openbmc_project.State.OperatingSystem.Status.OSStatus.Inactive";
+     }
+     return "";
+ }
+@@ -1707,7 +1732,7 @@ static void currentHostStateMonitor()
+                 // 'OperatingSystemState' to stay at 'Standby', even though
+                 // system is OFF. Set 'OperatingSystemState' to 'Inactive'
+                 // if HostState is trurned to OFF.
+-                setOperatingSystemState(OperatingSystemStateStage::Inactive);
++                updateBootProgressStage(BootProgressStages::Unspecified);
+ 
+                 // Set the restart cause set for this restart
+                 setRestartCause();
+@@ -1761,7 +1786,7 @@ static void powerStateOn(const Event event)
+             setPowerState(PowerState::transitionToOff);
+ #if IGNORE_SOFT_RESETS_DURING_POST
+             // Only recognize soft resets once host gets past POST COMPLETE
+-            if (operatingSystemState != OperatingSystemStateStage::Standby)
++            if (operatingSystemState != OperatingSystemOSStatus::Standby)
+             {
+                 ignoreNextSoftReset = true;
+             }
+@@ -1776,7 +1801,7 @@ static void powerStateOn(const Event event)
+             setPowerState(PowerState::checkForWarmReset);
+ #if IGNORE_SOFT_RESETS_DURING_POST
+             // Only recognize soft resets once host gets past POST COMPLETE
+-            if (operatingSystemState != OperatingSystemStateStage::Standby)
++            if (operatingSystemState != OperatingSystemOSStatus::Standby)
+             {
+                 ignoreNextSoftReset = true;
+             }
+@@ -2415,13 +2440,15 @@ static void postCompleteHandler(bool state)
+     bool asserted = state == postCompleteConfig.polarity;
+     if (asserted)
+     {
++        lg2::info("postCompleteHandler Asserted");
+         sendPowerControlEvent(Event::postCompleteAssert);
+-        setOperatingSystemState(OperatingSystemStateStage::Standby);
++        updateBootProgressStage(BootProgressStages::SystemInitComplete);
+     }
+     else
+     {
++        lg2::info("postCompleteHandler Deasserted");
+         sendPowerControlEvent(Event::postCompleteDeAssert);
+-        setOperatingSystemState(OperatingSystemStateStage::Inactive);
++        updateBootProgressStage(BootProgressStages::Unspecified);
+     }
+ }
+ 
+@@ -2751,11 +2778,12 @@ void setInitialValue(const ConfigData& configData, bool initialValue)
+     }
+     else if (configData.name == "PostComplete")
+     {
+-        OperatingSystemStateStage osState =
++        BootProgressStages bootStage =
+             (initialValue == postCompleteConfig.polarity
+-                 ? OperatingSystemStateStage::Standby
+-                 : OperatingSystemStateStage::Inactive);
+-        setOperatingSystemState(osState);
++                 ? BootProgressStages::SystemInitComplete
++                 : BootProgressStages::Unspecified);
++        lg2::info("setInitialValue for BootProgressStages");
++        updateBootProgressStage(bootStage);
+     }
+     else
+     {
+@@ -3084,7 +3112,7 @@ int main(int argc, char* argv[])
+ 
+     // Initialize the power state and operating system state
+     powerState = PowerState::off;
+-    operatingSystemState = OperatingSystemStateStage::Inactive;
++    operatingSystemState = OperatingSystemOSStatus::Inactive;
+     // Check power good
+ 
+     if (!fcbStbyEnConfig.lineName.empty())
+@@ -3611,23 +3639,23 @@ int main(int argc, char* argv[])
+     // Get the initial OS state based on POST complete
+     //      Asserted, OS state is "Standby" (ready to boot)
+     //      De-Asserted, OS state is "Inactive"
+-    OperatingSystemStateStage osState;
++    OperatingSystemOSStatus osState;
+     if (postCompleteConfig.type == ConfigType::GPIO)
+     {
+         osState = postCompleteLine.get_value() == postCompleteConfig.polarity
+-                      ? OperatingSystemStateStage::Standby
+-                      : OperatingSystemStateStage::Inactive;
++                      ? OperatingSystemOSStatus::Standby
++                      : OperatingSystemOSStatus::Inactive;
+     }
+     else
+     {
+         osState = getProperty(postCompleteConfig) > 0
+-                      ? OperatingSystemStateStage::Standby
+-                      : OperatingSystemStateStage::Inactive;
++                      ? OperatingSystemOSStatus::Standby
++                      : OperatingSystemOSStatus::Inactive;
+     }
+ 
+     osIface->register_property(
+         "OperatingSystemState",
+-        std::string(getOperatingSystemStateStage(osState)));
++        OperatingSystemStatus::convertOSStatusToString(osState));
+ 
+     osIface->initialize();
+ 
+@@ -3673,21 +3701,50 @@ int main(int argc, char* argv[])
+         hostServer.add_interface("/xyz/openbmc_project/state/host" + node,
+                                  "xyz.openbmc_project.State.Boot.Progress");
+ 
++    if (postCompleteConfig.type == ConfigType::GPIO)
++    {
++        propBootProgress = postCompleteLine.get_value() == postCompleteConfig.polarity
++                      ? BootProgress::convertProgressStagesToString(BootProgressStages::SystemInitComplete)
++                      : BootProgress::convertProgressStagesToString(BootProgressStages::Unspecified);
++    }
++    else
++    {
++        propBootProgress = getProperty(postCompleteConfig) > 0
++                      ? BootProgress::convertProgressStagesToString(BootProgressStages::SystemInitComplete)
++                      : BootProgress::convertProgressStagesToString(BootProgressStages::Unspecified);
++    }
++    lg2::info("propBootProgress: {PROGRESS}", "PROGRESS", propBootProgress);
++
+     bootProgressIface->register_property(
+         "BootProgress",
+-        std::string(
+-            "xyz.openbmc_project.State.Boot.Progress.ProgressStages.Unspecified"),
+-        [](const std::string& requested, std::string& resp) {
+-            if (validBootProgressStages.find(requested) ==
+-                validBootProgressStages.end())
++        propBootProgress,
++        [&](const std::string& requested, std::string& resp) {
++            std::optional<BootProgressStages> progressStage = BootProgress::convertStringToProgressStages(requested);
++            if (progressStage.has_value())
+             {
+-                lg2::error("Unrecognized Boot Progress");
+-                throw std::invalid_argument("Unrecognized Boot Progress");
++                handleBootProgressStageChange(progressStage.value());
++                resp = requested;
++                return 1;
++            }
++            else
++            {
++                lg2::warning("Received invalid stage: {PROGRESS} in request.", "PROGRESS", requested);
+                 return 0;
+             }
+-            resp = requested;
++        }
++    );
++
++    std::uint64_t bootProgressLastUpdate = std::chrono::duration_cast<std::chrono::microseconds>(
++                         std::chrono::system_clock::now().time_since_epoch())
++                         .count();
++    bootProgressIface->register_property(
++        "BootProgressLastUpdate", bootProgressLastUpdate,
++        [&](auto& newValue, std::uint64_t oldValue) {
++            bootProgressLastUpdate = newValue;
++            oldValue = newValue;
+             return 1;
+-        });
++        }
++    );
+ 
+     bootProgressIface->initialize();
+ 
+diff --git a/src/power_control.hpp b/src/power_control.hpp
+index 9f0653c..eeac512 100644
+--- a/src/power_control.hpp
++++ b/src/power_control.hpp
+@@ -10,6 +10,8 @@
+ #include <boost/container/flat_map.hpp>
+ #include <nlohmann/json.hpp>
+ #include <sdbusplus/asio/object_server.hpp>
++#include <xyz/openbmc_project/State/Boot/Progress/client.hpp>
++#include <xyz/openbmc_project/State/OperatingSystem/Status/client.hpp>
+ 
+ #include <filesystem>
+ #include <list>
+@@ -17,6 +19,10 @@
+ 
+ namespace power_control
+ {
++using BootProgress = sdbusplus::client::xyz::openbmc_project::state::boot::Progress<>;
++using BootProgressStages = BootProgress::ProgressStages;
++using OperatingSystemStatus = sdbusplus::client::xyz::openbmc_project::state::operating_system::Status<>;
++using OperatingSystemOSStatus = OperatingSystemStatus::OSStatus;
+ 
+ /**
+  * @brief Persistent State Manager
+@@ -99,6 +105,8 @@ class PersistentState
+     enum class Params
+     {
+         PowerState,
++        BootProgressStages,
++        OperatingSystemOSStatus,
+     };
+ 
+     /**
+-- 
+2.45.2
+

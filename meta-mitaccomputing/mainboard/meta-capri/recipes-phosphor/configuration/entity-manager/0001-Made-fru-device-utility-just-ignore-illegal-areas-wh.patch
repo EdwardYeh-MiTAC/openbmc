@@ -1,0 +1,43 @@
+From 92cb4a08c4c09596906df2d421b751684e3e878b Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Fri, 18 Jul 2025 03:27:58 +0000
+Subject: [PATCH 1/1] Made fru-device utility just ignore illegal areas while
+ parsing FRU.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/fru_device/fru_device.cpp | 2 +-
+ src/fru_device/fru_utils.cpp  | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/fru_device/fru_device.cpp b/src/fru_device/fru_device.cpp
+index 46c5d5d..2bbd7be 100644
+--- a/src/fru_device/fru_device.cpp
++++ b/src/fru_device/fru_device.cpp
+@@ -866,7 +866,7 @@ void addFruObjectToDbus(
+     if (!optionalProductName)
+     {
+         std::cerr << "getProductName failed. product name is empty.\n";
+-        return;
++        optionalProductName = "invalid_fru_at_" + std::to_string(bus) + "_" + std::to_string(address);
+     }
+ 
+     std::string productName =
+diff --git a/src/fru_device/fru_utils.cpp b/src/fru_device/fru_utils.cpp
+index 0a1f583..bc2995c 100644
+--- a/src/fru_device/fru_utils.cpp
++++ b/src/fru_device/fru_utils.cpp
+@@ -478,8 +478,8 @@ resCodes formatIPMIFRU(
+         // check for format version 1
+         if (*fruBytesIter != 0x01)
+         {
+-            std::cerr << "Unexpected version " << *fruBytesIter << "\n";
+-            return resCodes::resErr;
++            std::cerr << "Unexpected version, drop this area " << *fruBytesIter << "\n";
++            continue;
+         }
+         ++fruBytesIter;
+ 
+-- 
+2.45.2
+

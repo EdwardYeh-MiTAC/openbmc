@@ -1,0 +1,45 @@
+From 7c6cac2473796e33f784de193a719e47f5aa1e4a Mon Sep 17 00:00:00 2001
+From: Allen Kang <allen.kang@mitaccomputing.com>
+Date: Wed, 1 Oct 2025 23:24:22 -0400
+Subject: [PATCH] Added dcmi related commands to allowlist.
+
+Tested:
+ipmitool dcmi power get_limit
+ipmitool dcmi power set_limit limit 200
+ipmitool dcmi power activate
+ipmitool dcmi power deactivate
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ ipmi-allowlist.conf | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/ipmi-allowlist.conf b/ipmi-allowlist.conf
+index ce0b27e..6075d86 100644
+--- a/ipmi-allowlist.conf
++++ b/ipmi-allowlist.conf
+@@ -148,6 +148,21 @@
+ 0x0c:0x20:0x7f7f   //<Transport>:<SOL Activating>
+ 0x0c:0x21:0x7f7f   //<Transport>:<Set SOL Configuration Parameters>
+ 0x0c:0x22:0xffff   //<Transport>:<Get SOL Configuration Parameters>
++0x2c:0x01:0xffff   //<Group Extension>:<DCMI Get DCMI Capabilities Info>
++0x2c:0x02:0xffff   //<Group Extension>:<DCMI Get Power Reading>
++0x2c:0x03:0xffff   //<Group Extension>:<DCMI Get Power Limit>
++0x2c:0x04:0xffff   //<Group Extension>:<DCMI Set Power Limit>
++0x2c:0x05:0xffff   //<Group Extension>:<DCMI Activate/Deactivate Power Limit>
++0x2c:0x06:0xffff   //<Group Extension>:<DCMI Get Asset Tag>
++0x2c:0x07:0xffff   //<Group Extension>:<DCMI Get DCMI Sensor Info>
++0x2c:0x08:0xffff   //<Group Extension>:<DCMI Set Asset Tag>
++0x2c:0x09:0xffff   //<Group Extension>:<DCMI Get Management Controller Identifier String>
++0x2c:0x0A:0xffff   //<Group Extension>:<DCMI Set Management Controller Identifier String>
++0x2c:0x0B:0xffff   //<Group Extension>:<DCMI Set Thermal Limit>
++0x2c:0x0C:0xffff   //<Group Extension>:<DCMI Get Thermal Limit>
++0x2c:0x10:0xffff   //<Group Extension>:<DCMI Get Temperature Readings>
++0x2c:0x12:0xffff   //<Group Extension>:<DCMI Get DCMI Capabilities Info>
++0x2c:0x13:0xffff   //<Group Extension>:<DCMI Get DCMI Configuration Parameters>
+ 0x2c:0x1f:0xff7f   //<Group Extension>:<Get CPU PECI Package Config Data>
+ 0x2c:0x20:0xff7f   //<Group Extension>:<Get MDR Data Region Status>
+ 0x2c:0x21:0x7f7f   //<Group Extension>:<Get MDR Region Update Complete>
+-- 
+2.34.1
+

@@ -1,0 +1,57 @@
+From 19f18b3e74ea8fb496509652726e140ffb4afa78 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 20 Jan 2026 04:12:26 +0000
+Subject: [PATCH 1/1] Updated PSUSensorMain to support sensors and the naming
+ convention used by MiOBMC.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/psu/PSUSensorMain.cpp | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/src/psu/PSUSensorMain.cpp b/src/psu/PSUSensorMain.cpp
+index 51d9d78..fba6d41 100644
+--- a/src/psu/PSUSensorMain.cpp
++++ b/src/psu/PSUSensorMain.cpp
+@@ -70,6 +70,7 @@ static const I2CDeviceTypeMap sensorTypes{
+     {"ADM1272", I2CDeviceType{"adm1272", true}},
+     {"ADM1275", I2CDeviceType{"adm1275", true}},
+     {"ADM1278", I2CDeviceType{"adm1278", true}},
++    {"ADM1281", I2CDeviceType{"adm1281", true}},
+     {"ADM1293", I2CDeviceType{"adm1293", true}},
+     {"ADS1015", I2CDeviceType{"ads1015", true}},
+     {"ADS7830", I2CDeviceType{"ads7830", true}},
+@@ -113,6 +114,8 @@ static const I2CDeviceTypeMap sensorTypes{
+     {"MAX34451", I2CDeviceType{"max34451", true}},
+     {"MP2856", I2CDeviceType{"mp2856", true}},
+     {"MP2857", I2CDeviceType{"mp2857", true}},
++    {"MP2869", I2CDeviceType{"mp2869", true}},
++    {"MP29612", I2CDeviceType{"mp29612", true}},
+     {"MP2971", I2CDeviceType{"mp2971", true}},
+     {"MP2973", I2CDeviceType{"mp2973", true}},
+     {"MP2975", I2CDeviceType{"mp2975", true}},
+@@ -286,10 +289,10 @@ static void checkPWMSensor(
+         return;
+     }
+ 
+-    std::string name = "Pwm_";
+-    name += psuName;
+-    name += "_Fan_";
++    std::string name = psuName;
++    name += " Pwm_";
+     name += labelHeadIndex;
++    name += " PWM_PCT";
+ 
+     std::string objPath = interfacePath;
+     objPath += "_Fan_";
+@@ -969,6 +972,7 @@ static void createSensorsCallback(
+                 if (labelHead == "fan" + nameIndexStr)
+                 {
+                     sensorName += nameIndexStr;
++                    sensorName += " SPEED_RPM";
+                 }
+             }
+ 
+-- 
+2.45.2
+

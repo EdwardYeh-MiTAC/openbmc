@@ -1,0 +1,87 @@
+From ea1a147910b21051e3908858c1b32d72e3d041fe Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Thu, 23 Jan 2025 01:36:42 +0000
+Subject: [PATCH 1/1] Fixed incorrect power status issue for AC power cycle and
+ OS Graceful shutdown scenario.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/power_control.cpp | 39 ++++++++++++++++++++++++++-------------
+ 1 file changed, 26 insertions(+), 13 deletions(-)
+
+diff --git a/src/power_control.cpp b/src/power_control.cpp
+index 51164af..ab8b704 100644
+--- a/src/power_control.cpp
++++ b/src/power_control.cpp
+@@ -1895,6 +1895,17 @@ static void powerStateGracefulTransitionToOff(const Event event)
+             gracefulPowerOffTimer.cancel();
+             setPowerState(PowerState::off);
+             break;
++        case Event::sioS5Assert:
++        {
++            if (FcbStbyEnabled == true)
++            {
++                lg2::info("Use sioS5Assert to replace psPowerOKDeAssert when FcbStbyEnabled is activated.");
++                gracefulPowerOffTimer.cancel();
++                setPowerState(PowerState::off);
++                break;
++            }
++            break;
++        }
+         case Event::gracefulPowerOffTimerExpired:
+             setPowerState(PowerState::on);
+             break;
+@@ -2984,17 +2995,30 @@ int main(int argc, char* argv[])
+     operatingSystemState = OperatingSystemStateStage::Inactive;
+     // Check power good
+ 
++    if (!fcbStbyEnConfig.lineName.empty())
++    {
++        FcbStbyEnabled = true;
++        lg2::info("Activate Fan Control during S5 Power State. PSU might report power  good.");
++        if (!setGPIOOutput(fcbStbyEnConfig.lineName, fcbStbyEnConfig.polarity,
++                           fcbStbyEnLine))
++        {
++            return -1;
++        }
++    }
++
+     if (powerOkConfig.type == ConfigType::GPIO)
+     {
+-        if (psPowerOKLine.get_value() > 0 ||
++        lg2::info("powerOkConfig.type gpio.");
++        if ((FcbStbyEnabled == false && psPowerOKLine.get_value() > 0) ||
+             (sioEnabled &&
+-             (sioPowerGoodLine.get_value() == sioPwrGoodConfig.polarity)))
++            (sioPowerGoodLine.get_value() == sioPwrGoodConfig.polarity)))
+         {
+             powerState = PowerState::on;
+         }
+     }
+     else
+     {
++        lg2::info("powerOkConfig.type not gpio.");
+         if (getProperty(powerOkConfig))
+         {
+             powerState = PowerState::on;
+@@ -3555,17 +3579,6 @@ int main(int argc, char* argv[])
+         }
+     }
+ 
+-    if (!fcbStbyEnConfig.lineName.empty())
+-    {
+-        FcbStbyEnabled = true;
+-        lg2::info("Activate Fan Control during S5 Power State.");
+-        if (!setGPIOOutput(fcbStbyEnConfig.lineName, fcbStbyEnConfig.polarity,
+-                           fcbStbyEnLine))
+-        {
+-            return -1;
+-        }
+-    }
+-
+     io.run();
+ 
+     return 0;
+-- 
+2.34.1
+

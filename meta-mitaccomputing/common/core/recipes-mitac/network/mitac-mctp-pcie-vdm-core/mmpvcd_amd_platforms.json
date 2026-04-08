@@ -1,0 +1,22 @@
+{
+  "Drivers": [
+    "/usr/lib/libbrcm-vdm-storelib7-driver.so"
+  ],
+  "BusBridges": [
+    {
+      "Module": "MCTPBusBridgeAtRootComplex",
+      "MCTPPhyTransBindId": 2,
+      "IntfName": "mctppci0",
+      "EId": 48,
+      "PciVDMAddr": {
+        "Bus": 0,
+        "Dev": 0,
+        "Func": 0
+      },
+      "RoutingTableConfig": {
+        "StartEId": 49,
+        "EIdCount": 31
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "Drivers": [
+    "/usr/lib/libbrcm-vdm-storelib7-driver.so"
+  ],
+  "BusOwners": [
+    {
+      "MCTPPhyTransBindId": 2,
+      "IntfName": "mctppci0",
+      "EId": 29,
+      "PciVDMAddr": {
+        "Bus": 0,
+        "Dev": 3,
+        "Func": 0
+      }
+    }
+  ]
+}

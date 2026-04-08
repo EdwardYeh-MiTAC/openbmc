@@ -1,0 +1,588 @@
+{
+  "Exposes": [
+    {
+      "Address": "$ADDRESS",
+      "Bus": "$BUS",
+      "Name": "FCB $BUS $ADDRESS",
+      "Type": "EEPROM_24C256"
+    },
+    {
+      "Address": "0x28",
+      "BindConnector": "GPU Fan connector 1",
+      "Bus": "$bus",
+      "Index": 0,
+      "Name": "INTP Fan 1A SPEED_RPM",
+      "MaxReading": 27000,
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x28",
+      "BindConnector": "GPU Fan connector 1",
+      "Bus": "$bus",
+      "Index": 1,
+      "Name": "INTP Fan 1B SPEED_RPM",
+      "MaxReading": 23000,
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x28",
+      "BindConnector": "GPU Fan connector 2",
+      "Bus": "$bus",
+      "Index": 2,
+      "Name": "INTP Fan 2A SPEED_RPM",
+      "MaxReading": 27000,
+      "Type": "I2CFan"
+    },
+    {
+      "Address": "0x28",
+      "BindConnector": "GPU Fan connector 2",
+      "Bus": "$bus",
+      "Index": 3,
+      "Name": "INTP Fan 2B SPEED_RPM",
+      "MaxReading": 23000,
+      "Type": "I2CFan"
+    },
+    {
+      "Name": "GPU Fan connector 1",
+      "Pwm": 0,
+      "PwmName": "INTP Pwm_1 PWM_PCT",
+      "LED": "fan1_fault",
+      "Tachs": [
+        0,
+        1
+      ],
+      "Type": "IntelFanConnector"
+    },
+    {
+      "Name": "GPU Fan connector 2",
+      "Pwm": 1,
+      "PwmName": "INTP Pwm_2 PWM_PCT",
+      "LED": "fan2_fault",
+      "Tachs": [
+        2,
+        3
+      ],
+      "Type": "IntelFanConnector"
+    },
+    {
+      "Address": "0x13",
+      // Bus number is unportable due to the constraint from hardware design
+      "Bus": 9,
+      "Labels": [
+        "temp1",
+        "vin",
+        "vout1",
+        "pin"
+      ],
+      "Name": "INTP Hotplug_P12V_N1",
+      "Type": "ADM1281",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 85
+        },
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 80.75
+        },
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 76.5
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 14.6
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.8
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 13.2
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 10.8
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 9.6
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 9.2
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vout1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.2
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vout1",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 12.6
+        },
+        {
+          "Direction": "less than",
+          "Label": "vout1",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 11.4
+        },
+        {
+          "Direction": "less than",
+          "Label": "vout1",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 10.8
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 1924
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1824
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1728
+        }
+      ],
+      "temp1_Name": "INTP Hotplug_P12V_N1 TEMP_C",
+      "pin_Name": "INTP Hotplug_P12V_N1_PIN PWR_W",
+      "pin_Scale": 125000,
+      "vin_Name": "INTP Hotplug_P12V_N1_VIN VOLT_V",
+      "vout1_Name": "INTP Hotplug_P12V_N1_VOUT VOLT_V"
+    },
+    {
+      "Address": "0x40",
+      // Bus number is unportable due to the constraint from hardware design
+      "Bus": 9,
+      "Labels": [
+        "temp1",
+        "vin",
+        "vout1",
+        "pin"
+      ],
+      "Name": "INTP Hotplug_P12V_N2",
+      "Type": "ADM1281",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 85
+        },
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 80.75
+        },
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 76.5
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 14.6
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.8
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 13.2
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 10.8
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 9.6
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 9.2
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vout1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.2
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vout1",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 12.6
+        },
+        {
+          "Direction": "less than",
+          "Label": "vout1",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 11.4
+        },
+        {
+          "Direction": "less than",
+          "Label": "vout1",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 10.8
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 1924
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1824
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1728
+        }
+      ],
+      "temp1_Name": "INTP Hotplug_P12V_N2 TEMP_C",
+      "pin_Name": "INTP Hotplug_P12V_N2_PIN PWR_W",
+      "pin_Scale": 125000,
+      "vin_Name": "INTP Hotplug_P12V_N2_VIN VOLT_V",
+      "vout1_Name": "INTP Hotplug_P12V_N2_VOUT VOLT_V"
+    },
+    {
+      "Address": "0x44",
+      // Bus number is unportable due to the constraint from hardware design
+      "Bus": 9,
+      "Labels": [
+        "temp1",
+        "vin",
+        "vout1",
+        "pin"
+      ],
+      "Name": "INTP Hotplug_GPU_N1",
+      "Type": "ADM1281",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 85
+        },
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 80.75
+        },
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 76.5
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 14.6
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.8
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 13.2
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 10.8
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 9.6
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 9.2
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vout1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.2
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vout1",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 12.6
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 1320
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1254
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1188
+        }
+      ],
+      "temp1_Name": "INTP Hotplug_GPU_N1 TEMP_C",
+      "pin_Name": "INTP Hotplug_GPU_N1_PIN PWR_W",
+      "pin_Scale": 125000,
+      "vin_Name": "INTP Hotplug_GPU_N1_VIN VOLT_V",
+      "vout1_Name": "INTP Hotplug_GPU_N1_VOUT VOLT_V"
+    },
+    {
+      "Address": "0x45",
+      // Bus number is unportable due to the constraint from hardware design
+      "Bus": 9,
+      "Labels": [
+        "temp1",
+        "vin",
+        "vout1",
+        "pin"
+      ],
+      "Name": "INTP Hotplug_GPU_N2",
+      "Type": "ADM1281",
+      "Thresholds": [
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 85
+        },
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 80.75
+        },
+        {
+          "Direction": "greater than",
+          "Label": "temp1",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 76.5
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 14.6
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.8
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vin",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 13.2
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower non critical",
+          "Severity": 0,
+          "Value": 10.8
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower critical",
+          "Severity": 1,
+          "Value": 9.6
+        },
+        {
+          "Direction": "less than",
+          "Label": "vin",
+          "Name": "lower non recoverable",
+          "Severity": 4,
+          "Value": 9.2
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vout1",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 13.2
+        },
+        {
+          "Direction": "greater than",
+          "Label": "vout1",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 12.6
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper non recoverable",
+          "Severity": 4,
+          "Value": 1320
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper critical",
+          "Severity": 1,
+          "Value": 1254
+        },
+        {
+          "Direction": "greater than",
+          "Label": "pin",
+          "Name": "upper non critical",
+          "Severity": 0,
+          "Value": 1188
+        }
+      ],
+      "temp1_Name": "INTP Hotplug_GPU_N2 TEMP_C",
+      "pin_Name": "INTP Hotplug_GPU_N2_PIN PWR_W",
+      "pin_Scale": 125000,
+      "vin_Name": "INTP Hotplug_GPU_N2_VIN VOLT_V",
+      "vout1_Name": "INTP Hotplug_GPU_N2_VOUT VOLT_V"
+    }
+  ],
+  "Name": "INTP $BUS $ADDRESS",
+  "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'M1639T76INTP*'})",
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "Model": "$BOARD_PRODUCT_NAME",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "mitac_fcb_dcpfanbp2u"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.I2CDevice": {
+    "Address": "$ADDRESS",
+    "Bus": "$BUS"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Ipmi": {
+    "EntityId": 17,
+    "EntityInstance": "$BUS"
+  }
+}

@@ -1,0 +1,126 @@
+From bd86cc50c7c12d36964f816b641d01ab4c028d3c Mon Sep 17 00:00:00 2001
+From: Allen Kang <allen.kang@mitaccomputing.com>
+Date: Wed, 26 Mar 2025 08:04:01 +0000
+Subject: [PATCH 1/2] Fix the BMC cannot control power when pass through
+
+ function is enabled.
+
+If the pass through is enabled, the BMC cannot send out power control
+signals, so we need to disable pass through function temporarily.
+
+Test done:
+ipmitool and WebGUI trigger power on/off/reset
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/power_control.cpp | 58 +++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 53 insertions(+), 5 deletions(-)
+
+diff --git a/src/power_control.cpp b/src/power_control.cpp
+index a70ed36..19ee16a 100644
+--- a/src/power_control.cpp
++++ b/src/power_control.cpp
+@@ -228,6 +228,33 @@ static void beep(const uint8_t& beepPriority)
+         "xyz.openbmc_project.BeepCode", "Beep", uint8_t(beepPriority));
+ }
+ 
++static std::optional<bool> passThroughCurrentState;
++
++void enablePassThrough(bool enable)
++{
++
++    if (passThroughCurrentState.has_value() && enable == passThroughCurrentState.value())
++    {
++        lg2::info("Pass-through already in desired state: {STATE}", "STATE", enable);
++        return;
++    }
++
++    std::string value = enable ? "0x00001f00" : "0x00001d00";
++    std::string cmd = "devmem 0x1e6e251c 32 " + value;
++    int ret = std::system(cmd.c_str());
++
++    if (ret != 0)
++    {
++        lg2::error("Failed to execute devmem command: {CMD}", "CMD", cmd);
++    }
++    else
++    {
++        lg2::info("Memory write successful: {CMD}", "CMD", cmd);
++        lg2::info("Pass-through enable: {STATE}", "STATE", enable);
++        passThroughCurrentState = enable;
++    }
++}
++
+ enum class OperatingSystemStateStage
+ {
+     Inactive,
+@@ -451,10 +478,21 @@ static void powerStateCheckForWarmReset(const Event event);
+ 
+ static std::function<void(const Event)> getPowerStateHandler(PowerState state)
+ {
++    auto wrapHandler = [](auto handler) {
++        return [handler](const Event event) {
++            if (event != Event::powerButtonPressed &&
++                event != Event::resetButtonPressed)
++            {
++                enablePassThrough(false);
++            }
++            handler(event);
++        };
++    };
++
+     switch (state)
+     {
+         case PowerState::on:
+-            return powerStateOn;
++            return wrapHandler(powerStateOn);
+             break;
+         case PowerState::waitForPSPowerOK:
+             return powerStateWaitForPSPowerOK;
+@@ -463,22 +501,22 @@ static std::function<void(const Event)> getPowerStateHandler(PowerState state)
+             return powerStateWaitForSIOPowerGood;
+             break;
+         case PowerState::off:
+-            return powerStateOff;
++            return wrapHandler(powerStateOff);
+             break;
+         case PowerState::transitionToOff:
+             return powerStateTransitionToOff;
+             break;
+         case PowerState::gracefulTransitionToOff:
+-            return powerStateGracefulTransitionToOff;
++            return wrapHandler(powerStateGracefulTransitionToOff);
+             break;
+         case PowerState::cycleOff:
+-            return powerStateCycleOff;
++            return wrapHandler(powerStateCycleOff);
+             break;
+         case PowerState::transitionToCycleOff:
+             return powerStateTransitionToCycleOff;
+             break;
+         case PowerState::gracefulTransitionToCycleOff:
+-            return powerStateGracefulTransitionToCycleOff;
++            return wrapHandler(powerStateGracefulTransitionToCycleOff);
+             break;
+         case PowerState::checkForWarmReset:
+             return powerStateCheckForWarmReset;
+@@ -2197,6 +2235,16 @@ static void nmiReset(void)
+                            ec.message());
+             }
+         }
++
++        lg2::info("enablePassThrough called in currentHostStateMonitor, current PowerState: {STATE}",
++          "STATE", getPowerStateName(powerState));
++        if (powerState != PowerState::cycleOff &&
++            powerState != PowerState::transitionToCycleOff &&
++            powerState != PowerState::gracefulTransitionToCycleOff)
++        {
++            enablePassThrough(true);
++        }
++
+     });
+     // log to redfish
+     nmiDiagIntLog();
+-- 
+2.45.2
+

@@ -1,0 +1,282 @@
+From 82a95f9236ab50cb91e7dda04275ab72bea98961 Mon Sep 17 00:00:00 2001
+From: OpenEmbedded <oe.patch@oe>
+Date: Fri, 28 Nov 2025 00:43:09 +0000
+Subject: [PATCH 1/1] Implement cache for LTC2497 driver to avoid timeout issue
+ when polling multiple channels parallelly. However, the limitation from
+ LTC2497 is that it take 2.2 second to to cache 16 channels and might have
+ problem when timing is critical.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ drivers/iio/adc/ltc2497-core.c | 135 +++++++++++++++++++++++++++------
+ drivers/iio/adc/ltc2497.c      |   2 +-
+ drivers/iio/adc/ltc2497.h      |  16 +++-
+ 3 files changed, 124 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/iio/adc/ltc2497-core.c b/drivers/iio/adc/ltc2497-core.c
+index 996f6cbbed3c..b7ad85a281d1 100644
+--- a/drivers/iio/adc/ltc2497-core.c
++++ b/drivers/iio/adc/ltc2497-core.c
+@@ -12,10 +12,12 @@
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/kthread.h>
++#include <linux/sched/task.h>
+ 
+ #include "ltc2497.h"
+ 
+-#define LTC2497_SGL			BIT(4)
++#define LTC2497_SGL				BIT(4)
+ #define LTC2497_DIFF			0
+ #define LTC2497_SIGN			BIT(3)
+ 
+@@ -30,7 +32,7 @@ static int ltc2497core_wait_conv(struct ltc2497core_driverdata *ddata)
+ 		 * since last read or write
+ 		 */
+ 		if (msleep_interruptible(
+-		    LTC2497_CONVERSION_TIME_MS - time_elapsed))
++				LTC2497_CONVERSION_TIME_MS - time_elapsed))
+ 			return -ERESTARTSYS;
+ 
+ 		return 0;
+@@ -46,55 +48,136 @@ static int ltc2497core_wait_conv(struct ltc2497core_driverdata *ddata)
+ 	return 1;
+ }
+ 
+-static int ltc2497core_read(struct ltc2497core_driverdata *ddata, u8 address, int *val)
++static int ltc2497core_read(struct iio_dev *indio_dev, struct ltc2497core_driverdata *ddata, u8 address, int *val)
+ {
+-	int ret;
++	int ret = 0;
+ 
+ 	ret = ltc2497core_wait_conv(ddata);
+-	if (ret < 0)
++	if (ret < 0) {
++		dev_err(&indio_dev->dev, "ltc2497core_wait_conv failed: %ld\n", address);
+ 		return ret;
++	}
+ 
+ 	if (ret || ddata->addr_prev != address) {
+-		ret = ddata->result_and_measure(ddata, address, NULL);
+-		if (ret < 0)
+-			return ret;
++		int retry = 5;
++		while (retry > 0) {
++			ret = ddata->result_and_measure(ddata, address, NULL);
++			if (ret >= 0)
++				break;
++			msleep(200);
++			retry --;
++		}
++		if (retry <= 0) {
++			dev_err(&indio_dev->dev, "result_and_measure conversion: %ld timedout\n", address);
++			return -1;
++		}
+ 		ddata->addr_prev = address;
+-
+-		if (msleep_interruptible(LTC2497_CONVERSION_TIME_MS))
+-			return -ERESTARTSYS;
+ 	}
++	msleep(LTC2497_CONVERSION_TIME_MS);
+ 
+ 	ret = ddata->result_and_measure(ddata, address, val);
+-	if (ret < 0)
++	if (ret < 0) {
++		dev_err(&indio_dev->dev, "result_and_measure measure: %ld failed\n", address);
+ 		return ret;
+-
++	}
+ 	ddata->time_prev = ktime_get();
+-
+ 	return ret;
+ }
+ 
++static int ltc2497core_capture_thread(void *data)
++{
++	struct iio_dev *indio_dev = data;
++	struct ltc2497core_driverdata *ddata = iio_priv(indio_dev);
++
++	do {
++		int val = 0;
++		for (long int mux_addr = LTC2497_CACHE_BASE_MUX_ADDRS; mux_addr < LTC2497_MUX_ADDRS; mux_addr ++) {
++			mutex_lock(&ddata->lock);
++			//It only cache data for LTC2497_CHAN listed in ltc2497core_channel. See LTC2497 datasheet Table 3.
++			int ret = ltc2497core_read(indio_dev, ddata, mux_addr, &val);
++			mutex_unlock(&ddata->lock);
++			if (ret < 0) {
++				dev_err(&indio_dev->dev, "ltc2497core_read failed: %ld\n", mux_addr);
++			} else {
++				ddata->cache[mux_addr].reading = val;
++				ddata->cache[mux_addr].cached = true;
++			}
++		}
++	} while (!kthread_should_stop());
++	return 0;
++}
++
++static int ltc2497core_buffer_enable(struct iio_dev *indio_dev)
++{
++	struct ltc2497core_driverdata *ddata = iio_priv(indio_dev);
++	struct task_struct *task;
++
++	task = kthread_run(ltc2497core_capture_thread, (void *)indio_dev,
++				"%s:%d", indio_dev->name,
++				iio_device_id(indio_dev));
++	if (IS_ERR(task))
++		return PTR_ERR(task);
++
++	ddata->task = task;
++
++	return 0;
++}
++
++static int ltc2497core_buffer_disable(struct iio_dev *indio_dev)
++{
++	struct ltc2497core_driverdata *ddata = iio_priv(indio_dev);
++
++	if (ddata->task) {
++		kthread_stop(ddata->task);
++		ddata->task = NULL;
++	}
++	return 0;
++}
++
++
+ static int ltc2497core_read_raw(struct iio_dev *indio_dev,
+-			    struct iio_chan_spec const *chan,
+-			    int *val, int *val2, long mask)
++				struct iio_chan_spec const *chan,
++				int *val, int *val2, long mask)
+ {
+ 	struct ltc2497core_driverdata *ddata = iio_priv(indio_dev);
+ 	int ret;
+ 
+ 	switch (mask) {
+ 	case IIO_CHAN_INFO_RAW:
+-		mutex_lock(&ddata->lock);
+-		ret = ltc2497core_read(ddata, chan->address, val);
+-		mutex_unlock(&ddata->lock);
+-		if (ret < 0)
+-			return ret;
+-
++		if (chan->address >= LTC2497_CACHE_BASE_MUX_ADDRS) {
++			//For LTC2497_CHAN, use cached data to avoid timeout issus from polling.
++			//See LTC2497 datasheet Table 3 for detailed information about mux address.
++			if (ddata->cache[chan->address].cached == true){
++				*val = ddata->cache[chan->address].reading;
++			} else {
++				mutex_lock(&ddata->lock);
++				ret = ltc2497core_read(indio_dev, ddata, chan->address, val);
++				if (ret < 0) {
++					dev_err(&indio_dev->dev, "ltc2497core_read failed from mux address: %ld\n", chan->address);
++					mutex_unlock(&ddata->lock);
++					return ret;
++				}
++				ddata->cache[chan->address].reading = *val;
++				ddata->cache[chan->address].cached = true;
++				mutex_unlock(&ddata->lock);
++			}
++		} else {
++			mutex_lock(&ddata->lock);
++			ret = ltc2497core_read(indio_dev, ddata, chan->address, val);
++			if (ret < 0) {
++				dev_err(&indio_dev->dev, "ltc2497core_read failed from mux address: %ld\n", chan->address);
++				mutex_unlock(&ddata->lock);
++				return ret;
++			}
++			mutex_unlock(&ddata->lock);
++		}
+ 		return IIO_VAL_INT;
+ 
+ 	case IIO_CHAN_INFO_SCALE:
+ 		ret = regulator_get_voltage(ddata->ref);
+-		if (ret < 0)
++		if (ret < 0) {
+ 			return ret;
+-
++		}
+ 		*val = ret / 1000;
+ 		*val2 = ddata->chip_info->resolution + 1;
+ 
+@@ -191,7 +274,7 @@ int ltc2497core_probe(struct device *dev, struct iio_dev *indio_dev)
+ 	ddata->ref = devm_regulator_get(dev, "vref");
+ 	if (IS_ERR(ddata->ref))
+ 		return dev_err_probe(dev, PTR_ERR(ddata->ref),
+-				     "Failed to get vref regulator\n");
++					 "Failed to get vref regulator\n");
+ 
+ 	ret = regulator_enable(ddata->ref);
+ 	if (ret < 0) {
+@@ -221,6 +304,7 @@ int ltc2497core_probe(struct device *dev, struct iio_dev *indio_dev)
+ 	if (ret < 0)
+ 		goto err_array_unregister;
+ 
++	ltc2497core_buffer_enable(indio_dev);
+ 	return 0;
+ 
+ err_array_unregister:
+@@ -242,6 +326,7 @@ void ltc2497core_remove(struct iio_dev *indio_dev)
+ 	iio_map_array_unregister(indio_dev);
+ 
+ 	regulator_disable(ddata->ref);
++	ltc2497core_buffer_disable(indio_dev);
+ }
+ EXPORT_SYMBOL_NS(ltc2497core_remove, LTC2497);
+ 
+diff --git a/drivers/iio/adc/ltc2497.c b/drivers/iio/adc/ltc2497.c
+index 5bdd40729611..08bf14026d89 100644
+--- a/drivers/iio/adc/ltc2497.c
++++ b/drivers/iio/adc/ltc2497.c
+@@ -86,7 +86,7 @@ static int ltc2497_result_and_measure(struct ltc2497core_driverdata *ddata,
+ 	}
+ 
+ 	ret = i2c_smbus_write_byte(st->client,
+-				   LTC2497_ENABLE | address);
++				   0x80 | LTC2497_ENABLE | address);
+ 	if (ret)
+ 		dev_err(&st->client->dev, "i2c transfer failed: %pe\n",
+ 			ERR_PTR(ret));
+diff --git a/drivers/iio/adc/ltc2497.h b/drivers/iio/adc/ltc2497.h
+index 781519b52475..3dcdfefd69af 100644
+--- a/drivers/iio/adc/ltc2497.h
++++ b/drivers/iio/adc/ltc2497.h
+@@ -1,6 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0-only */
+ 
+-#define LTC2497_ENABLE			0xA0
++#define LTC2497_CHANNELS			16
++#define LTC2497_CACHE_BASE_MUX_ADDRS	16
++#define LTC2497_MUX_ADDRS			32
++#define LTC2497_ENABLE				0xA0
+ #define LTC2497_CONFIG_DEFAULT		LTC2497_ENABLE
+ #define LTC2497_CONVERSION_TIME_MS	150ULL
+ 
+@@ -9,15 +12,22 @@ struct ltc2497_chip_info {
+ 	const char *name;
+ };
+ 
++struct reading_cache {
++	bool cached;
++	int reading;
++};
++
+ struct ltc2497core_driverdata {
+ 	struct regulator *ref;
+-	ktime_t	time_prev;
++	struct task_struct *task;
++	struct reading_cache cache[LTC2497_MUX_ADDRS];
++	ktime_t time_prev;
+ 	/* lock to protect against multiple access to the device */
+ 	struct mutex lock;
+ 	const struct ltc2497_chip_info	*chip_info;
+ 	u8 addr_prev;
+ 	int (*result_and_measure)(struct ltc2497core_driverdata *ddata,
+-				  u8 address, int *val);
++								u8 address, int *val);
+ };
+ 
+ int ltc2497core_probe(struct device *dev, struct iio_dev *indio_dev);
+-- 
+2.45.2
+

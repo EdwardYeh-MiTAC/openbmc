@@ -1,0 +1,173 @@
+From 9fb8d34059f0dbdc56561bc2ceaeb068ca14a2cf Mon Sep 17 00:00:00 2001
+From: Allen Kang <allen.kang@mitaccomputing.com>
+Date: Thu, 12 Feb 2026 02:20:22 -0500
+Subject: [PATCH] cpu-info: porting to MiTAC platforms and fix build errors
+
+- Remove AMD Venice platform-specific board_id detection logic.
+- Hardcode CPU socket count to 1 for the current stage (S8261).
+- Fix 32-bit build error by changing %lx to %llx for uint64_t data.
+- Fix array initialization issues by replacing direct assignment with memset.
+- Simplify systemd service file by removing ExecStartPre and redundant Install section.
+
+TODO: Implement a dynamic method to auto-detect CPU population for different board configurations.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ ...mc_project.Inventory.Item.Cpu_info.service | 10 ---
+ src/cpu_info.cpp                              |  8 +--
+ src/main.cpp                                  | 69 +------------------
+ 3 files changed, 6 insertions(+), 81 deletions(-)
+
+diff --git a/service_files/xyz.openbmc_project.Inventory.Item.Cpu_info.service b/service_files/xyz.openbmc_project.Inventory.Item.Cpu_info.service
+index ff7f674..12c46eb 100644
+--- a/service_files/xyz.openbmc_project.Inventory.Item.Cpu_info.service
++++ b/service_files/xyz.openbmc_project.Inventory.Item.Cpu_info.service
+@@ -5,19 +5,9 @@ After=mapper-wait@-xyz-openbmc_project-inventory.service
+ After=amd-host-mgr.service
+
+ [Service]
+-ExecStartPre=/bin/sh -c '\
+-if [ -e /sys/bus/i3c/devices/14c25000.i3c5 ]; then \
+-  while [ ! -f /var/run/apml_comm_active_0 ] && [ ! -f /var/run/apml_comm_active_1 ]; do sleep 1; done; \
+-else \
+-  while [ ! -f /var/run/apml_comm_active_0 ]; do sleep 1; done; \
+-fi'
+-
+ ExecStart=/usr/bin/cpu-info
+ Restart=always
+ RestartSec=10
+ SyslogIdentifier=cpu-info
+ Type=simple
+
+-[Install]
+-WantedBy=multi-user.target
+-
+diff --git a/src/cpu_info.cpp b/src/cpu_info.cpp
+index 9992a11..e6973c3 100644
+--- a/src/cpu_info.cpp
++++ b/src/cpu_info.cpp
+@@ -206,7 +206,7 @@ bool CpuInfo::connect_apml_get_family_model_step(uint8_t soc_num)
+             ext_family = ((eax >> EAX_DATA_LEN_4) & EAX_MASK_MAGIC_2);
+             effectiveFamily(ext_family);
+
+-            cpuid[CMD_BUFF_LEN] = {0};
++            memset(cpuid, 0, CMD_BUFF_LEN);
+             family_id = ((eax >> EAX_DATA_LEN_2) & EAX_MASK_MAGIC_1) +
+                         ext_family;
+             sprintf(cpuid, "%x (%d)", family_id, family_id);
+@@ -216,7 +216,7 @@ bool CpuInfo::connect_apml_get_family_model_step(uint8_t soc_num)
+             ext_model = ((eax >> EAX_DATA_LEN_3) & EAX_MASK_MAGIC_1);
+             effectiveModel(ext_model);
+
+-            cpuid[CMD_BUFF_LEN] = {0};
++            memset(cpuid, 0, CMD_BUFF_LEN);
+             model_id = ext_model * EAX_MASK_MAGIC_3 +
+                        ((eax >> EAX_DATA_LEN_1) & EAX_MASK_MAGIC_1);
+             sprintf(cpuid, "%x (%d)", model_id, model_id);
+@@ -226,7 +226,7 @@ bool CpuInfo::connect_apml_get_family_model_step(uint8_t soc_num)
+             step_id = eax & EAX_MASK_MAGIC_1;
+             step(step_id);
+
+-            cpuid[CMD_BUFF_LEN] = {0};
++            memset(cpuid, 0, CMD_BUFF_LEN);
+             sprintf(cpuid, "%d", soc_num);
+             std::string socket_str(cpuid);
+             socket(socket_str);
+@@ -674,7 +674,7 @@ void CpuInfo::decode_PPIN(uint64_t data)
+     std::string datemonthlotstr;
+     std::string serialnumstr;
+
+-    sprintf(ppinstr, "0%lx", data);
++    sprintf(ppinstr, "0%llx", data);
+     decode_lotstring(ppinstr, markedlotstr);
+     sd_journal_print(LOG_INFO, "Mark Lot string # %s \n", markedlotstr.c_str());
+
+diff --git a/src/main.cpp b/src/main.cpp
+index 4b90de2..a6ad9d7 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -1,79 +1,14 @@
+ #include "cpu_info.hpp"
+
+-/* Venice Platform IDs */
+-
+-constexpr int MARLEY = 121;    // 0x79
+-constexpr int CONGO = 128;     // 0x80
+-constexpr int CONGO_1 = 129;   // 0x81
+-constexpr int CONGO_2 = 134;   // 0x86
+-constexpr int MOROCCO = 130;   // 0x82
+-constexpr int MOROCCO_1 = 131; // 0x83
+-constexpr int MOROCCO_2 = 135; // 0x87
+-constexpr int KENYA = 132;     // 0x84
+-constexpr int NIGERIA = 133;   // 0x85
+-constexpr int GHANA = 142;     // 0x8E
+-constexpr int SAHARA = 137;    // 0x89
+-constexpr int MALAWI = 138;    // 0x8A
+-constexpr int ZAIRE = 158;     // 0x9E
+-constexpr int MARRAKESH = 176; // 0xB0
+-
+-/*Venice SLT boards*/
+-constexpr int SENEGAL_SLT = 136; // 0x88
+-constexpr int ZAMBIA = 139;      // 0x8B
+-constexpr int ZIMBABWE = 140;    // 0x8C
+-constexpr int ZANZIBAR = 141;    // 0x8D
+-
+ constexpr uint8_t SOCKET_1 = 1;
+ constexpr uint8_t SOCKET_2 = 2;
+ constexpr uint8_t INDEX_3 = 3;
+
+ uint8_t getSocketInfo()
+ {
+-    char data[INDEX_3];
+-    std::stringstream ss;
+-    uint8_t cpuCount = 0;
+-    uint32_t boardId;
+-
+-    std::unique_ptr<FILE, void (*)(FILE*)> pipe(
+-        popen("/sbin/fw_printenv -n board_id", "r"), [](FILE* f) {
+-            if (f)
+-                pclose(f); // Custom deleter to call pclose
+-        });
+-
+-    if (!pipe)
+-    {
+-        throw std::runtime_error("Failed to read the boardID");
+-    }
+-
+-    if (fgets(data, sizeof(data), pipe.get()) != nullptr)
+-    {
+-        {
+-            ss << std::hex << (std::string)data;
+-            ss >> boardId;
++    // TODO: Develop a method to auto-detect CPU population for different board configurations like S8261.
+
+-            if ((boardId == MOROCCO) || (boardId == MOROCCO_1) ||
+-                (boardId == MOROCCO_2) || (boardId == NIGERIA) ||
+-                (boardId == GHANA) || (boardId == MARLEY) ||
+-                (boardId == MALAWI))
+-            {
+-                cpuCount = SOCKET_2;
+-            }
+-            else if ((boardId == CONGO) || (boardId == CONGO_1) ||
+-                     (boardId == CONGO_2) || (boardId == KENYA) ||
+-                     (boardId == SENEGAL_SLT) || (boardId == ZAMBIA) ||
+-                     (boardId == ZIMBABWE) || (boardId == ZANZIBAR) ||
+-                     (boardId == SAHARA) || (boardId == ZAIRE) ||
+-                     (boardId == MARRAKESH))
+-            {
+-                cpuCount = SOCKET_1;
+-            }
+-            else
+-            {
+-                throw std::runtime_error("Failed to find the correct board ID");
+-            }
+-        }
+-    }
+-    return cpuCount;
++    return SOCKET_1;
+ }
+
+ int main()
+--
+2.34.1
+

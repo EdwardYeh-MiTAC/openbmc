@@ -1,0 +1,168 @@
+From e14cada8326a53fe10e3e64697d896658e586775 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 29 Jul 2025 08:37:32 +0000
+Subject: [PATCH 1/1] Fixed the build issue after upgraded to C++23 and Boost
+ ver 1.86.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ CMakeLists.txt                    | 11 ++++++-----
+ include/hw/aspeed/PCIeMonitor.hpp |  2 +-
+ src/PCIeBinding.cpp               |  6 ++++--
+ src/SMBusBinding.cpp              |  9 ++++++---
+ src/utils/transmission_queue.cpp  |  8 ++++----
+ 5 files changed, 21 insertions(+), 15 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index cccba4b..e606712 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -6,7 +6,7 @@ project(mctpd CXX)
+ option(BUILD_STANDALONE "Use outside of YOCTO depedencies system" OFF)
+ 
+ set(BUILD_SHARED_LIBRARIES OFF)
+-set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_CXX_STANDARD 23)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ 
+ add_definitions(-DMCTP_ASTPCIE_RESPONSE_WA)
+@@ -20,13 +20,13 @@ set(CMAKE_CXX_FLAGS
+     -Wnon-virtual-dtor \
+     -Wold-style-cast \
+     -Wcast-align \
+-    -Wunused \
+     -Woverloaded-virtual \
+     -Wpedantic \
+     -Wconversion \
+-    -Wnull-dereference \
+     -Wdouble-promotion \
+     -Wformat=2 \
++    -Wno-psabi \
++    -Werror=unused-result \
+ ")
+ 
+ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+@@ -105,7 +105,7 @@ if(BUILD_STANDALONE)
+   include_directories(SYSTEM ${CMAKE_BINARY_DIR}/libs/nlohmann-json/include)
+ endif()
+ 
+-find_package(Boost 1.71 REQUIRED)
++find_package(Boost 1.87 REQUIRED)
+ include_directories(SYSTEM ${BOOST_SRC_DIR})
+ 
+ add_executable(${PROJECT_NAME} ${SRC_FILES} ${HEADER_FILES})
+@@ -118,7 +118,8 @@ target_link_libraries(
+   mctp_intel
+   udev
+   i2c
+-  boost_coroutine)
++  boost_coroutine
++  boost_context)
+ 
+ install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+ install(FILES ${SERVICE_FILES} DESTINATION /lib/systemd/system/)
+diff --git a/include/hw/aspeed/PCIeMonitor.hpp b/include/hw/aspeed/PCIeMonitor.hpp
+index 4603698..be4cf9a 100644
+--- a/include/hw/aspeed/PCIeMonitor.hpp
++++ b/include/hw/aspeed/PCIeMonitor.hpp
+@@ -15,7 +15,7 @@ namespace aspeed
+ class PCIeMonitor : public hw::DeviceMonitor
+ {
+     static constexpr const char* astUdevPath =
+-        "/sys/devices/platform/ahb/ahb:apb/1e6e8000.mctp/misc/aspeed-mctp";
++        "/sys/devices/platform/ahb/1e6e0000.apb/1e6e8000.mctp/misc/aspeed-mctp0";
+ 
+   public:
+     PCIeMonitor(boost::asio::io_context& ioc);
+diff --git a/src/PCIeBinding.cpp b/src/PCIeBinding.cpp
+index cc96540..3388f84 100644
+--- a/src/PCIeBinding.cpp
++++ b/src/PCIeBinding.cpp
+@@ -73,7 +73,8 @@ void PCIeBinding::endpointDiscoveryFlow()
+             phosphor::logging::log<phosphor::logging::level::ERR>(
+                 "Discovery Notify failed");
+         }
+-    });
++    },
++    boost::asio::detached);
+ }
+ 
+ mctp_server::BindingModeTypes
+@@ -360,7 +361,8 @@ void PCIeBinding::updateRoutingTable()
+             processRoutingTableChanges(routingTableTmp, yield, prvData);
+             routingTable = routingTableTmp;
+         }
+-    });
++    },
++    boost::asio::detached);
+ }
+ 
+ void PCIeBinding::populateDeviceProperties(
+diff --git a/src/SMBusBinding.cpp b/src/SMBusBinding.cpp
+index 808ae2a..fe32767 100644
+--- a/src/SMBusBinding.cpp
++++ b/src/SMBusBinding.cpp
+@@ -464,7 +464,8 @@ void SMBusBinding::scanDevices()
+             }
+             scanDevices();
+         });
+-    });
++    },
++    boost::asio::detached);
+ }
+ 
+ void SMBusBinding::restoreMuxIdleMode()
+@@ -781,8 +782,9 @@ std::string SMBusBinding::SMBusInit()
+ 
+ void SMBusBinding::readResponse()
+ {
++    // boost::asio::posix::stream_descriptor::wait_read
+     smbusReceiverFd.async_wait(
+-        boost::asio::posix::descriptor_base::wait_error, [this](auto& ec) {
++        boost::asio::posix::descriptor_base::wait_error, [this](const boost::system::error_code& ec) {
+             if (ec)
+             {
+                 phosphor::logging::log<phosphor::logging::level::ERR>(
+@@ -1340,7 +1342,8 @@ void SMBusBinding::updateRoutingTable()
+             smbusDeviceTable = smbusDeviceTableTmp;
+         }
+         entryHdlCounter++;
+-    });
++    },
++    boost::asio::detached);
+ 
+     smbusRoutingTableTimer->expires_after(
+         std::chrono::seconds(smbusRoutingInterval));
+diff --git a/src/utils/transmission_queue.cpp b/src/utils/transmission_queue.cpp
+index 859cbc8..a13f3d2 100644
+--- a/src/utils/transmission_queue.cpp
++++ b/src/utils/transmission_queue.cpp
+@@ -1,5 +1,5 @@
+ #include "utils/transmission_queue.hpp"
+-
++#include <boost/asio/post.hpp>
+ #include <phosphor-logging/log.hpp>
+ 
+ using mctpd::MctpTransmissionQueue;
+@@ -103,9 +103,9 @@ bool MctpTransmissionQueue::receive(struct mctp* mctp, mctp_eid_t srcEid,
+ 
+     // Now that another tag is available, try to transmit any queued messages
+     message->timer.cancel();
+-    ioc.post([this, mctp, srcEid] {
++    boost::asio::post(ioc, [this, mctp, srcEid] {
+         endpoints[srcEid].transmitQueuedMessages(mctp, srcEid);
+-    });
++    }); 
+     return true;
+ }
+ 
+@@ -129,4 +129,4 @@ void MctpTransmissionQueue::dispose(mctp_eid_t destEid,
+             endpoint.transmittedMessages.erase(transmittedMessageIter);
+         }
+     }
+-}
+\ No newline at end of file
++}
+-- 
+2.45.2
+

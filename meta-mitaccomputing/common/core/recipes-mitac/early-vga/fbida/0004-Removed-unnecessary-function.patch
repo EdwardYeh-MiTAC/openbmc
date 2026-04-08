@@ -1,0 +1,235 @@
+From 33bc7797f4478251e67b3905c6ae9906bba374cc Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 13 May 2025 04:10:06 +0000
+Subject: [PATCH 2/5] Removed unnecessary function.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ early_vga.c | 204 ----------------------------------------------------
+ 1 file changed, 204 deletions(-)
+
+diff --git a/early_vga.c b/early_vga.c
+index c3bbfa7..8fd030b 100644
+--- a/early_vga.c
++++ b/early_vga.c
+@@ -423,90 +423,6 @@ static void status_error(unsigned char *msg)
+     sleep(2);
+ }
+ 
+-static void show_exif(struct flist *f)
+-{
+-    static unsigned int tags[] = {
+-	0x010f, // Manufacturer
+-	0x0110, // Model
+-
+-	0x0112, // Orientation
+-	0x0132, // Date and Time
+-
+-	0x01e3, // White Point
+-	0x829a, // Exposure Time
+-	0x829d, // FNumber
+-	0x9206, // Subject Distance
+-	0xa40c, // Subject Distance Range
+-	0xa405, // Focal Length In 35mm Film
+-	0x9209, // Flash
+-
+-	0xa002, // Pixel X Dimension
+-	0xa003, // Pixel Y Dimension
+-    };
+-    ExifData   *ed;
+-    ExifEntry  *ee;
+-    unsigned int tag,l1,l2,len,count,i;
+-    const char *title[ARRAY_SIZE(tags)];
+-    char *value[ARRAY_SIZE(tags)];
+-    char *linebuffer[ARRAY_SIZE(tags)];
+-
+-    if (!console_visible)
+-	return;
+-
+-    ed = exif_data_new_from_file(f->name);
+-    if (NULL == ed) {
+-	status_error("image has no EXIF data");
+-	return;
+-    }
+-
+-    /* pass one -- get data + calc size */
+-    l1 = 0;
+-    l2 = 0;
+-    for (tag = 0; tag < ARRAY_SIZE(tags); tag++) {
+-	ee = exif_content_get_entry (ed->ifd[EXIF_IFD_0], tags[tag]);
+-	if (NULL == ee)
+-	    ee = exif_content_get_entry (ed->ifd[EXIF_IFD_EXIF], tags[tag]);
+-	if (NULL == ee) {
+-	    title[tag] = NULL;
+-	    value[tag] = NULL;
+-	    continue;
+-	}
+-	title[tag] = exif_tag_get_title(tags[tag]);
+-	value[tag] = malloc(128);
+-	exif_entry_get_value(ee, value[tag], 128);
+-	len = strlen(title[tag]);
+-	if (l1 < len)
+-	    l1 = len;
+-	len = strlen(value[tag]);
+-	if (l2 < len)
+-	    l2 = len;
+-    }
+-
+-    /* pass two -- print stuff */
+-    count = 0;
+-    for (tag = 0; tag < ARRAY_SIZE(tags); tag++) {
+-	if (NULL == title[tag])
+-	    continue;
+-	linebuffer[count] = malloc(sizeof(wchar_t)*(l1+l2+8));
+-	snprintf(linebuffer[count], l1+l2+8,
+-		 "%-*.*s : %-*.*s",
+-		 l1, l1, title[tag],
+-		 l2, l2, value[tag]);
+-	count++;
+-    }
+-    shadow_draw_text_box(24, 16, transparency,
+-			 linebuffer, count);
+-    shadow_render(gfx);
+-
+-    /* pass three -- free data */
+-    for (tag = 0; tag < ARRAY_SIZE(tags); tag++)
+-	if (NULL != value[tag])
+-	    free(value[tag]);
+-    exif_data_unref (ed);
+-    for (i = 0; i < count; i++)
+-	free(linebuffer[i]);
+-}
+-
+ static void show_help(void)
+ {
+     static char *help[] = {
+@@ -797,126 +713,6 @@ svga_show(struct flist *f, struct flist *prev,
+ 	}
+ 	if (rc < 1)
+ 	    return -1; /* timeout */
+-
+-        rc = kbd_read(key, sizeof(key), &keycode, &keymod);
+-        if (rc < 0)
+-            return KEY_ESC; /* EOF */
+-
+-        switch (keycode) {
+-        case KEY_SPACE:
+-	    if (textreading && f->top < (int)(img->i.height - gfx->vdisplay)) {
+-		redraw = 1;
+-		f->top += f->text_steps;
+-	    } else {
+-		skip = KEY_SPACE;
+-		return KEY_SPACE;
+-	    }
+-            break;
+-
+-        case KEY_UP:
+-	    redraw = 1;
+-	    f->top -= v_steps;
+-            break;
+-        case KEY_DOWN:
+-	    redraw = 1;
+-	    f->top += v_steps;
+-            break;
+-        case KEY_HOME:
+-	    redraw = 1;
+-	    f->top = 0;
+-            break;
+-        case KEY_END:
+-	    redraw = 1;
+-	    f->top = img->i.height - gfx->vdisplay;
+-            break;
+-        case KEY_LEFT:
+-	    redraw = 1;
+-	    f->left -= h_steps;
+-            break;
+-        case KEY_RIGHT:
+-	    redraw = 1;
+-	    f->left += h_steps;
+-            break;
+-
+-        case KEY_PAGEUP:
+-        case KEY_K:
+-	    if (textreading && f->top > 0) {
+-		redraw = 1;
+-		f->top -= f->text_steps;
+-	    } else {
+-		skip = KEY_PAGEUP;
+-		return KEY_PAGEUP;
+-	    }
+-            break;
+-        case KEY_PAGEDOWN:
+-        case KEY_J:
+-        case KEY_N:
+-	    if (textreading && f->top < (int)(img->i.height - gfx->vdisplay)) {
+-		redraw = 1;
+-		f->top += f->text_steps;
+-	    } else {
+-		skip = KEY_PAGEDOWN;
+-		return KEY_PAGEDOWN;
+-	    }
+-            break;
+-
+-        case KEY_P:
+-	    if (0 != timeout) {
+-		paused = !paused;
+-		status_update(paused ? "pause on " : "pause off", NULL);
+-	    }
+-            break;
+-
+-        case KEY_H:
+-	    if (!help) {
+-		show_help();
+-		help = 1;
+-	    } else {
+-		redraw = 1;
+-		help = 0;
+-	    }
+-	    exif = 0;
+-            break;
+-
+-        case KEY_I:
+-	    if (!exif) {
+-		show_exif(fcurrent);
+-		exif = 1;
+-	    } else {
+-		redraw = 1;
+-		exif = 0;
+-	    }
+-	    help = 0;
+-            break;
+-
+-        case KEY_0:
+-        case KEY_1:
+-        case KEY_2:
+-        case KEY_3:
+-        case KEY_4:
+-        case KEY_5:
+-        case KEY_6:
+-        case KEY_7:
+-        case KEY_8:
+-        case KEY_9:
+-	    *nr = *nr * 10;
+-            if (keycode != KEY_0)
+-                *nr += keycode - KEY_1 + 1;
+-	    snprintf(linebuffer, sizeof(linebuffer), "> %d",*nr);
+-	    status_update(linebuffer, NULL);
+-            break;
+-
+-        case KEY_D:
+-            /* need shift state for this one */
+-            return KEY_D | (keymod << 16);
+-
+-        case KEY_RESERVED:
+-            /* ignored event */
+-            break;
+-
+-        default:
+-            return keycode;
+-        }
+     }
+ }
+ 
+-- 
+2.25.1
+

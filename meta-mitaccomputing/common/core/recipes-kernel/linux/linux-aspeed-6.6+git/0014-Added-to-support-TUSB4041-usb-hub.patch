@@ -1,0 +1,37 @@
+From d2edea1488e888d9c296795ffad35297842d0e47 Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 2 Dec 2025 06:39:48 +0000
+Subject: [PATCH 1/1] Added to support TUSB4041 usb hub.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ drivers/usb/core/hub.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index bebc41308ca9..45c96b930f20 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -45,6 +45,7 @@
+ #define USB_VENDOR_CYPRESS			0x04b4
+ #define USB_PRODUCT_CY7C65632			0x6570
+ #define USB_VENDOR_TEXAS_INSTRUMENTS		0x0451
++#define USB_PRODUCT_TUSB4041_USB2		0x80ff
+ #define USB_PRODUCT_TUSB8041_USB3		0x8140
+ #define USB_PRODUCT_TUSB8041_USB2		0x8142
+ #define USB_VENDOR_MICROCHIP			0x0424
+@@ -5983,6 +5984,11 @@ static const struct usb_device_id hub_id_table[] = {
+       .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
+       .idProduct = USB_PRODUCT_TUSB8041_USB2,
+       .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++			| USB_DEVICE_ID_MATCH_PRODUCT,
++      .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
++      .idProduct = USB_PRODUCT_TUSB4041_USB2,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
+ 			| USB_DEVICE_ID_MATCH_PRODUCT,
+       .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
+-- 
+2.45.2
+

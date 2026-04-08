@@ -1,0 +1,86 @@
+&sgpiom0 {
+        status = "okay";
+        ngpios = <128>;
+
+        gpio-line-names =
+// 0
+		"CPU1_PRESENCE", "LED_POSTCODE_0", "CPU1_THERMTRIP", "LED_POSTCODE_1", 
+		"CPU1_VRHOT", "LED_POSTCODE_2", "CPU1_MON_FAIL", "LED_POSTCODE_3",
+		"CPU1_MEM_VRHOT", "LED_POSTCODE_4", "CPU1_MEM_THERM_EVENT", "LED_POSTCODE_5", 
+		"FM_CPU0_PROC_ID0", "LED_POSTCODE_6", "FM_CPU0_PROC_ID1", "LED_POSTCODE_7",
+// 16
+                "CPU1_MISMATCH", "LED_CPU1_CH1_DIMM1_FAULT", "CPU1_PROCHOT", "LED_CPU1_CH1_DIMM2_FAULT", 
+		"CPU2_PRESENCE", "LED_CPU1_CH2_DIMM1_FAULT", "CPU2_THERMTRIP", "LED_CPU1_CH2_DIMM2_FAULT",
+                "CPU2_VRHOT", "LED_CPU1_CH3_DIMM1_FAULT", "CPU2_MON_FAIL", "LED_CPU1_CH3_DIMM2_FAULT", 
+		"CPU2_MEM_VRHOT", "LED_CPU1_CH4_DIMM1_FAULT", "CPU2_MEM_THERM_EVENT", "LED_CPU1_CH4_DIMM2_FAULT",
+// 32
+                "FM_CPU1_PROC_ID0", "LED_CPU1_CH5_DIMM1_FAULT", "FM_CPU1_PROC_ID1", "LED_CPU1_CH5_DIMM2_FAULT", 
+		"CPU2_MISMATCH", "LED_CPU1_CH6_DIMM1_FAULT", "CPU2_PROCHOT", "LED_CPU1_CH6_DIMM2_FAULT",
+                "", "", "", "", 
+		"", "", "", "",
+// 48
+                "", "", "", "", 
+		"", "", "", "",
+                "", "LED_CPU2_CH1_DIMM1_FAULT", "", "LED_CPU2_CH1_DIMM2_FAULT", 
+		"", "LED_CPU1_CH6_DIMM2_FAULT", "", "LED_CPU1_CH6_DIMM2_FAULT",
+// 64
+                "H_CPU_ERROR_FPGA_LVC1_R_N0", "LED_CPU2_CH3_DIMM1_FAULT", "H_CPU_ERROR_FPGA_LVC1_R_N1", "LED_CPU2_CH3_DIMM2_FAULT", 
+		"H_CPU_ERROR_FPGA_LVC1_R_N2", "LED_CPU2_CH4_DIMM1_FAULT", "", "LED_CPU2_CH4_DIMM2_FAULT",
+                "", "LED_CPU2_CH5_DIMM1_FAULT", "", "LED_CPU2_CH5_DIMM2_FAULT", 
+		"", "LED_CPU2_CH6_DIMM1_FAULT", "CPU1_CPLD_CRC_ERROR", "LED_CPU2_CH6_DIMM2_FAULT",
+// 80
+		"CPU2_CPLD_CRC_ERROR", "", "CPU1_CATERR_IERR", "", 
+		"CPU1_CATERR_MCERR", "", "CPU2_CATERR_IERR", "CPU2_CATERR_MCERR",
+		"", "", "", "", 
+		"", "", "", "",
+// 96
+                "", "", "", "", 
+		"", "", "", "",
+                "", "", "", "", 
+		"", "", "", "",
+// 112
+                "", "", "", "", 
+		"", "", "", "",
+                "", "", "", "", 
+		"", "", "", "",
+// 128
+                "", "", "", "", 
+		"", "", "", "",
+                "", "", "", "", 
+		"", "", "", "",
+// 144
+                "", "", "", "", 
+		"", "", "", "",
+                "", "", "", "", 
+		"", "", "", "",
+// 160
+		"", "", "", "", 
+		"", "", "", "",
+		"", "", "", "", 
+		"", "", "", "",
+// 176
+                "", "", "", "", 
+		"", "", "", "",
+                "", "", "", "", 
+		"", "", "", "",
+// 192
+                "", "", "", "", 
+		"", "", "", "",
+                "", "", "", "", 
+		"", "", "", "",
+// 208
+                "", "", "", "", 
+		"", "", "", "",
+                "", "", "", "", 
+		"", "", "", "",
+// 224
+                "", "", "", "", 
+		"", "", "", "",
+                "", "", "", "", 
+		"", "", "", "",
+// 240
+		"", "", "", "", 
+		"", "", "", "",
+                "", "", "", "", 
+		"", "", "", "";
+};

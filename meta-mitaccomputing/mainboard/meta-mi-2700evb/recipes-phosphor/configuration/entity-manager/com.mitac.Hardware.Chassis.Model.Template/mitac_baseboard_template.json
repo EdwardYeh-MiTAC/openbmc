@@ -1,0 +1,69 @@
+{
+  "Exposes": [
+    {
+      "Address": "0x50",
+      "Bus": 1,
+      "Name": "Baseboard FRU",
+      "Type": "EEPROM_24C256"
+    },
+    {
+      "FirmwareInfo": {
+        "CompatibleHardware": "com.mitac.Hardware.Template.SPI.Host",
+        "VendorIANA": 11183
+      },
+      "MuxOutputs": [
+        {
+          "Name": "spi-mux-bios",
+          "Polarity": "High"
+        }
+      ],
+      "Name": "BIOS",
+      "SPIControllerIndex": 1,
+      "SPIDeviceIndex": 0,
+      "Type": "SPIFlash"
+    },
+    {
+      "BDF": 0,
+      "DefaultEID": 0,
+      "GetRoutingInterval": 5,
+      "Index": 1,
+      "Name": "MCTP PCIe",
+      "PhysicalMediumID": "Pcie2",
+      "ReqRetryCount": 2,
+      "ReqToRespTimeMs": 120,
+      "Role": "Endpoint",
+      "TransportBindingType": "MctpPCIe",
+      "Type": "MctpConfiguration"
+    }
+  ],
+  "xyz.openbmc_project.Inventory.Decorator.Ipmi": {
+    "EntityId": 7,
+    "EntityInstance": 0
+  },
+  "Name": "Baseboard Template",
+  "Probe": "xyz.openbmc_project.FruDevice({'BOARD_PRODUCT_NAME': 'Template'})",
+  "Type": "Board",
+  "xyz.openbmc_project.Inventory.Decorator.Asset": {
+    "Manufacturer": "$BOARD_MANUFACTURER",
+    "Model": "$BOARD_PRODUCT_NAME",
+    "PartNumber": "$BOARD_PART_NUMBER",
+    "SerialNumber": "$BOARD_SERIAL_NUMBER"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.AssetTag": {
+    "AssetTag": "$PRODUCT_ASSET_TAG"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Compatible": {
+    "Names": [
+      "com.mitac.Hardware.Chassis.Model.Template"
+    ]
+  },
+  "xyz.openbmc_project.Inventory.Decorator.Revision": {
+    "Version": "$PRODUCT_VERSION"
+  },
+  "xyz.openbmc_project.Inventory.Decorator.I2CDevice": {
+    "Address": "$ADDRESS",
+    "Bus": "$BUS"
+  },
+  "xyz.openbmc_project.Inventory.Item.Chassis": {},
+  "xyz.openbmc_project.Inventory.Item.System": {}
+}

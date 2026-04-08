@@ -1,0 +1,49 @@
+#!/bin/bash -e
+LIBPATH=/usr/libexec
+source $LIBPATH/mitac-common-functions
+
+PLATFORM_COMPACT_NAME="com.mitac.Hardware.Chassis.Model.Template"
+MB_LIB_PATH="$LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME"
+KERNEL_DTS_FN=aspeed-bmc-mitac-base-ast2700
+FDFFILE="conf-$KERNEL_DTS_FN.dtb"
+
+DO_REBOOT=0
+
+refresh-uboot-arg () {
+	set +e
+	#$1: ARG NAME
+	#$2: Expectation
+        current=`fw_printenv $1 -n`
+        if [ "$current" != "$2" ]; then
+                echo "Updating $1"
+                fw_setenv $1 $2
+                echo "Current $1: <$current>"
+                echo "New $1: <$2>"
+		DO_REBOOT=1
+        else
+                echo "No need to update $1."
+        fi
+	set -e
+}
+
+init-uboot() {
+        echo "mainboard-init-functions: init-uboot ($VER)"
+}
+
+init-kernel() {
+	echo "mainboard-init-functions: init-kernel ($VER)"
+}
+
+init-peripheral() {
+	echo "mainboard-init-functions: init-peripheral ($VER)"
+}
+
+init-service() {
+	echo "mainboard-init-functions: init-service ($VER)"
+	get_platform_id PLATFORM_ID
+	PLATFORM_SHORT_ID=${PLATFORM_ID::6}
+	PLATFORM_COMPACT_NAME="com.mitac.Hardware.Chassis.Model.$PLATFORM_SHORT_ID"
+	ln -s $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/mainboard_env.sh /tmp/mainboard_env.sh
+
+	source $LIBPATH/plat-svc/$PLATFORM_COMPACT_NAME/spd_link.sh
+}

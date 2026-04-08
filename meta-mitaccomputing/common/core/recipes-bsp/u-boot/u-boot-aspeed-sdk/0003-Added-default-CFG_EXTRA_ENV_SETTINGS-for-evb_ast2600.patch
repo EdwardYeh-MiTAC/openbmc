@@ -1,0 +1,46 @@
+From 54eef5274b3babe1a7cd8c159e2a32ee1ad0465b Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 21 Apr 2025 09:47:37 +0000
+Subject: [PATCH 3/9] Added default CFG_EXTRA_ENV_SETTINGS for
+ evb_ast2600a1_spl.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ include/configs/evb_ast2600a1_spl.h | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+ create mode 100644 include/configs/evb_ast2600a1_spl.h
+
+diff --git a/include/configs/evb_ast2600a1_spl.h b/include/configs/evb_ast2600a1_spl.h
+new file mode 100644
+index 0000000000..b7e13743ca
+--- /dev/null
++++ b/include/configs/evb_ast2600a1_spl.h
+@@ -0,0 +1,25 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright (c) Aspeed Technology Inc.
++ */
++
++#ifndef __CONFIG_H
++#define __CONFIG_H
++
++#include <configs/aspeed-common.h>
++
++#define CFG_SYS_UBOOT_BASE		CONFIG_TEXT_BASE
++
++/* Misc */
++#define STR_HELPER(s)	#s
++#define STR(s)		STR_HELPER(s)
++
++#define CFG_EXTRA_ENV_SETTINGS \
++	"loadaddr=" STR(CONFIG_SYS_LOAD_ADDR) "\0" \
++	"bootspi=fdt addr 20100000 && fdt header get fitsize totalsize && " \
++	"cp.b 20100000 ${loadaddr} ${fitsize} && bootm ${loadaddr}; " \
++	"echo Error loading kernel FIT image\0" \
++	"loadaddr=" STR(CONFIG_SYS_LOAD_ADDR) "\0"	\
++	"verify=yes\0"	\
++	""
++#endif	/* __CONFIG_H */
+-- 
+2.45.2
+

@@ -1,0 +1,41 @@
+From 5977c79863253eb05bcdc92c8605af92c870cc70 Mon Sep 17 00:00:00 2001
+From: Allen Kang <allen.kang@mitaccomputing>
+Date: Mon, 4 Aug 2025 13:05:16 +0000
+Subject: [PATCH] Fix build error
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+
+---
+ src/main.cpp       | 2 +-
+ src/utils/cper.cpp | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/main.cpp b/src/main.cpp
+index f8b2370..cb43455 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -11,7 +11,7 @@
+ int main()
+ {
+     // Setup connection to D-Bus
+-    boost::asio::io_service io;
++    boost::asio::io_context io;
+
+     // Create a shared connection to the system bus
+     auto systemBus = std::make_shared<sdbusplus::asio::connection>(io);
+diff --git a/src/utils/cper.cpp b/src/utils/cper.cpp
+index f6a4af0..0546485 100644
+--- a/src/utils/cper.cpp
++++ b/src/utils/cper.cpp
+@@ -742,7 +742,7 @@ void createFile(const std::shared_ptr<PtrType>& data,
+     file = fopen(INDEX_FILE, "w");
+     if (file != nullptr)
+     {
+-        fprintf(file, "%lu", errCount);
++        fprintf(file, "%lu", (unsigned long) errCount);
+         fclose(file);
+     }
+
+--
+2.34.1
+

@@ -1,0 +1,12 @@
+[Unit]
+Description=Mitac Early VGA Service
+After=xyz.openbmc_project.State.Boot.PostCode.service xyz.openbmc_project.Network.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/early_vga -d /dev/fb0 -a /usr/Logo/MiTAC_Computing_800X600_Black.jpg
+SyslogIdentifier=MitacEarlyVGA
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=Mitac MCTP Engine for Intel Platform
+After=mctpd.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/mctp-ep-mgr -c /usr/lib/mitac-mctp-pcie-vdm-core/mmpvcd_intel_platforms.json
+SyslogIdentifier=MitacMCTPEngineIntel
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,26 @@
+From 32d6154c4c3f4928ec67c89591fc974376bc5b6f Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Mon, 23 Dec 2024 05:41:23 +0000
+Subject: [PATCH 1/1] Using shell script to launch snoopd for flexibility.
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ lpcsnoop.service.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lpcsnoop.service.in b/lpcsnoop.service.in
+index 6ace17e..e40ced3 100644
+--- a/lpcsnoop.service.in
++++ b/lpcsnoop.service.in
+@@ -4,7 +4,7 @@ After=systemd-modules-load.service
+ 
+ [Service]
+ Restart=always
+-ExecStart=@bindir@/snoopd @SNOOPD_ARGS@
++ExecStart=@bindir@/sh -C /usr/libexec/launchMitacPostCodeService.sh
+ 
+ [Install]
+ WantedBy=@SYSTEMD_TARGET@
+-- 
+2.34.1
+

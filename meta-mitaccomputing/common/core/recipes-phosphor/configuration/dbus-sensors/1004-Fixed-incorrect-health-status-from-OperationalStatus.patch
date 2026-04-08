@@ -1,0 +1,244 @@
+From 762bd7386e2f4847c83559363378b06df37b100e Mon Sep 17 00:00:00 2001
+From: Jian-Ming Wang <jian.ming.wang@mitaccomputing.com>
+Date: Tue, 17 Mar 2026 07:48:24 +0000
+Subject: [PATCH 1/1] Fixed incorrect health status from OperationalStatus.
+ Added to support rated power input and output reading.
+
+Example for EM configuration:
+
+      "Labels": [
+        "temp1",
+        "pin",
+        "pout1",
+        "vin",
+        "vout1",
+        "iin",
+        "iout1",
+        "rated_maxpout1"
+      ]
+        ...
+      "rated_maxpin_Name": "PSU $ADDRESS % 80 PIN CAP PWR_W",
+      "rated_maxpout1_Name": "PSU $ADDRESS % 80 POUT1 CAP PWR_W",
+        ...
+      "Type": "pmbus"
+
+
+Upstream-Status: Inappropriate [No upstream maintenance]
+---
+ src/psu/PSUEvent.cpp      |  7 ++++---
+ src/psu/PSUSensor.cpp     | 19 ++++++++++++++++++-
+ src/psu/PSUSensor.hpp     | 11 +++++++++++
+ src/psu/PSUSensorMain.cpp | 28 ++++++++++++++++++++++++++--
+ 4 files changed, 59 insertions(+), 6 deletions(-)
+
+diff --git a/src/psu/PSUEvent.cpp b/src/psu/PSUEvent.cpp
+index bc04523..3761625 100644
+--- a/src/psu/PSUEvent.cpp
++++ b/src/psu/PSUEvent.cpp
+@@ -37,6 +37,7 @@
+ #include <string>
+ #include <utility>
+ #include <vector>
++const std::string functionalAttr = "Functional";
+ 
+ PSUCombineEvent::PSUCombineEvent(
+     sdbusplus::asio::object_server& objectServer,
+@@ -51,7 +52,7 @@ PSUCombineEvent::PSUCombineEvent(
+         "/xyz/openbmc_project/State/Decorator/" + psuNameEscaped + "_" +
+             combineEventName,
+         "xyz.openbmc_project.State.Decorator.OperationalStatus");
+-    eventInterface->register_property("functional", true);
++    eventInterface->register_property(functionalAttr, true);
+ 
+     if (!eventInterface->initialize())
+     {
+@@ -338,7 +339,7 @@ void PSUSubEvent::updateValue(const int& newValue)
+ 
+             if ((*combineEvent).empty())
+             {
+-                eventInterface->set_property("functional", true);
++                eventInterface->set_property(functionalAttr, true);
+             }
+         }
+     }
+@@ -368,7 +369,7 @@ void PSUSubEvent::updateValue(const int& newValue)
+             }
+             if ((*combineEvent).empty())
+             {
+-                eventInterface->set_property("functional", false);
++                eventInterface->set_property(functionalAttr, false);
+             }
+             (*combineEvent).emplace(groupEventName);
+         }
+diff --git a/src/psu/PSUSensor.cpp b/src/psu/PSUSensor.cpp
+index 2ba212e..f547c80 100644
+--- a/src/psu/PSUSensor.cpp
++++ b/src/psu/PSUSensor.cpp
+@@ -29,6 +29,7 @@
+ #include <phosphor-logging/lg2.hpp>
+ #include <sdbusplus/asio/connection.hpp>
+ #include <sdbusplus/asio/object_server.hpp>
++#include <sdbusplus/asio/property.hpp>
+ 
+ #include <array>
+ #include <chrono>
+@@ -59,7 +60,7 @@ PSUSensor::PSUSensor(
+     i2cDevice(i2cDevice), objServer(objectServer),
+     inputDev(io, path, boost::asio::random_access_file::read_only),
+     waitTimer(io), path(path), sensorFactor(factor), sensorOffset(offset),
+-    thresholdTimer(io)
++    thresholdTimer(io), psuOPEvent(nullptr)
+ {
+     buffer = std::make_shared<std::array<char, 128>>();
+     std::string unitPath = sensor_paths::getPathForUnits(sensorUnits);
+@@ -151,6 +152,22 @@ void PSUSensor::deactivate()
+ 
+ void PSUSensor::setupRead()
+ {
++    if (psuOPEvent)
++    {
++        for (auto& [psuName, subEvents] : psuOPEvent->events)
++        {
++            for (auto& subEventPtr : subEvents)
++            {
++                if (*subEventPtr->assertState)
++                {
++                    updateValue(std::numeric_limits<double>::quiet_NaN());
++                    restartRead();
++                    return;
++                }
++            }
++        }
++    }
++
+     if (!readingStateGood())
+     {
+         markAvailable(false);
+diff --git a/src/psu/PSUSensor.hpp b/src/psu/PSUSensor.hpp
+index 0aa2c9e..acd9fb4 100644
+--- a/src/psu/PSUSensor.hpp
++++ b/src/psu/PSUSensor.hpp
+@@ -4,6 +4,7 @@
+ #include "Thresholds.hpp"
+ #include "Utils.hpp"
+ #include "sensor.hpp"
++#include "PSUEvent.hpp"
+ 
+ #include <boost/asio/io_context.hpp>
+ #include <boost/asio/random_access_file.hpp>
+@@ -43,6 +44,15 @@ class PSUSensor : public Sensor, public std::enable_shared_from_this<PSUSensor>
+         return i2cDevice;
+     }
+ 
++    PSUCombineEvent* getPSUOPEvent() const
++    {
++        return psuOPEvent;
++    }
++    void setPSUOPEvent(std::unique_ptr<PSUCombineEvent>& psuCombineEvent)
++    {
++        psuOPEvent = psuCombineEvent.get();
++    }
++
+   private:
+     // Note, this buffer is a shared_ptr because during a read, its lifetime
+     // might have to outlive the PSUSensor class if the object gets destroyed
+@@ -60,6 +70,7 @@ class PSUSensor : public Sensor, public std::enable_shared_from_this<PSUSensor>
+     void handleResponse(const boost::system::error_code& err, size_t bytesRead);
+     void checkThresholds() override;
+     unsigned int sensorPollMs = defaultSensorPollMs;
++    PSUCombineEvent* psuOPEvent;
+ 
+     static constexpr size_t warnAfterErrorCount = 10;
+ 
+diff --git a/src/psu/PSUSensorMain.cpp b/src/psu/PSUSensorMain.cpp
+index fba6d41..05b8b43 100644
+--- a/src/psu/PSUSensorMain.cpp
++++ b/src/psu/PSUSensorMain.cpp
+@@ -556,6 +556,15 @@ static void createSensorsCallback(
+             }
+         }
+ 
++        /* read max value in sysfs for in, curr, power, temp, ... */
++        if (!findFiles(directory, R"(\w\d+_rated_max$)", sensorPaths, 0))
++        {
++            if constexpr (debug)
++            {
++                lg2::error("No max_rated name in PSU");
++            }
++        }
++
+         float pollRate = getPollRate(*baseConfig, PSUSensor::defaultSensorPoll);
+ 
+         /* Find array of labels to be exposed if it is defined in config */
+@@ -569,10 +578,11 @@ static void createSensorsCallback(
+ 
+         std::regex sensorNameRegEx(devParamMap[devType].nameRegEx);
+         std::smatch matches;
+-
++        std::string sensorName;
+         for (const auto& sensorPath : sensorPaths)
+         {
+             bool maxLabel = false;
++            bool ratedMaxLabel = false;
+             std::string labelHead;
+             std::string sensorPathStr = sensorPath.string();
+             std::string sensorNameStr = sensorPath.filename();
+@@ -607,11 +617,18 @@ static void createSensorsCallback(
+                                                             "max", "label");
+                         maxLabel = true;
+                     }
++                    else if (sensorPathStrMax == "_rated_max")
++                    {
++                        labelPath = boost::replace_all_copy(sensorPathStr,
++                                                            "rated_max", "label");
++                        ratedMaxLabel = true;
++                    }
+                     else
+                     {
+                         labelPath = boost::replace_all_copy(sensorPathStr,
+                                                             "input", "label");
+                         maxLabel = false;
++                        ratedMaxLabel = false;
+                     }
+                 }
+                 else
+@@ -654,6 +671,10 @@ static void createSensorsCallback(
+                 {
+                     labelHead.insert(0, "max");
+                 }
++                if (ratedMaxLabel)
++                {
++                    labelHead.insert(0, "rated_max");
++                }
+ 
+                 // Don't add PWM sensors if it's not in label list
+                 if (!findLabels.empty())
+@@ -950,7 +971,7 @@ static void createSensorsCallback(
+                            psuProperty.sensorOffset);
+             }
+ 
+-            std::string sensorName = psuProperty.labelTypeName;
++            sensorName = psuProperty.labelTypeName;
+             if (customizedName)
+             {
+                 if (sensorName.empty())
+@@ -1022,6 +1043,7 @@ static void createSensorsCallback(
+                     objectServer, dbusConnection, io, *psuName, readState,
+                     eventPathList, groupEventPathList, "OperationalStatus",
+                     pollRate);
++            sensors[sensorName]->setPSUOPEvent(combineEvents[*psuName + "OperationalStatus"]);
+         }
+     }
+ 
+@@ -1134,6 +1156,8 @@ void propertyInitialize()
+         {"pout", PSUProperty("Output Power", 3000, 0, 6, 0)},
+         {"power", PSUProperty("Output Power", 3000, 0, 6, 0)},
+         {"maxpin", PSUProperty("Max Input Power", 3000, 0, 6, 0)},
++        {"rated_maxpin", PSUProperty("Mfg Max Input Power", 3000, 0, 6, 0)},
++        {"rated_maxpout", PSUProperty("Mfg Max Output Power", 3000, 0, 6, 0)},
+         {"vin", PSUProperty("Input Voltage", 300, 0, 3, 0)},
+         {"maxvin", PSUProperty("Max Input Voltage", 300, 0, 3, 0)},
+         {"in_voltage", PSUProperty("Output Voltage", 255, 0, 3, 0)},
+-- 
+2.45.2
+
