@@ -90,10 +90,9 @@ Once you know the target (e.g. romulus), source the `setup` script as follows:
 bitbake obmc-phosphor-image
 ```
 
-### 5) Additional details can be found in the [docs](https://github.com/openbmc/docs)
-repository.
+### 5) Additional details can be found in the [docs](https://github.com/openbmc/docs) repository.
 
-### 6) OpenBMC Development
+### 6) OpenBMC Development (Source: OpenBMC Community)
 
 The OpenBMC community maintains a set of tutorials new users can go through to
 get up to speed on OpenBMC development out
@@ -219,11 +218,11 @@ The Technical Steering Committee (TSC) guides the project. Members are:
 - Terry Duncan, Intel
 
 ## Contact
-
+  
+MiTAC Computing Technology Corp.
+- Mail: hancock.chang@mitaccomputing.com
+  
 openBMC Community
 - Mail: openbmc@lists.ozlabs.org
   [https://lists.ozlabs.org/listinfo/openbmc](https://lists.ozlabs.org/listinfo/openbmc)
 - Discord: [https://discord.gg/69Km47zH98](https://discord.gg/69Km47zH98)
-  
-MiTAC Computing Technology Corp.
-- Mail: hancock.chang@mitaccomputing.com
