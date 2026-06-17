@@ -90,7 +90,9 @@ Once you know the target (e.g. romulus), source the `setup` script as follows:
 bitbake obmc-phosphor-image
 ```
 
-### 5) Additional details can be found in the [docs](https://github.com/openbmc/docs) repository.
+
+### 5) Additional details can be found in the [docs](https://github.com/openbmc/docs) repository (from OpenBMC Community).
+
 
 ### 6) OpenBMC Development (Source: OpenBMC Community)
 
