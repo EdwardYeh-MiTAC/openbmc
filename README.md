@@ -75,9 +75,6 @@ Target machine must be specified. Use one of:
 beoc                    mi-dcscm
 ```
 
-A more complete list of supported machines can be found under
-[meta-phosphor/docs](https://github.com/openbmc/openbmc/blob/master/meta-phosphor/docs/supported-machines.md).
-
 Once you know the target (e.g. romulus), source the `setup` script as follows:
 
 ```sh
