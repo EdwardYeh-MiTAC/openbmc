@@ -54,7 +54,7 @@ sudo dnf install git python3 gcc g++ gawk which bzip2 chrpath cpio \
 ### 2) Download the source
 
 ```sh
-git clone https://github.com/openbmc/openbmc
+git clone -b 2.18.0-MiOBMC https://github.com/MiTAC-Computing-Technology/openbmc.git
 cd openbmc
 ```
 
@@ -72,7 +72,7 @@ supported hardware targets, see the following example:
 ```text
 $ . setup <machine> [build_dir]
 Target machine must be specified. Use one of:
-beoc                    capri                   mi-dcscm
+beoc                    mi-dcscm
 ```
 
 A more complete list of supported machines can be found under
@@ -90,10 +90,10 @@ Once you know the target (e.g. romulus), source the `setup` script as follows:
 bitbake obmc-phosphor-image
 ```
 
-Additional details can be found in the [docs](https://github.com/openbmc/docs)
+### 5) Additional details can be found in the [docs](https://github.com/openbmc/docs)
 repository.
 
-## OpenBMC Development
+### 6) OpenBMC Development
 
 The OpenBMC community maintains a set of tutorials new users can go through to
 get up to speed on OpenBMC development out
